@@ -1,0 +1,46 @@
+#### DOCUMENTATION ####
+
+# TODO
+- Infrarood band apart opslaan
+- Rood band apart opslaan
+
+# Install libraries
+https://stackoverflow.com/questions/54734667/error-installing-geopandas-a-gdal-api-version-must-be-specified-in-anaconda
+
+#Link over wegschrijven in Python:
+https://geopandas.readthedocs.io/en/v0.5.0/io.html
+
+# NDVI information 
+https://www.earthdatascience.org/courses/use-data-open-source-python/multispectral-remote-sensing/vegetation-indices-in-python/calculate-NDVI-python/
+https://developers.planet.com/planetschool/calculate-an-ndvi-in-python/
+https://automating-gis-processes.github.io/CSC18/lessons/L6/raster-calculations.html
+
+
+### CASUS ###
+# Overtoomse Veld Noord - BU03638600
+# Overtoomse Veld Zuid - BU03638601
+
+
+
+### SCRIPT ###
+- start.py
+Om variabelen op te geven
+
+- buurt_selection.py:
+Uitleg: Selectie van buurt obv van buurtcode;
+Bron: WFS
+Output: [buurtcode].gpkg, layername: buurt
+
+- pand_selection.py:
+Uitleg: Selectie van buurt obv van buurtcode;
+Bron: WFS
+Output: [buurtcode].gpkg, layername: panden
+
+
+- perceel_selection:
+Uitleg: Selectie van buurt obv van buurtcode;
+Bron: WFS
+Output: [buurtcode].gpkg, layername: percelen
+
+- clip_lufo_met_buurt.py
+Een clip van de luchtfoto met de aangegeven buurt
