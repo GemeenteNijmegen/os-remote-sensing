@@ -4,88 +4,73 @@
 # note: dit script is een bewerking van een script geschreven door Esmee 
 # Kramer & Rik Scharn van de omgevingsdienst midden-en-west Brabant. 
 
-# load spatial packages
-library(raster) # handige tools voor raster data
-library(sf)     # simple features
-library(curl)   # eenvoudige data transfer
+#-----------------------------------------------------------------------------------------------
+
+# Setup environment
+
+#-----------------------------------------------------------------------------------------------
+
+#Run in project environment (to avoid package conflicts)
+#FALSE : use current version of packages (recommended)
+#TRUE : fresh install of packages in isolated environment
+
+proj_env <- FALSE #default (F)
+
+#requirements: Rtools, PROJ
+
+#setup and packages
+source('SRC/setup packages.R')
+
+#setup and packages
+source(here('SRC/globals.R'))
 
 
-# reguliere packages voor geo - Mark Gremmen
-# sf: simple features (die gebruik ik voor het inlezen van shp-files en ontrkken van layers) 
-# rgdal: Bindings for the 'Geospatial' Data Abstraction Library (die gebruik ik voor projectie transformatie)
-# rgeos: rgeos implements functionality for the manipulation and querying of spatial geometries using the Geometry Engine — Open Source (GEOS)C library.
-# raster: Mask values in a Raster object (die gebruik ik om raster data in te lezen en te filteren obv polygon: mask)
-# gstat: Spatial and Spatio-Temporal Geostatistical Modelling, Prediction and Simulation (die gebruik ik voor interpolatie)
+#-----------------------------------------------------------------------------------------------
+# Aerial image
 
-
-# infrarood kaart ophalen, er is ook een rgb kaart beschikbaar
+#aerial infrared from PDOK
 site <- "https://geodata.nationaalgeoregister.nl/luchtfoto/infrarood/wmts/Actueel_ortho25IR/EPSG:3857"
+#aerial rgb from PDOK
 #site <- "https://geodata.nationaalgeoregister.nl/luchtfoto/rgb/wmts/Actueel_ortho25/EPSG:3857"
 
-## tile coordinates of lat/lon points on various zoom level maps 
-## number of tiles: 2^n (n = zoom)
-## bron: https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#lon.2Flat_to_tile_numbers
-xtile_col <- function(data, zoom) {
-  (as.numeric(data) + 180.0) / 360.0 * 2.0 ^ zoom
-}
+#-----------------------------------------------------------------------------------------------
 
-ytile_col <- function(data, zoom) {
-  lat_rad <- as.numeric(data) * pi /180
-  (1.0 - log(tan(lat_rad) + (1 / cos(lat_rad))) / pi) / 2.0 * 2.0 ^ zoom
-}
+# Functions
 
+#-----------------------------------------------------------------------------------------------
 
-# functie voor het ophalen van luchtfoto op basis van een X/Y coord.
-Foto_ophalen <- function(x, y, zoom = zoom, site = site) {
-  zoom <- zoom
-  x <- floor(x)
-  y <- floor(y)
-  site <- site
-  foto_link <- paste0(paste(site, zoom, x, y, sep="/"),".jpeg")
-  
-  tmp   <- tempfile()
-  image <- curl_download(foto_link, destfile = tmp)
-  map   <- stack(image)
-  map_brick <- brick(map)
-  
-  map_brick
-}  
+source(here('SRC/functions.R'))
 
+#-----------------------------------------------------------------------------------------------
 
-# ophalen polygoon data NL - dit is enkel voor test doeleinden. 
-request <- "https://geodata.nationaalgeoregister.nl/wijkenbuurten2020/wfs?request=GetCapabilities"
-# beschikbare layers
-st_layers(request)
-# haal polygoon data binnen
-bu.sf <- st_read(request, layer = "wijkenbuurten2020:cbs_buurten_2020")
-# # transform from Multisurface to Polygon
-sf <- st_cast(bu.sf, "GEOMETRYCOLLECTION") %>% st_collection_extract("POLYGON")
-# subset data
-sf <- subset(sf, gemeentenaam == "Eindhoven" & wijknaam == "Oud-Tongelre")# & buurtnaam == "'t Hofke")
-# behoud enkel de geom
-sf <- st_geometry(sf)
-# transform crs van Amersfoort naar WGS84
-sf <- sf::st_transform(sf, 4326)
+# Polygons
 
-# bepaal middelpunt 
-centroid <- sf::st_centroid(sf)
+#-----------------------------------------------------------------------------------------------
+
+gemeente<- "Eindhoven"
+wijk<-"Oud-Tongelre"
+#
+buurt<-#'t Hofke"
+
+source(here('SRC/polygon.R'))
+
+#-----------------------------------------------------------------------------------------------
 
 # zoom-niveau luchtfoto - zoom-niveau 19 is de max.
-zoom <- 16
+zoom <- 18
 
 # tile coordinates of lat/lon points on various zoom level maps 
 tile_x <- xtile_col(centroid[[1]][1], zoom = zoom)
 tile_y <- ytile_col(centroid[[1]][2], zoom = zoom)
 
+#testing purposes (overruling polygon)
+#lon <- 5.520218
+#lat <- 51.44441
+#locs <- deg2num(lon,lat, zoom)
+#f1 <- aerial_photo(locs[[1]],locs[[2]], zoom, site)
+
 # haal foto op
-f1 <- Foto_ophalen(tile_x, tile_y, zoom, site)
-
-plot(f1)
-
-# View raster structure
-nlayers(f1)
-names(f1)
-
+f1 <- aerial_photo(tile_x,tile_y, zoom, site)
 
 ## CIR: green - red - nir
 ## R = XS3 (NIR band)
@@ -93,23 +78,82 @@ names(f1)
 ## B = XS1 (green band)
 ## (NIR - Red) / (NIR + Red)
 
-# calculate NDVI en rvi using the red band and nir band
+#set layer names
+names(f1) <- c("NIR Band","Red Band","Green Band")
+
+#number of layers
+nlayers(f1)
+
+#layer names
+names(f1)
+
+#plot layers
+plot(f1)
+
+#overprocessing reds to locate green (mag eigenlijk niet met RGB)
+par(col.axis = "white", col.lab = "white", tck = 0)
+plotRGB(f1,
+        r = 1, g = 2, b = 3,
+        stretch = "lin",
+        axes = TRUE,
+        main = "composite image stack")
+box(col = "white")
+
+
+
+#-----------------------------------------------------------------------------------------------
+
+# Vegetation index
+
+#-----------------------------------------------------------------------------------------------
+
+# calculate NDVI en RVI using the red band and nir band
 red <- f1[[2]]
 nir <- f1[[1]]
 
+#Normalized difference vegetation index (NDVI)
 ndvi <- (nir - red)/(nir + red)
-
+#Ratio vegetation index (RVI)
 rvi  <- nir / red
 
-# plot the data
+# plot NDVI
 plot(ndvi,
      axes = FALSE, box = FALSE)
 
+# plot RVI
 plot(rvi,
      axes = FALSE, box = FALSE)
 
-hist(ndvi)
+#hist(ndvi)
+
+#-----------------------------------------------------------------------------------------------
+
+# Polygon filtering
+
+#-----------------------------------------------------------------------------------------------
+
+#filter aerial image by polygon
+ndvi_cover <- coverage_fraction(ndvi, sf)[[1]]
+
+# save  ndvi raster (requires PROJ)
+raster::writeRaster(x = ndvi_cover,
+                    filename="ndvi_cover.tif",
+                    format = "GTiff", # save as a tif
+                    datatype='INT2S', # save as a INTEGER
+                    overwrite = TRUE)  
+
 
 ## TODO
 # laag met polygonen toevoegen aan luchtfoto en per polygoon de ndvi bepalen. 
 # hoe gaan we om de randen?, de pixels vallen in meerdere polygonen. 
+
+
+#-----------------------------------------------------------------------------------------------
+
+# Debugging
+
+#-----------------------------------------------------------------------------------------------
+
+
+rlang::last_error()
+rlang::last_trace()
