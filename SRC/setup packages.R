@@ -30,25 +30,32 @@ options("rgdal_show_exportToProj4_warnings"="none")
 
 # load CRAN packages
 packages <- c(
-  'rlang',
-  #set up directories
-  'here',
-  #environment variables
-  'usethis',
-  'tools',
-  'curl',
   #external packages (not-being from cran-repo or similar)
   #'devtools',
+  #Functions for Base Types and Core R and 'Tidyverse' Features
+  'rlang',
+  #Relative paths
+  'here',
+  #Environment variables
+  'usethis',
+  #'tools',
+  #Web client
+  'curl',
   #essentials
   'tidyverse',
-  #spatial
-  'sf','raster',
+  #Simple Features 
+  'sf',
+  #Geographic Data Analysis and Modeling
+  'raster',
+  #Bindings for the 'Geospatial' Data Abstraction Library
   'rgdal',
+  #Interface to Geometry Engine
   #'rgeos',
   #Fast Extraction from Raster Datasets using Polygons
-  'exactextractr'
+  'exactextractr',
   #plotting
-  #'rasterVis',
+  #Visualization Methods for Raster Data
+  'rasterVis'
   #color schemes
   #'RColorBrewer','viridis'
 )
@@ -63,4 +70,3 @@ lapply(packages,library,character.only = TRUE
 
 #review packages loaded
 sessionInfo() %>% capture.output(file="session_info.txt")
-

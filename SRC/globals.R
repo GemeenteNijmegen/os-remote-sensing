@@ -20,8 +20,11 @@ options(encoding = "UTF-8")
 #location data
 data.dir <- here("DATA",'/')
 
+#location plots
+plots.dir <- here("PLOTS",'/')
+
 #(re)create locations if not exist
-locations <- c(data.dir)
+locations <- c(data.dir, plots.dir)
 
 lapply(locations, function(x) {
   if (!dir.exists(x)) {dir.create(x)}

@@ -1,12 +1,12 @@
-# create a grayscale color palette to use for the image.
-grayscale_colors <- gray.colors(100,            # number of different color levels 
-                                start = 0.0,    # how black (0) to go
-                                end = 1.0,      # how white (1) to go
-                                gamma = 2.2,    # correction between how a digital 
-                                # camera sees the world and how human eyes see it
-                                alpha = NULL)   #Null=colors are not transparent
+
+#-----------------------------------------------------------------------------------------------
+
+# Functions
+
+#-----------------------------------------------------------------------------------------------
 
 
+#lon/lat degrees conversion to numeric
 deg2num <-function(lat_deg, lon_deg, zoom){
   lat_rad <- lat_deg * pi /180
   n <- 2.0 ^ zoom
@@ -38,3 +38,11 @@ aerial_photo <- function(x, y, zoom = zoom, site = site) {
   map <- stack(image)
   raster::brick(map)
 }  
+
+# create a grayscale color palette to use for the image.
+grayscale_colors <- gray.colors(100,            # number of different color levels 
+                                start = 0.0,    # how black (0) to go
+                                end = 1.0,      # how white (1) to go
+                                gamma = 2.2,    # correction between how a digital 
+                                # camera sees the world and how human eyes see it
+                                alpha = NULL)   #Null=colors are not transparent

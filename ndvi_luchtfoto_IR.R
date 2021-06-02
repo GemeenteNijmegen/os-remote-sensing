@@ -21,7 +21,7 @@ proj_env <- FALSE #default (F)
 #setup and packages
 source('SRC/setup packages.R')
 
-#setup and packages
+#globals
 source(here('SRC/globals.R'))
 
 
@@ -49,8 +49,7 @@ source(here('SRC/functions.R'))
 
 gemeente<- "Eindhoven"
 wijk<-"Oud-Tongelre"
-#
-buurt<-#'t Hofke"
+#buurt<-"'t Hofke"
 
 source(here('SRC/polygon.R'))
 
@@ -60,7 +59,9 @@ source(here('SRC/polygon.R'))
 zoom <- 18
 
 # tile coordinates of lat/lon points on various zoom level maps 
+#lon
 tile_x <- xtile_col(centroid[[1]][1], zoom = zoom)
+#lat
 tile_y <- ytile_col(centroid[[1]][2], zoom = zoom)
 
 #testing purposes (overruling polygon)
@@ -76,7 +77,6 @@ f1 <- aerial_photo(tile_x,tile_y, zoom, site)
 ## R = XS3 (NIR band)
 ## G = XS2 (red band)
 ## B = XS1 (green band)
-## (NIR - Red) / (NIR + Red)
 
 #set layer names
 names(f1) <- c("NIR Band","Red Band","Green Band")
@@ -90,15 +90,18 @@ names(f1)
 #plot layers
 plot(f1)
 
-#overprocessing reds to locate green (mag eigenlijk niet met RGB)
+#overprocessing NIR and red layers to locate green 
+#improve photo quality
+png(paste0(plots.dir,"rs_rgbplot_",gemeente,"_",wijk,".png"), bg="white", width=png_height*aspect_ratio, height=png_height)
 par(col.axis = "white", col.lab = "white", tck = 0)
 plotRGB(f1,
         r = 1, g = 2, b = 3,
+        #stretch the values to increase the contrast of the image
         stretch = "lin",
         axes = TRUE,
-        main = "composite image stack")
+        main = paste0("composite image stack ", gemeente, " ", wijk))
 box(col = "white")
-
+dev.off()
 
 
 #-----------------------------------------------------------------------------------------------
@@ -112,17 +115,36 @@ red <- f1[[2]]
 nir <- f1[[1]]
 
 #Normalized difference vegetation index (NDVI)
-ndvi <- (nir - red)/(nir + red)
+#ndvi <- (nir - red)/(nir + red)
+
+ndvi <- raster::overlay(red, nir, fun = function(x, y) {
+        (y-x) / (y+x)
+})
+
 #Ratio vegetation index (RVI)
 rvi  <- nir / red
 
 # plot NDVI
-plot(ndvi,
-     axes = FALSE, box = FALSE)
+gplot(ndvi) + 
+        geom_tile(aes(fill = value)) +
+        scale_fill_gradientn(colours = rev(terrain.colors(225))) +
+        coord_equal() +
+        theme_minimal() 
+plot.nme = paste0('rs_ndvi.png')
+plot.store <-paste0(plots.dir,plot.nme)
+ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio, dpi=dpi)
+
 
 # plot RVI
-plot(rvi,
-     axes = FALSE, box = FALSE)
+gplot(rvi) + 
+        geom_tile(aes(fill = value)) +
+        scale_fill_gradientn(colours = rev(terrain.colors(225))) +
+        coord_equal() +
+        theme_minimal() 
+plot.nme = paste0('rs_rvi.png')
+plot.store <-paste0(plots.dir,plot.nme)
+ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio, dpi=dpi)
+
 
 #hist(ndvi)
 
@@ -132,8 +154,22 @@ plot(rvi,
 
 #-----------------------------------------------------------------------------------------------
 
-#filter aerial image by polygon
-ndvi_cover <- coverage_fraction(ndvi, sf)[[1]]
+#polygon
+plot(sf)
+
+#filter ndvi by polygon
+#https://cran.r-project.org/web/packages/exactextractr/exactextractr.pdf
+ndvi_cover <- exactextractr::coverage_fraction(ndvi, sf, crop = TRUE)
+
+#Extracts the values of cells in Raster* that are covered by polygons in a simple feature collection
+#average ndvi per polygon element
+ndvi_cover_avg<-exactextractr::exact_extract(ndvi, sf, 
+                                             #the mean cell value, weighted by the fraction of each cell 
+                                             #that is covered by the polygon
+                                             'mean',
+                                             force_df =TRUE
+                                             )
+
 
 # save  ndvi raster (requires PROJ)
 raster::writeRaster(x = ndvi_cover,
