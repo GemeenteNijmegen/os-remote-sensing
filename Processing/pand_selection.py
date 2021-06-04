@@ -1,10 +1,10 @@
-# Load variables
-from start import workingdirectory, buurtcode
-
 #Load required Python libraries
 import geopandas as gpd
 from requests import Request
 from owslib.wfs import WebFeatureService
+
+# Load variables
+from start import workingdirectory, buurtcode
 
 ## Start script
 # Read buurt
