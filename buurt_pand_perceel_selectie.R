@@ -71,15 +71,10 @@ rm(list=ls()[! ls() %in% c("buurt.sf","panden.sf_sub", "percelen.sf_sub", "clip.
 
 
 ## Dit alles geeft dezelfde output als gebruiken maken van de geopackage ontwikkeld in Python
-buurt_py <- st_read("~/GitHub/remote-sensing/tempdata/BU03638600.gpkg", layer= "buurt")
-plot(buurt_py[1])
-plot(buurt.sf.selectie[1])
+buurt_py <- st_read("tempdata/BU03638600.gpkg", layer= "buurt")
+panden_py <- st_read("tempdata/BU03638600.gpkg", layer= "panden")
+percelen_py <- st_read("tempdata/BU03638600.gpkg", layer= "percelen")
 
-panden_py <- st_read("~/GitHub/remote-sensing/tempdata/BU03638600.gpkg", layer= "panden")
-plot(panden_py[1])
-plot(panden.sf_sub[1])
 
-percelen_py <- st_read("~/GitHub/remote-sensing/tempdata/BU03638600.gpkg", layer= "percelen")
-plot(percelen_py[1])
 plot(percelen.sf_sub[1]) 
 ## ! Alleen bij de percelen geeft percelen.sf_sub een andere (foutieve) output, hoe kan dat?
