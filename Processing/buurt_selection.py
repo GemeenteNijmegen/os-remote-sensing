@@ -1,12 +1,12 @@
-# Load variables
-from start import workingdirectory, buurtcode
-
-#Load required Python libraries
+# Load required Python libraries
 import geopandas as gpd
 from requests import Request
 from owslib.wfs import WebFeatureService
 
-## Start script
+# Load variables
+from start import workingdirectory, buurtcode
+
+# Start script
 # URL for WFS backend
 url_WFSwijkenbuurt = "https://geodata.nationaalgeoregister.nl/wijkenbuurten2020/wfs?"
 
@@ -34,11 +34,9 @@ gdf_buurtselection = gdf_buurten[gdf_buurten.buurtcode == buurtcode]
 gdf_buurtselection = gdf_buurtselection.set_crs("EPSG:28992")
 gdf_buurtselection.to_file(workingdirectory + "/tempdata/" + buurtcode + ".gpkg", driver='GPKG', layer='buurt')
 
-#gdf_buurtselection.plot()
-#gdf_buurtselection.head()
-#print(GDPbuurten)
-#print(GDPbuurten.columns)
-#GDPbuurten.plot()
-#GDPbuurten.head()
-
-
+# gdf_buurtselection.plot()
+# gdf_buurtselection.head()
+# print(GDPbuurten)
+# print(GDPbuurten.columns)
+# GDPbuurten.plot()
+# GDPbuurten.head()
