@@ -55,9 +55,10 @@ packages <- c(
   'exactextractr',
   #plotting
   #Visualization Methods for Raster Data
-  'rasterVis'
+  'rasterVis',
   #color schemes
-  #'RColorBrewer','viridis'
+  #'RColorBrewer',
+  'viridis'
 )
 
 #install packages which are not available on the computing setup

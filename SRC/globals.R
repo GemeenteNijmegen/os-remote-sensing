@@ -5,6 +5,9 @@
 
 #------------------------------------------------------------------------------
 
+#seed
+set.seed(90210)
+
 #OS
 system <- Sys.info()['sysname']
 
@@ -33,7 +36,7 @@ lapply(locations, function(x) {
 #dimension and quality plots
 graph_height <- 9
 png_height <- 600
-aspect_ratio <- 2
+aspect_ratio <- 1
 dpi <- 320 #retina
 sub_title<-''
 

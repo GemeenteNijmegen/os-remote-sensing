@@ -5,6 +5,23 @@
 
 #-----------------------------------------------------------------------------------------------
 
+#numeric to lon/lat bounding box
+num2deg <- function(xtile, ytile, zoom){
+  n = 2.0^zoom
+  
+  lon_deg_nw = xtile / n * 360.0 - 180.0
+  lat_rad_nw = atan(sinh(pi * (1 - 2 * ytile / n)))
+  lat_deg_nw = lat_rad_nw * 180 / pi
+  
+  lon_deg_se = (xtile + 1) / n * 360.0 - 180.0
+  lat_rad_se = atan(sinh(pi * (1 - 2 * (ytile - 1) / n)))
+  lat_deg_se = lat_rad_se * 180 / pi
+  
+  #returns extent: vector (length=4; order= xmin, xmax, ymin, ymax)
+  return(c(lon_deg_nw, lon_deg_se, lat_deg_nw, lat_deg_se))
+}
+
+
 
 #lon/lat degrees conversion to numeric
 deg2num <-function(lat_deg, lon_deg, zoom){

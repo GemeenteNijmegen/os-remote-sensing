@@ -1,6 +1,6 @@
 # auteur: Leonard Vanbrabant
 # datum aangemaakt: 11-05-2021
-# datum laatst gewijzigd: 02-06-2021
+# datum laatst gewijzigd: 07-06-2021
 # note: dit script is een bewerking van een script geschreven door Esmee 
 # Kramer & Rik Scharn van de omgevingsdienst midden-en-west Brabant. 
 
@@ -56,7 +56,7 @@ source(here('SRC/polygon.R'))
 #-----------------------------------------------------------------------------------------------
 
 # zoom-niveau luchtfoto - zoom-niveau 19 is de max.
-zoom <- 18
+zoom <- 14
 
 # tile coordinates of lat/lon points on various zoom level maps 
 #lon
@@ -90,6 +90,23 @@ names(f1)
 #plot layers
 plot(f1)
 
+crs(f1)
+
+#bounding box
+my_extent <- num2deg(tile_x, tile_y, zoom)
+extent(f1) <- my_extent
+extent(f1)
+
+#projection
+crs(f1) <- 4326
+crs(f1)
+
+plot(f1)
+
+
+#check
+#http://bboxfinder.com/#51.444405,5.521267,51.458098,5.543239
+
 #overprocessing NIR and red layers to locate green 
 #improve photo quality
 png(paste0(plots.dir,"rs_rgbplot_",gemeente,"_",wijk,".png"), bg="white", width=png_height*aspect_ratio, height=png_height)
@@ -117,33 +134,26 @@ nir <- f1[[1]]
 #Normalized difference vegetation index (NDVI)
 #ndvi <- (nir - red)/(nir + red)
 
-ndvi <- raster::overlay(red, nir, fun = function(x, y) {
-        (y-x) / (y+x)
-})
+ndvi <- raster::overlay(red, nir, fun = function(x, y) { (y-x) / (y+x) })
+
+plot(ndvi)
+plot(sf, add = TRUE)
+
+# reclassifying nvdi (all values between negative infinity and 0.4 be NAs)
+# aka substantial green
+vegi <- raster::reclassify(ndvi, cbind(-Inf, 0.4, NA))
 
 #Ratio vegetation index (RVI)
 rvi  <- nir / red
 
-# plot NDVI
-gplot(ndvi) + 
-        geom_tile(aes(fill = value)) +
-        scale_fill_gradientn(colours = rev(terrain.colors(225))) +
-        coord_equal() +
-        theme_minimal() 
-plot.nme = paste0('rs_ndvi.png')
-plot.store <-paste0(plots.dir,plot.nme)
-ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio, dpi=dpi)
 
+#-----------------------------------------------------------------------------------------------
 
-# plot RVI
-gplot(rvi) + 
-        geom_tile(aes(fill = value)) +
-        scale_fill_gradientn(colours = rev(terrain.colors(225))) +
-        coord_equal() +
-        theme_minimal() 
-plot.nme = paste0('rs_rvi.png')
-plot.store <-paste0(plots.dir,plot.nme)
-ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio, dpi=dpi)
+# Vegetation plots
+
+#-----------------------------------------------------------------------------------------------
+
+source(here('SRC/vegi plots.R'))
 
 
 #hist(ndvi)
@@ -156,14 +166,15 @@ ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio, d
 
 #polygon
 plot(sf)
+#plot(sf[[1]])
 
-#filter ndvi by polygon
+#filter ndvi vegi by polygon
 #https://cran.r-project.org/web/packages/exactextractr/exactextractr.pdf
-ndvi_cover <- exactextractr::coverage_fraction(ndvi, sf, crop = TRUE)
+ndvi_cover <- exactextractr::coverage_fraction(vegi, sf, crop = FALSE)
 
 #Extracts the values of cells in Raster* that are covered by polygons in a simple feature collection
-#average ndvi per polygon element
-ndvi_cover_avg<-exactextractr::exact_extract(ndvi, sf, 
+#average ndvi vegi per polygon element
+ndvi_cover_avg<-exactextractr::exact_extract(vegi, sf, 
                                              #the mean cell value, weighted by the fraction of each cell 
                                              #that is covered by the polygon
                                              'mean',
@@ -171,17 +182,28 @@ ndvi_cover_avg<-exactextractr::exact_extract(ndvi, sf,
                                              )
 
 
+
+
 # save  ndvi raster (requires PROJ)
-raster::writeRaster(x = ndvi_cover,
-                    filename="ndvi_cover.tif",
-                    format = "GTiff", # save as a tif
-                    datatype='INT2S', # save as a INTEGER
-                    overwrite = TRUE)  
+#raster::writeRaster(x = ndvi_cover,
+#                    filename="ndvi_cover.tif",
+#                    format = "GTiff", # save as a tif
+#                    datatype='INT2S', # save as a INTEGER
+#                    overwrite = TRUE)  
 
 
 ## TODO
 # laag met polygonen toevoegen aan luchtfoto en per polygoon de ndvi bepalen. 
 # hoe gaan we om de randen?, de pixels vallen in meerdere polygonen. 
+
+#-----------------------------------------------------------------------------------------------
+
+# Unsupervised classification
+
+#-----------------------------------------------------------------------------------------------
+
+
+source(here('SRC/classification.R'))
 
 
 #-----------------------------------------------------------------------------------------------
