@@ -24,9 +24,8 @@ source('SRC/setup packages.R')
 #globals
 source(here('SRC/globals.R'))
 
-
 #-----------------------------------------------------------------------------------------------
-# Aerial image
+# Aerial image source
 
 #aerial infrared from PDOK
 site <- "https://geodata.nationaalgeoregister.nl/luchtfoto/infrarood/wmts/Actueel_ortho25IR/EPSG:3857"
@@ -47,11 +46,62 @@ source(here('SRC/functions.R'))
 
 #-----------------------------------------------------------------------------------------------
 
-gemeente<- "Eindhoven"
-wijk<-"Oud-Tongelre"
-#buurt<-"'t Hofke"
+#R based polygons (still in use for centroid extraction, please use input from buurt_pand_selectie.R)
+gemeente<- "Amsterdam"
+wijk<-"Overtoomse Veld"
+buurt<-""
 
 source(here('SRC/polygon.R'))
+
+#----------------------------
+#Geopackage based polygons (new, preferred)
+
+#id neighbourhood
+neighbourhood<-"BU03638600"
+
+#temporary solution (for graph title)
+wijk<- neighbourhood
+
+#location geopackage 
+neigh.loc<-paste0("tempdata/",neighbourhood,".gpkg")
+
+source(here('SRC/buurt_pand_perceel_selectie.R'))
+
+#percelen
+head(percelen_py)
+
+# Filter-out invalid and unneeded features
+percelen_sf <- percelen_py  %>% 
+        #make sure shapes are valid  
+        st_make_valid() # %>%
+        #filter()
+
+#add id to rownames
+rownames(percelen_sf)<-percelen_sf$identificatieLokaalID
+
+mapview(percelen_sf)
+
+#feature area calculation (m^2)
+percelen_sf <- mutate(percelen_sf, area = st_area(percelen_sf))
+head(percelen_sf$area)
+
+#TODO cut out buildings (panden) to discover potential gardens
+# use st_difference(x, y) function 
+percelen_garden_sf<-percelen_sf
+
+#write garden surface as geopackage to temdata dir
+st_write(percelen_garden_sf,
+         dsn = paste0("tempdata/percelen_gardens_r_",neighbourhood,".gpkg"), 
+         layer="percelen", 
+         delete_dsn = TRUE
+)
+
+#populate or substitute "sf" 
+
+
+#-----------------------------------------------------------------------------------------------
+
+# Aerial image
 
 #-----------------------------------------------------------------------------------------------
 
@@ -60,6 +110,9 @@ zoom <- 14
 
 # tile coordinates of lat/lon points on various zoom level maps 
 #lon
+
+#@Leonard: 'centroid' bestaat uit zes features (polygonen), waarom kies je de eerste en pak je daarvan de centroid coordinaten?
+#probeer deze uit de procedure van Esmee af te leiden (obv x_centroid, y_centroid, converteren naar lon/lat)
 tile_x <- xtile_col(centroid[[1]][1], zoom = zoom)
 #lat
 tile_y <- ytile_col(centroid[[1]][2], zoom = zoom)
@@ -87,25 +140,22 @@ nlayers(f1)
 #layer names
 names(f1)
 
-#plot layers
-plot(f1)
-
-crs(f1)
 
 #bounding box
+#@Leonard dit is de bounding box van de eerste feature (subset 1/6) en deze pas je toe op de hele foto
 my_extent <- num2deg(tile_x, tile_y, zoom)
 extent(f1) <- my_extent
 extent(f1)
 
 #projection
-crs(f1) <- 4326
+crs(f1)
+crs(f1) <- "+init=epsg:4326 +proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs +towgs84=0,0,0"
 crs(f1)
 
+mapview(f1)
+
+#plot layers
 plot(f1)
-
-
-#check
-#http://bboxfinder.com/#51.444405,5.521267,51.458098,5.543239
 
 #overprocessing NIR and red layers to locate green 
 #improve photo quality
@@ -119,7 +169,6 @@ plotRGB(f1,
         main = paste0("composite image stack ", gemeente, " ", wijk))
 box(col = "white")
 dev.off()
-
 
 #-----------------------------------------------------------------------------------------------
 
@@ -146,7 +195,6 @@ vegi <- raster::reclassify(ndvi, cbind(-Inf, 0.4, NA))
 #Ratio vegetation index (RVI)
 rvi  <- nir / red
 
-
 #-----------------------------------------------------------------------------------------------
 
 # Vegetation plots
@@ -154,7 +202,6 @@ rvi  <- nir / red
 #-----------------------------------------------------------------------------------------------
 
 source(here('SRC/vegi plots.R'))
-
 
 #hist(ndvi)
 
@@ -164,12 +211,16 @@ source(here('SRC/vegi plots.R'))
 
 #-----------------------------------------------------------------------------------------------
 
-#polygon
 plot(sf)
 #plot(sf[[1]])
 
+#crop
+#t <- rasterize(st_as_sf(sf), ndvi)
+
 #filter ndvi vegi by polygon
 #https://cran.r-project.org/web/packages/exactextractr/exactextractr.pdf
+
+#set crop to true once positioning of areal image is correct
 ndvi_cover <- exactextractr::coverage_fraction(vegi, sf, crop = FALSE)
 
 #Extracts the values of cells in Raster* that are covered by polygons in a simple feature collection
@@ -202,16 +253,13 @@ ndvi_cover_avg<-exactextractr::exact_extract(vegi, sf,
 
 #-----------------------------------------------------------------------------------------------
 
-
 source(here('SRC/classification.R'))
-
 
 #-----------------------------------------------------------------------------------------------
 
 # Debugging
 
 #-----------------------------------------------------------------------------------------------
-
 
 rlang::last_error()
 rlang::last_trace()

@@ -22,7 +22,6 @@ if(proj_env == TRUE) {
   renv::init()
 }
 
-
 options(warn = -1)
 
 #shutup RGDAL
@@ -40,7 +39,7 @@ packages <- c(
   'usethis',
   #'tools',
   #Web client
-  'curl',
+  'curl','httr',
   #essentials
   'tidyverse',
   #Simple Features 
@@ -50,12 +49,13 @@ packages <- c(
   #Bindings for the 'Geospatial' Data Abstraction Library
   'rgdal',
   #Interface to Geometry Engine
-  #'rgeos',
+  'rgeos',
   #Fast Extraction from Raster Datasets using Polygons
   'exactextractr',
   #plotting
   #Visualization Methods for Raster Data
   'rasterVis',
+  'mapview',
   #color schemes
   #'RColorBrewer',
   'viridis'

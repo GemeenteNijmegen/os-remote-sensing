@@ -1,3 +1,4 @@
+
 #------------------------------------------------------------------------------
 
 #Unsupervised classification
@@ -9,27 +10,19 @@
 nvdi_array <-getValues(ndvi)
 str(nvdi_array)
 
-# important to set the seed generator because `kmeans` initiates the centres in random locations
-# the seed generator just generates random numbers
-
-
-
 # create 10 clusters, allow 500 iterations, start with 5 random sets using 'Lloyd' method
-
 km <- kmeans(na.omit(nvdi_array), centers = 10, iter.max = 500,
              nstart = 5, algorithm = "Lloyd")
 
 # kmeans returns an object of class 'kmeans'
-
 str(km)
 
 # Copy ndvi layer
 knr <- ndvi
 
-# replace raster cell values with kmncluster$cluster
+# replace raster cell values with km$cluster
 # array
 knr[] <- km$cluster
-
 
 par(mfrow = c(1, 2))
 plot(ndvi, col = rev(terrain.colors(10)), main = "NDVI")

@@ -21,8 +21,6 @@ num2deg <- function(xtile, ytile, zoom){
   return(c(lon_deg_nw, lon_deg_se, lat_deg_nw, lat_deg_se))
 }
 
-
-
 #lon/lat degrees conversion to numeric
 deg2num <-function(lat_deg, lon_deg, zoom){
   lat_rad <- lat_deg * pi /180

@@ -1,10 +1,6 @@
-## Geef hier een buurtcode in
-buurtcodeselectie <- "BU03638600"
 
-## Libraries
-library(httr)
-library(tidyverse)
-library(sf)
+#buurt selectie
+buurtcodeselectie <- neighbourhood
 
 ## Buurt gegevens ophalen
 request <- "https://geodata.nationaalgeoregister.nl/wijkenbuurten2020/wfs?request=GetCapabilities"
@@ -54,27 +50,33 @@ request <- build_url(url);request
 percelen.sf <- st_read(request)
 percelen.sf_sub <- percelen.sf[buurt.sf.selectie$geom,]
 
-
-
 ## Pand, buurt en perceel gegevens combineren (clippen)
 plot(buurt.sf.selectie$geom)
 plot(panden.sf$geometry, add=TRUE)
+
 #haal alle panden weg die niet in de buurt vallen
 clip.pand.buurt = st_intersection(buurt.sf.selectie$geom, panden.sf$geometry) 
 plot(clip.pand.buurt)
+
 #haal alle percelen weg die niet in de buurt en panden vallen
 clip.pand.buurt.percelen = st_intersection(clip.pand.buurt, percelen.sf$geometry) 
 plot(clip.pand.buurt.percelen)
 
 ## Clean environment
-rm(list=ls()[! ls() %in% c("buurt.sf","panden.sf_sub", "percelen.sf_sub", "clip.pand.buurt.percelen")])
+#rm(list=ls()[! ls() %in% c("buurt.sf","panden.sf_sub", "percelen.sf_sub", "clip.pand.buurt.percelen")])
 
+#read geopackage, individual layers
+buurt_py <- st_read(neigh.loc, layer= "buurt")
+panden_py <- st_read(neigh.loc, layer= "panden")
+percelen_py <- st_read(neigh.loc, layer= "percelen")
 
-## Dit alles geeft dezelfde output als gebruiken maken van de geopackage ontwikkeld in Python
-buurt_py <- st_read("tempdata/BU03638600.gpkg", layer= "buurt")
-panden_py <- st_read("tempdata/BU03638600.gpkg", layer= "panden")
-percelen_py <- st_read("tempdata/BU03638600.gpkg", layer= "percelen")
+#centroid buurt
+centroid_alt <- sf::st_centroid(buurt_py)
+centroid_alt<- centroid_alt$geom
 
+cen<-unlist(centroid_alt)
+x_centroid<-cen[1]
+y_centroid<-cen[2]
 
 plot(percelen.sf_sub[1]) 
 ## ! Alleen bij de percelen geeft percelen.sf_sub een andere (foutieve) output, hoe kan dat?
