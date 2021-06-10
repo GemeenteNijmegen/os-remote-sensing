@@ -4,11 +4,11 @@ from requests import Request
 from owslib.wfs import WebFeatureService
 
 # Load variables
-from start import workingdirectory, buurtcode
+from variables import *
 
 ## Start script
 # Read buurt
-gdf_buurt = gpd.read_file(workingdirectory + "/tempdata/" + buurtcode + ".gpkg", driver='GPKG', layer='buurt')
+gdf_buurt = gpd.read_file(gpkg_vector, driver='GPKG', layer='buurt')
 
 #BoundingBox
 bbox_geom = gdf_buurt.bounds
@@ -45,4 +45,4 @@ gdf_percelenbuurt = gpd.read_file(q)
 gdf_percelenbuurt = gdf_percelenbuurt.set_crs("EPSG:28992")
 gdf_percelenbuurt = gpd.clip(gdf_percelenbuurt, gdf_buurt)
 
-gdf_percelenbuurt.to_file(workingdirectory + "/tempdata/" + buurtcode + ".gpkg", driver='GPKG', layer='percelen')
+gdf_percelenbuurt.to_file(gpkg_vector, driver='GPKG', layer='percelen')
