@@ -4,7 +4,7 @@ from requests import Request
 from owslib.wfs import WebFeatureService
 
 # Load variables
-from start import workingdirectory, buurtcode
+from variables import *
 
 # Start script
 # URL for WFS backend
@@ -32,7 +32,7 @@ gdf_buurten = gdf_buurten.loc[:, ['buurtcode', 'buurtnaam', 'gemeentecode', 'geo
 gdf_buurtselection = gdf_buurten[gdf_buurten.buurtcode == buurtcode]
 
 gdf_buurtselection = gdf_buurtselection.set_crs("EPSG:28992")
-gdf_buurtselection.to_file(workingdirectory + "/tempdata/" + buurtcode + ".gpkg", driver='GPKG', layer='buurt')
+gdf_buurtselection.to_file(gpkg_vector, driver='GPKG', layer='buurt')
 
 # gdf_buurtselection.plot()
 # gdf_buurtselection.head()
