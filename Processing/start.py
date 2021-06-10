@@ -1,26 +1,23 @@
 # Load required Python libraries
-
-#import subprocess
 import os
+from os import listdir
 import runpy
 
-# Variabelen
-workingdirectory = "J:\DataLAP\Innovatie\VNG_Remote_Sensing\werk"
-sourcedirectoryECW = r"J:\DatalAP\Bronnen\beeldmateriaal\2020"
-
-buurtcode = "BU03638601"
-
+# Load variables
+from variables import *
 
 # Create dir temp data
-if not os.path.exists('../tempdata'):
-    os.makedirs('../tempdata')
+if not os.path.exists(tempdirectory):
+    os.makedirs(tempdirectory)
 
-try:
-    os.remove(workingdirectory + "/tempdata/" + buurtcode + ".gpkg")
-except OSError:
-    pass
+ext = [buurtcode + ".gpkg", buurtcode + ".tif"]
 
+for file_name in listdir(tempdirectory):
+    if file_name.endswith(tuple(ext)):
+        os.remove(tempdirectory + file_name)
 
-runpy.run_module(mod_name='buurt_selection')
-runpy.run_module(mod_name='pand_selection')
-runpy.run_module(mod_name='perceel_selection')
+#runpy.run_module(mod_name='buurt_selection')
+#runpy.run_module(mod_name='pand_selection')
+#runpy.run_module(mod_name='perceel_selection')
+#runpy.run_module(mod_name='clip_lufo_met_buurt')
+runpy.run_module(mod_name='exporteren_red_en_nir')
