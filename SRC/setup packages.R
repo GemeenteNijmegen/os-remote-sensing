@@ -13,7 +13,7 @@ gc(verbose = FALSE, full = TRUE)
 
 #CPU cores (defaults to 1, we use 4)
 getOption("Ncpus", 1L)
-options(Ncpus = 4)
+options(Ncpus = 6)
 
 if(proj_env == TRUE) {
   #  #containerized packages (in case you encounter issue with the packages set-up and versions)
@@ -31,6 +31,8 @@ options("rgdal_show_exportToProj4_warnings"="none")
 packages <- c(
   #external packages (not-being from cran-repo or similar)
   #'devtools',
+  #Python interface
+  #'reticulate'
   #Functions for Base Types and Core R and 'Tidyverse' Features
   'rlang',
   #Relative paths

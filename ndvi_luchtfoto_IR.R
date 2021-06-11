@@ -68,7 +68,7 @@ neigh.loc<-paste0("tempdata/",neighbourhood,".gpkg")
 source(here('SRC/buurt_pand_perceel_selectie.R'))
 
 #percelen
-head(percelen_py)
+
 
 # Filter-out invalid and unneeded features
 percelen_sf <- percelen_py  %>% 
@@ -83,7 +83,7 @@ mapview(percelen_sf)
 
 #feature area calculation (m^2)
 percelen_sf <- mutate(percelen_sf, area = st_area(percelen_sf))
-head(percelen_sf$area)
+head(percelen_sf)
 
 #TODO cut out buildings (panden) to discover potential gardens
 # use st_difference(x, y) function 
@@ -91,7 +91,7 @@ percelen_garden_sf<-percelen_sf
 
 #write garden surface as geopackage to temdata dir
 st_write(percelen_garden_sf,
-         dsn = paste0("tempdata/percelen_gardens_r_",neighbourhood,".gpkg"), 
+         dsn = paste0("tempdata/",neighbourhood,"_percelen_gardens.gpkg"), 
          layer="percelen", 
          delete_dsn = TRUE
 )

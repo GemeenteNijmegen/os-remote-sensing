@@ -29,7 +29,7 @@ ymax <- max(buurt.sf$bbox_geom[[1]][[1]][,2])
 bbox <- paste(xmin, ymin, xmax, ymax, sep=",") 
 
 #centroid buurt
-centroid_alt <- sf::st_centroid(buurt_py)
+centroid_alt <- sf::st_centroid(buurt.sf)
 centroid_alt<- centroid_alt$geom
 
 cen<-unlist(centroid_alt)
@@ -79,9 +79,9 @@ plot(clip.pand.buurt.percelen)
 rm(panden.sf_sub,percelen.sf_sub,clip.pand.buurt.percelen)
 
 #create geopackage
-st_write(buurt.sf, dsn=neigh.loc, layer='buurt')
-st_write(panden.sf, dsn=neigh.loc, layer='panden')
-st_write(percelen.sf, dsn=neigh.loc, layer='percelen')
+st_write(buurt.sf, dsn=neigh.loc, layer='buurt',layer_options = "OVERWRITE=YES",append=FALSE)
+st_write(panden.sf, dsn=neigh.loc, layer='panden',layer_options = "OVERWRITE=YES",append=FALSE)
+st_write(percelen.sf, dsn=neigh.loc, layer='percelen',layer_options = "OVERWRITE=YES",append=FALSE)
 st_layers(neigh.loc)
 
 #read geopackage, individual layers

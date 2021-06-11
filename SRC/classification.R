@@ -28,7 +28,6 @@ par(mfrow = c(1, 2))
 plot(ndvi, col = rev(terrain.colors(10)), main = "NDVI")
 plot(knr, main = "Kmeans", col = viridis_pal(option = "D")(10))
 
-
 plot.nme = paste0('rs_rgb_kmeans.png')
 plot.store <-paste0(plots.dir,plot.nme)
 
