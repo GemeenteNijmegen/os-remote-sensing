@@ -51,7 +51,7 @@ gemeente<- "Amsterdam"
 wijk<-"Overtoomse Veld"
 buurt<-""
 
-source(here('SRC/polygon.R'))
+#source(here('SRC/polygon.R'))
 
 #----------------------------
 #Geopackage based polygons (new, preferred)
@@ -63,35 +63,44 @@ neighbourhood<-"BU03638600"
 wijk<- neighbourhood
 
 #location geopackage 
-neigh.loc<-paste0("tempdata/",neighbourhood,".gpkg")
+neigh.loc<-paste0(temp.dir,neighbourhood,".gpkg")
 
 source(here('SRC/buurt_pand_perceel_selectie.R'))
 
-#percelen
+
+#-----------------------------------------------------------------------------------------------
+
+# percelen disection
+
+#-----------------------------------------------------------------------------------------------
 
 
-# Filter-out invalid and unneeded features
-percelen_sf <- percelen_py  %>% 
+# Filter-out invalid and unneeded features, calculate surface area
+percelen_sf <- percelen_sf  %>% 
         #make sure shapes are valid  
-        st_make_valid() # %>%
-        #filter()
+        st_make_valid()  %>%
+        #filter() %>%
+        #feature area calculation (m^2)
+        mutate(area = st_area(percelen_sf))
 
 #add id to rownames
 rownames(percelen_sf)<-percelen_sf$identificatieLokaalID
+head(percelen_sf)
 
 mapview(percelen_sf)
 
-#feature area calculation (m^2)
-percelen_sf <- mutate(percelen_sf, area = st_area(percelen_sf))
-head(percelen_sf)
 
-#TODO cut out buildings (panden) to discover potential gardens
-# use st_difference(x, y) function 
+#cut out buildings (panden) to discover potential gardens
+#panden
+#percelen_panden_intersect_sf<- st_difference(percelen_sf,panden_py)
+#percelen_garden_sf<- st_difference(percelen_sf,panden_py)
+
+#mapview(percelen_garden_sf)
 percelen_garden_sf<-percelen_sf
 
 #write garden surface as geopackage to temdata dir
 st_write(percelen_garden_sf,
-         dsn = paste0("tempdata/",neighbourhood,"_percelen_gardens.gpkg"), 
+         dsn = paste0(temp.dir,neighbourhood,"_percelen_gardens.gpkg"), 
          layer="percelen", 
          delete_dsn = TRUE
 )
@@ -105,23 +114,22 @@ st_write(percelen_garden_sf,
 
 #-----------------------------------------------------------------------------------------------
 
+
+buurt_sf_tf<- st_transform(buurt_sf, crs = st_crs(4326))
+
+#centroid buurt
+centroid_alt <- sf::st_centroid(buurt_sf_tf)
+centroid_alt<- centroid_alt$geom
+
+cen<-unlist(centroid_alt)
+x_centroid<-cen[1]
+y_centroid<-cen[2]
+
 # zoom-niveau luchtfoto - zoom-niveau 19 is de max.
 zoom <- 14
 
-# tile coordinates of lat/lon points on various zoom level maps 
-#lon
-
-#@Leonard: 'centroid' bestaat uit zes features (polygonen), waarom kies je de eerste en pak je daarvan de centroid coordinaten?
-#probeer deze uit de procedure van Esmee af te leiden (obv x_centroid, y_centroid, converteren naar lon/lat)
-tile_x <- xtile_col(centroid[[1]][1], zoom = zoom)
-#lat
-tile_y <- ytile_col(centroid[[1]][2], zoom = zoom)
-
-#testing purposes (overruling polygon)
-#lon <- 5.520218
-#lat <- 51.44441
-#locs <- deg2num(lon,lat, zoom)
-#f1 <- aerial_photo(locs[[1]],locs[[2]], zoom, site)
+tile_x <- xtile_col(x_centroid, zoom = zoom)
+tile_y <- ytile_col(y_centroid, zoom = zoom)
 
 # haal foto op
 f1 <- aerial_photo(tile_x,tile_y, zoom, site)

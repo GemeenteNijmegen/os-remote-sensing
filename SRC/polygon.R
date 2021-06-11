@@ -25,4 +25,3 @@ sf::st_crs(sf)
 # bepaal middelpunt 
 centroid <- sf::st_centroid(sf)
 
-class(sf)

@@ -54,6 +54,12 @@ aerial_photo <- function(x, y, zoom = zoom, site = site) {
   raster::brick(map)
 }  
 
+## Bounding box maken
+st_bbox_by_feature = function(x) {
+  fun <- function(y) st_as_sfc(st_bbox(y))
+  do.call("c", lapply(x, fun))
+}
+
 # create a grayscale color palette to use for the image.
 grayscale_colors <- gray.colors(100,            # number of different color levels 
                                 start = 0.0,    # how black (0) to go
