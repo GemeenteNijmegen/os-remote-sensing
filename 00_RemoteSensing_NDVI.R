@@ -1,0 +1,278 @@
+
+#-----------------------------------------------------------------------------------------------
+
+# Remote Sensing: Green urban spaces
+
+#-----------------------------------------------------------------------------------------------
+
+
+# date created: 11-05-2021
+# date modified: 14-06-2021
+
+#-----------------------------------------------------------------------------------------------
+
+# Setup environment
+
+#-----------------------------------------------------------------------------------------------
+
+#Run in project environment (to avoid package conflicts)
+#FALSE : use current version of packages (recommended)
+#TRUE : fresh install of packages in isolated environment
+
+proj_env <- FALSE #default (F)
+
+#external dependencies Rtools, GEOS, GDAL, proj.4, (Anaconda)
+
+#setup and packages
+source('SRC/packages.R')
+
+#globals
+source(here('SRC/globals.R'))
+
+#-----------------------------------------------------------------------------------------------
+
+# Python
+
+#-----------------------------------------------------------------------------------------------
+
+#Python environment 
+#source(here('SRC/python.R'))
+
+#-----------------------------------------------------------------------------------------------
+
+# Functions
+
+#-----------------------------------------------------------------------------------------------
+
+source(here('SRC/functions.R'))
+
+#-----------------------------------------------------------------------------------------------
+
+# Settings
+
+#-----------------------------------------------------------------------------------------------
+
+#id neighbourhood
+neighbourhood<-"BU03638600"
+
+#location geopackages 
+#vector layers (polygons buurt, percelen, panden)
+neigh.vec.loc<-paste0(temp.dir,neighbourhood,"_vector.gpkg")
+#geographic raster data (incl. areial photo, NDVI, NH3?)
+neigh.ras.loc<-paste0(temp.dir,neighbourhood,"_raster.gpkg")
+
+
+#-----------------------------------------------------------------------------------------------
+
+# Polygons
+
+#-----------------------------------------------------------------------------------------------
+
+#create geopackage with buurt, percelen and panden polygons
+source(here('SRC/buurt_pand_perceel_request.R'))
+
+#-----------------------------------------------------------------------------------------------
+
+# percelen disection
+
+#-----------------------------------------------------------------------------------------------
+
+# Filter-out invalid and unneeded features, calculate surface area
+percelen_sf <- percelen_sf  %>% 
+        #make sure shapes are valid  
+        st_make_valid()  %>%
+        #filter() %>%
+        #feature area calculation (m^2)
+        mutate(area = st_area(percelen_sf))
+
+#add id to rownames
+rownames(percelen_sf)<-percelen_sf$identificatieLokaalID
+head(percelen_sf)
+
+mapview(percelen_sf,alpha.regions = 0.7, alpha = 1)
+
+#cut out buildings (panden) to discover potential gardens
+#panden
+#percelen_panden_intersect_sf<- st_difference(percelen_sf,panden_py)
+#percelen_garden_sf<- st_difference(percelen_sf,panden_py)
+
+#mapview(percelen_garden_sf)
+percelen_garden_sf<-percelen_sf
+
+#write garden surface as geopackage to temdata dir
+sf::st_write(percelen_garden_sf,
+         dsn = paste0(temp.dir,neighbourhood,"_percelen_gardens.gpkg"), 
+         layer="percelen", 
+         delete_dsn = TRUE
+)
+
+#-----------------------------------------------------------------------------------------------
+
+# Aerial image
+
+#-----------------------------------------------------------------------------------------------
+
+#aerial infrared from PDOK
+site <- "https://geodata.nationaalgeoregister.nl/luchtfoto/infrarood/wmts/Actueel_ortho25IR/EPSG:3857"
+
+#aerial rgb from PDOK
+#site <- "https://geodata.nationaalgeoregister.nl/luchtfoto/rgb/wmts/Actueel_ortho25/EPSG:3857"
+
+
+# zoom-niveau luchtfoto - zoom-niveau 19 is de max.
+zoom <- 14
+
+
+###  please substitute aerial image extraction procedure below with TIFF/ECW
+source(here('SRC/aerial_image.R'))
+
+mapview(f1,alpha.regions = 0.7, alpha = 1)
+
+#plot layers
+plot(f1)
+
+
+#-----------------------------------------------------------------------------------------------
+
+# Vegetation indices
+
+#-----------------------------------------------------------------------------------------------
+
+#calculate NDVI en RVI using the red band and nir band
+red <- f1[[2]]
+nir <- f1[[1]]
+
+#Normalized difference vegetation index (NDVI) 
+#Ranges from -1 to 1
+#Indicates amount of vegetation, distinguishes veg from soil, minimizes topographic effects
+#Does not eliminate atmospheric effects
+ndvi <- raster::overlay(red, nir, fun = function(x, y) { (y-x) / (y+x) })
+
+plot(ndvi)
+#plot(st_geometry(panden_sf), add = TRUE)
+
+#reclassifying nvdi (all values between negative infinity and 0.4 be NAs)
+#Cells with NDVI values greater than 0.4 are definitely vegetation
+#substantial green
+vegi <- raster::reclassify(ndvi, cbind(-Inf, 0.4, NA))
+
+#open land
+land <- reclassify(ndvi, c(-Inf, 0.25, NA,  0.25, 0.3, 1,  0.3, Inf, NA))
+
+#vegetation in classes
+vegc <- reclassify(ndvi, c(-Inf,0.25,1, 0.25,0.3,2, 0.3,0.4,3, 0.4,0.5,4, 0.5,Inf, 5))
+
+#Ratio vegetation index (RVI)
+#Indicates amount of vegetation
+#Reduces the effects of atmosphere and topography
+rvi  <- nir / red
+
+
+#-----------------------------------------------------------------------------------------------
+#create fresh multi-raster GeoPackage (gpkg) containing all green indices
+
+unlink(paste0(temp.dir,neighbourhood,"_green_indices.gpkg"))
+#Stars-packagke
+
+#NDVI values
+ndvi %>% 
+        st_as_stars %>% # convert the RasterLayer to a stars object
+        write_stars(paste0(temp.dir,neighbourhood,"_green_indices.gpkg"),
+                    driver = "GPKG",options = c("RASTER_TABLE=ndvi","APPEND_SUBDATASET=YES"))
+#subset of substantial green
+vegi %>% 
+        st_as_stars %>% # convert the RasterLayer to a stars object
+        write_stars(paste0(temp.dir,neighbourhood,"_green_indices.gpkg"),
+                    driver = "GPKG", options = c("RASTER_TABLE=vegi","APPEND_SUBDATASET=YES"))
+
+#RVI values
+rvi %>% 
+        st_as_stars %>% # convert the RasterLayer to a stars object
+        write_stars(paste0(temp.dir,neighbourhood,"_green_indices.gpkg"),
+                    driver = "GPKG", options = c("RASTER_TABLE=rvi","APPEND_SUBDATASET=YES"))
+
+
+#review raster layers in gpkg-file
+gdalUtils::gdalinfo(paste0(temp.dir,neighbourhood,"_green_indices.gpkg")) %>% 
+        cat(sep = "\n")
+
+
+#gdalUtils::gdalinfo(paste0(temp.dir,neighbourhood,"_green_indices.gpkg"), 
+                    # provide metadata of first subdataset:
+#                    sd=1, #ndvi
+                    # the following arguments just control formatting of the output:
+#                    approx_stats = TRUE, mm = TRUE, proj4 = TRUE) %>% 
+#        cat(sep = "\n")
+
+
+#create RasterBrick
+green_indices <- 
+        read_stars(paste0(temp.dir,neighbourhood,"_green_indices.gpkg")
+                   #subsetting
+                   #,sub = "ndvi"
+                   ,quiet = TRUE         
+                   ) %>% 
+        as("Raster")
+green_indices
+
+#-----------------------------------------------------------------------------------------------
+
+# Vegetation plots
+
+#-----------------------------------------------------------------------------------------------
+
+source(here('SRC/vegi plots.R'))
+
+#hist(ndvi)
+
+#-----------------------------------------------------------------------------------------------
+
+# Polygon filtering
+
+#-----------------------------------------------------------------------------------------------
+
+#filter ndvi raster by polygon
+#https://cran.r-project.org/web/packages/exactextractr/exactextractr.pdf
+
+#surface covered by substantial green per polygon element
+#set crop to true once positioning of areal image is correct
+ndvi_cover <- exactextractr::coverage_fraction(vegi, percelen_sf, crop = FALSE)
+
+
+#Mean value of cells that intersect the polygon, weighted by the percent of the cell that is covered.
+#mean ndvi per polygon element
+#percelen_sf should be substituted by effective garden
+ndvi_avg<-exactextractr::exact_extract(vegi, percelen_sf, 
+                                             #the mean cell value, weighted by the fraction of each cell 
+                                             #that is covered by the polygon
+                                             'mean',
+                                             force_df =TRUE)
+
+
+#Sum of raster cells covered by the polygon, with each raster value weighted by its coverage fraction 
+#and weighting raster value.
+#ndvi_weighted_sum<-exactextractr::exact_extract(vegi, percelen_sf, 
+#                                             'weighted_sum',
+#                                             weights=,
+#                                             force_df =TRUE)
+
+
+
+#update gpkg
+
+#-----------------------------------------------------------------------------------------------
+
+# Unsupervised classification
+
+#-----------------------------------------------------------------------------------------------
+
+source(here('SRC/classification.R'))
+
+#-----------------------------------------------------------------------------------------------
+
+# Debugging
+
+#-----------------------------------------------------------------------------------------------
+
+rlang::last_error()
+rlang::last_trace()

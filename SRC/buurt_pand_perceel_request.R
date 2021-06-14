@@ -10,15 +10,13 @@ buurtcodeselectie <- neighbourhood
 
 #is geopackage already available
 gpkg.rdy<-FALSE
-gpkg.rdy<-file.exists(neigh.loc)
-
+gpkg.rdy<-file.exists(neigh.vec.loc)
 
 if(gpkg.rdy==FALSE) {
 #not available, let's create gpkg
   
 ## Buurt gegevens ophalen
 request <- "https://geodata.nationaalgeoregister.nl/wijkenbuurten2020/wfs?request=GetCapabilities"
-
 
 buurt_sf <- st_read(request, layer = "wijkenbuurten2020:cbs_buurten_2020") %>%
                     subset(buurtcode == buurtcodeselectie) 
@@ -29,7 +27,7 @@ buurt_sf <- buurt_sf[, c('buurtcode', 'buurtnaam', 'gemeentecode', 'geom')]
 buurt_sf <- st_cast(buurt_sf, "GEOMETRYCOLLECTION") %>% st_collection_extract("POLYGON")
 #plot(buurt_sf[1])
 
-## Bounding box maken
+# Bounding box
 buurt_sf$bbox_geom <- st_bbox_by_feature(buurt_sf$geom)
 
 xmin <- min(buurt_sf$bbox_geom[[1]][[1]][,1])
@@ -46,7 +44,7 @@ cen<-unlist(centroid_alt)
 x_centroid<-cen[1]
 y_centroid<-cen[2]
 
-## Pand gegevens ophalen
+#Pand request
 url <- parse_url("https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1?")
 url$query <- list(service = "wfs",
                   version = "2.0.0",
@@ -57,9 +55,10 @@ url$query <- list(service = "wfs",
                   outputFormat='json')
 request <- build_url(url);request
 panden_sf <- st_read(request)
+#subset panden within buurt
 panden_sf_sub <- panden_sf[buurt_sf,]
 
-## Perceel gegevens ophalen
+#Perceel request
 url <- parse_url("https://geodata.nationaalgeoregister.nl/kadastralekaart/wfs/v4_0?")
 url$query <- list(service = "wfs",
                   version = "2.0.0",
@@ -70,38 +69,53 @@ url$query <- list(service = "wfs",
                   outputFormat='json')
 request <- build_url(url);request
 percelen_sf <- st_read(request)
+#subset percelen within buurt
 percelen_sf_sub <- percelen_sf[buurt_sf$geom,]
 
-## Pand, buurt en perceel gegevens combineren (clippen)
+#combine pand, buurt en perceel (clip)
 plot(buurt_sf$geom)
 plot(panden_sf$geometry, add=TRUE)
 
+#Overlapping area (clipping)
 #haal alle panden weg die niet in de buurt vallen
 clip.pand.buurt = st_intersection(buurt_sf$geom, panden_sf$geometry) 
-plot(clip.pand.buurt)
+
+ggplot(clip.pand.buurt) +
+  geom_sf(aes()) + 
+  theme_minimal() 
+plot.nme = paste0('rs_panden_within_buurt_',neighbourhood,'.png')
+plot.store <-paste0(plots.dir,plot.nme)
+ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio, dpi=dpi)
+
 
 #haal alle percelen weg die niet in de buurt en panden vallen
 clip.pand.buurt.percelen = st_intersection(clip.pand.buurt, percelen_sf$geometry) 
-plot(clip.pand.buurt.percelen)
+
+ggplot(clip.pand.buurt.percelen) +
+  geom_sf(aes()) + 
+  theme_minimal() 
+plot.nme = paste0('rs_panden_within_buurt_percelen_',neighbourhood,'.png')
+plot.store <-paste0(plots.dir,plot.nme)
+ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio, dpi=dpi)
+
 
 ## Clean environment
 #rm(list=ls()[! ls() %in% c("buurt_sf","panden_sf_sub", "percelen_sf_sub", "clip.pand.buurt.percelen")])
-rm(panden_sf_sub,percelen_sf_sub,clip.pand.buurt.percelen)
+rm(panden_sf_sub,percelen_sf_sub)
+   #,clip.pand.buurt,clip.pand.buurt.percelen)
 
 #create geopackage
-st_write(buurt_sf, dsn=neigh.loc, layer='buurt',layer_options = "OVERWRITE=YES",append=FALSE)
-st_write(panden_sf, dsn=neigh.loc, layer='panden',layer_options = "OVERWRITE=YES",append=FALSE)
-st_write(percelen_sf, dsn=neigh.loc, layer='percelen',layer_options = "OVERWRITE=YES",append=FALSE)
-st_layers(neigh.loc)
+sf::st_write(buurt_sf, dsn=neigh.vec.loc, layer='buurt',layer_options = "OVERWRITE=YES",append=FALSE)
+sf::st_write(panden_sf, dsn=neigh.vec.loc, layer='panden',layer_options = "OVERWRITE=YES",append=FALSE)
+sf::st_write(percelen_sf, dsn=neigh.vec.loc, layer='percelen',layer_options = "OVERWRITE=YES",append=FALSE)
+sf::st_layers(neigh.vec.loc)
 
 } else {
-
 #read existing geopackage, individual layers
-buurt_sf <- st_read(neigh.loc, layer= "buurt")
-panden_sf <- st_read(neigh.loc, layer= "panden")
-percelen_sf <- st_read(neigh.loc, layer= "percelen")
+buurt_sf <- st_read(neigh.vec.loc, layer= "buurt")
+panden_sf <- st_read(neigh.vec.loc, layer= "panden")
+percelen_sf <- st_read(neigh.vec.loc, layer= "percelen")
 
 #plot(percelen_sf_sub[1]) 
 ## ! Alleen bij de percelen geeft percelen_sf_sub een andere (foutieve) output, hoe kan dat?
-
 }

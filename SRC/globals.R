@@ -1,9 +1,9 @@
 
-#------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------
 
 #Globals and constants
 
-#------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------
 
 #seed
 set.seed(90210)
@@ -22,7 +22,6 @@ options(encoding = "UTF-8")
 
 #location data
 data.dir <- here("DATA",'/')
-
 
 #location temp data
 temp.dir <- here("tempdata",'/')
@@ -43,6 +42,12 @@ png_height <- 600
 aspect_ratio <- 1
 dpi <- 320 #retina
 sub_title<-''
+
+#Coordinate reference systems
+crs_wgs84 <- st_crs(4326) # WGS84 has EPSG code 4326
+crs_wgs84
+cat(crs_wgs84$wkt)
+crs_wgs84$epsg  
 
 #in case of Rprofile issues
 #file.edit(file.path("~", ".Rprofile"))

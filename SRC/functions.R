@@ -30,9 +30,9 @@ deg2num <-function(lat_deg, lon_deg, zoom){
   return( c(xtile, ytile))
 }
 
-## tile coordinates of lat/lon points on various zoom level maps 
-## number of tiles: 2^n (n = zoom)
-## bron: https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#lon.2Flat_to_tile_numbers
+#tile coordinates of lat/lon points on various zoom level maps 
+#number of tiles: 2^n (n = zoom)
+#https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#lon.2Flat_to_tile_numbers
 xtile_col <- function(data, zoom) {
   (as.numeric(data) + 180.0) / 360.0 * 2.0 ^ zoom
 }
@@ -42,6 +42,13 @@ ytile_col <- function(data, zoom) {
   (1.0 - log(tan(lat_rad) + (1 / cos(lat_rad))) / pi) / 2.0 * 2.0 ^ zoom
 }
 
+#bounding box 
+st_bbox_by_feature = function(x) {
+  fun <- function(y) st_as_sfc(st_bbox(y))
+  do.call("c", lapply(x, fun))
+}
+
+#download aerial photo
 aerial_photo <- function(x, y, zoom = zoom, site = site) {
   zoom <- zoom
   x <- floor(x)
@@ -53,12 +60,6 @@ aerial_photo <- function(x, y, zoom = zoom, site = site) {
   map <- stack(image)
   raster::brick(map)
 }  
-
-## Bounding box maken
-st_bbox_by_feature = function(x) {
-  fun <- function(y) st_as_sfc(st_bbox(y))
-  do.call("c", lapply(x, fun))
-}
 
 # create a grayscale color palette to use for the image.
 grayscale_colors <- gray.colors(100,            # number of different color levels 
