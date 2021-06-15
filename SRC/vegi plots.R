@@ -16,17 +16,6 @@ plot.nme = paste0('rs_ndvi_',neighbourhood,'.png')
 plot.store <-paste0(plots.dir,plot.nme)
 ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio, dpi=dpi)
 
-#extent(percelen_sf)
-#st_crs(percelen_sf)
-#percelen_sf_pr  <- crs_wgs84
-#percelen_sf_pr <- st_geometry(percelen_sf_pr)
-
-#crs(percelen_sf_pr)
-#extent(percelen_sf_pr)
-
-#mapview(percelen_sf)
-
-
 # plot vegetation classes
 plot_vegi <-  gplot(vegc) + 
   geom_tile(aes(fill = value)) +
@@ -50,7 +39,7 @@ ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio, d
 #plot rgb and substantial green
 qq<-png(paste0(plots.dir,"rs_rgbplot_vegi_",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio, height=png_height)
 par(col.axis = "white", col.lab = "white", tck = 0)
-plotRGB(f1, r=1, g=2, b=3, axes=TRUE, stretch="lin", main=paste0("composite image stack and subtantial vegetation", neighbourhood))
+plotRGB(ai_crop, r=1, g=2, b=3, axes=TRUE, stretch="lin", main=paste0("composite image stack and subtantial vegetation", neighbourhood))
 plot(vegi, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()

@@ -86,5 +86,17 @@ lapply(packages,library,character.only = TRUE
 #external dependencies versions of the libraries linked to sf
 sf::sf_extSoftVersion()[1:3]
 
+#Review GDAL setup
+# Assumes you have GDAL installed on your local machine.
+#getOption("gdalUtils_gdalPath")
+gdal_setInstallation()
+#getOption("gdalUtils_gdalPath")
+# If there is more than one installation of GDAL, this is the
+# most recent installation:
+getOption("gdalUtils_gdalPath")[[1]]
+
+# The version number:
+getOption("gdalUtils_gdalPath")[[1]]$version
+
 #review packages loaded
 sessionInfo() %>% capture.output(file="session_info.txt")

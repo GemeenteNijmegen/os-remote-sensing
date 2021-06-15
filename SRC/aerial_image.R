@@ -1,3 +1,6 @@
+
+##Redundant?
+
 #convert coordinates of sf object
 buurt_sf_tf<- st_transform(buurt_sf, crs = st_crs(4326))
 

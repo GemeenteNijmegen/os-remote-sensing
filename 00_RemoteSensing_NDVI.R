@@ -5,7 +5,6 @@
 
 #-----------------------------------------------------------------------------------------------
 
-
 # date created: 11-05-2021
 # date modified: 14-06-2021
 
@@ -61,7 +60,6 @@ neigh.vec.loc<-paste0(temp.dir,neighbourhood,"_vector.gpkg")
 #geographic raster data (incl. areial photo, NDVI, NH3?)
 neigh.ras.loc<-paste0(temp.dir,neighbourhood,"_raster.gpkg")
 
-
 #-----------------------------------------------------------------------------------------------
 
 # Polygons
@@ -112,25 +110,10 @@ sf::st_write(percelen_garden_sf,
 
 #-----------------------------------------------------------------------------------------------
 
-#aerial infrared from PDOK
-site <- "https://geodata.nationaalgeoregister.nl/luchtfoto/infrarood/wmts/Actueel_ortho25IR/EPSG:3857"
-
-#aerial rgb from PDOK
-#site <- "https://geodata.nationaalgeoregister.nl/luchtfoto/rgb/wmts/Actueel_ortho25/EPSG:3857"
-
-
-# zoom-niveau luchtfoto - zoom-niveau 19 is de max.
-zoom <- 14
-
-
-###  please substitute aerial image extraction procedure below with TIFF/ECW
-source(here('SRC/aerial_image.R'))
-
-mapview(f1,alpha.regions = 0.7, alpha = 1)
+source(here('import_image.R'))
 
 #plot layers
-plot(f1)
-
+plot(ai_crop)
 
 #-----------------------------------------------------------------------------------------------
 
@@ -139,8 +122,8 @@ plot(f1)
 #-----------------------------------------------------------------------------------------------
 
 #calculate NDVI en RVI using the red band and nir band
-red <- f1[[2]]
-nir <- f1[[1]]
+red <- ai_crop[[2]]
+nir <- ai_crop[[1]]
 
 #Normalized difference vegetation index (NDVI) 
 #Ranges from -1 to 1
