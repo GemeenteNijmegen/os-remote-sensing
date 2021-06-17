@@ -83,12 +83,15 @@ percelen_garden_sf <- sf::st_difference(percelen_sf,panden_sf)
 #gardens on percelen with woonfunctie
 woonpercelen_garden_sf <- percelen_garden_sf[percelen_garden_sf$gebruiksdoel %like% "woonfunctie",]
 
+#cast explicitly to polygon
+woonpercelen_garden_sf<-sf::st_cast(woonpercelen_garden_sf,to="POLYGON")
+       
 #plot(buurt_sf$geom)
-#plot(woonpercelen_garden_sf$geom, add=TRUE)
+#plot(st_geometry(woonpercelen_garden_sf), add=TRUE)
 
 #write layer to vector gpkg 
-#sf::st_write(percelen_garden_sf, dsn=neigh.vec.loc, layer='garden',layer_options = "OVERWRITE=YES",append=FALSE)
-#sf::st_layers(neigh.vec.loc)
+sf::st_write(woonpercelen_garden_sf, dsn=neigh.vec.loc, layer='garden',layer_options = "OVERWRITE=YES",append=FALSE)
+sf::st_layers(neigh.vec.loc)
 
 #-----------------------------------------------------------------------------------------------
 
@@ -159,11 +162,9 @@ rvi %>%
         write_stars(paste0(temp.dir,neighbourhood,"_green_indices.gpkg"),
                     driver = "GPKG", options = c("RASTER_TABLE=rvi","APPEND_SUBDATASET=YES"))
 
-
 #review raster layers in gpkg-file
 gdalUtils::gdalinfo(paste0(temp.dir,neighbourhood,"_green_indices.gpkg")) %>% 
         cat(sep = "\n")
-
 
 #gdalUtils::gdalinfo(paste0(temp.dir,neighbourhood,"_green_indices.gpkg"), 
                     # provide metadata of first subdataset:
@@ -200,21 +201,19 @@ source(here('SRC/vegi plots.R'))
 #filter ndvi raster by polygon
 #https://cran.r-project.org/web/packages/exactextractr/exactextractr.pdf
 
-#surface covered by substantial green per polygon element
-#ndvi_cover <- exactextractr::coverage_fraction(vegi, woonpercelen_garden_sf, crop = TRUE)
+#!!why is this not working anymore with the new polygons!!
 
+#surface covered by substantial green per polygon element
+#ndvi_cover <- exactextractr::coverage_fraction(vegi, woonpercelen_garden_sf$geom, crop = FALSE)
 
 #Mean value of cells that intersect the polygon, weighted by the percent of the cell that is covered.
 #mean ndvi per polygon element
 
-#!!why is this not working anymore!!
-
-ndvi_avg<-exactextractr::exact_extract(ndvi, woonpercelen_garden_sf, 
+#ndvi_avg<-exactextractr::exact_extract(ndvi, woonpercelen_garden_sf, 
                                              #the mean cell value, weighted by the fraction of each cell 
                                              #that is covered by the polygon
-                                             'mean',
-                                             force_df =TRUE)
-
+#                                             fun ='mean',
+#                                             force_df =TRUE)
 
 
 #Sum of raster cells covered by the polygon, with each raster value weighted by its coverage fraction 

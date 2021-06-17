@@ -27,10 +27,12 @@ if(report_opmtimal_k == TRUE) {
 # # to reduce the computational time, we use 10% of the data. 
 nvdi_valid_array_sub <- sample(nvdi_valid_array, size = length(nvdi_valid_array)/10, replace = FALSE)
 par(mfrow = c(1,2))
-hist(nvdi_valid_array)
-hist(nvdi_valid_array_sub)
-# 
-# # number of starts and iter.max has almost no effect on the result
+
+h1<-hist(nvdi_valid_array)
+h2<-hist(nvdi_valid_array_sub)
+ 
+h1+h2
+
 k.max <- 15
 data <- nvdi_valid_array_sub
 wss <- sapply(1:k.max, 
@@ -90,9 +92,17 @@ plot.nme = paste0('rs_rgb_kmeans_',neighbourhood,'.png')
 plot.store <-paste0(plots.dir,plot.nme)
 png(plot.store, width = 10, height = 8, units = "in", res = 300)
 par(mar = c(10.8, 5, 10.8, 2), mfrow = c(1, 2))
-#plotRGB(aerial_rgb, axes = TRUE, stretch = "lin", main = "RGB")
-plotRGB(ai_crop, r=1, g=2, b=3, axes=TRUE, stretch="lin")
+plotRGB(ai_crop, r=1, g=2, b=3, axes=TRUE, stretch="lin", main = "RGB")
 plot(gi_km, main = "Kmeans", col = viridis_pal(option = "D")(k))
+dev.off()
+
+#panel plot RGB and Clara
+plot.nme = paste0('rs_rgb_clara_',neighbourhood,'.png')
+plot.store <-paste0(plots.dir,plot.nme)
+png(plot.store, width = 10, height = 8, units = "in", res = 300)
+par(mar = c(10.8, 5, 10.8, 2), mfrow = c(1, 2))
+plotRGB(ai_crop, r=1, g=2, b=3, axes=TRUE, stretch="lin", main = "RGB")
+plot(gi_cl, main = "Clara", col = viridis_pal(option = "D")(k))
 dev.off()
 
 #panel plot NVDI and Kmeans
@@ -101,6 +111,7 @@ plot.store <-paste0(plots.dir,plot.nme)
 png(plot.store, width = 10, height = 8, units = "in", res = 300)
 par(mar = c(10.8, 5, 10.8, 2), mfrow = c(1, 2))
 plot(ndvi, col = rev(terrain.colors(10)), main = "NDVI")
+plot(st_geometry(percelen_sf), add=TRUE)
 plot(gi_km, main = "Kmeans", col = viridis_pal(option = "D")(k))
 dev.off()
 
@@ -110,6 +121,7 @@ plot.store <-paste0(plots.dir,plot.nme)
 png(plot.store, width = 10, height = 8, units = "in", res = 300)
 par(mar = c(10.8, 5, 10.8, 2), mfrow = c(1, 2))
 plot(ndvi, col = rev(terrain.colors(10)), main = "NDVI")
+plot(st_geometry(percelen_sf), add=TRUE)
 plot(gi_cl, main = "Clara", col = viridis_pal(option = "D")(k))
 dev.off()
 

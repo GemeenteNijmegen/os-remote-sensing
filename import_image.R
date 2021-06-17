@@ -65,13 +65,11 @@ plot(ai)
 
 #crop neighbourhood
 ai_crop <- crop(ai, buurt_sf)
-ai_crop
-
 (ai_crop)
 
 rm(ai)
 
-qq<-png(paste0(plots.dir,"rs_rgbplot_",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio, height=png_height)
+png(paste0(plots.dir,"rs_rgbplot_",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio, height=png_height)
 par(col.axis = "white", col.lab = "white", tck = 0)
 aerial_rgb<-plotRGB(ai_crop,
                     r = 1, g = 2, b = 3,
@@ -90,9 +88,6 @@ dev.off()
 
 #remove existing raster geopackage
 unlink(neigh.ras.loc)
-
-# prevent an auxiliary file being written next to *.gpkg
-Sys.setenv(GDAL_PAM_ENABLED = "NO")
 
 #create (fresh) multi-raster GeoPackage
 #NIR
@@ -119,4 +114,3 @@ ai_crop[[2]] %>% #RasterLayer
 
 #GDAL options for GPKG
 #https://gdal.org/drivers/raster/gpkg.html#creation-options
-

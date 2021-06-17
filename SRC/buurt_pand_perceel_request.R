@@ -60,9 +60,6 @@ panden_sf <- sf::st_read(request)
 #subset panden within buurt
 panden_sf <- panden_sf[buurt_sf,]
 
-#relevant features panden
-panden_cols<-colnames(panden_sf)
-
 #Perceel request
 url <- parse_url("https://geodata.nationaalgeoregister.nl/kadastralekaart/wfs/v4_0?")
 url$query <- list(service = "wfs",
@@ -77,14 +74,11 @@ percelen_sf <- sf::st_read(request)
 #subset percelen within buurt
 percelen_sf <- percelen_sf[buurt_sf$geom,]
 
-#relevant features percelen
-percelen_cols<-colnames(percelen_sf)
-
 #-----------------------------------------------------------------------------------------------
 
 #combine pand, buurt en perceel (clip)
 plot(buurt_sf$geom)
-plot(panden_sf$geometry, add=TRUE)
+plot(st_geometry(panden_sf), add=TRUE)
 
 #Overlapping area (clipping)
 #haal alle panden weg die niet in de buurt vallen
@@ -96,8 +90,7 @@ ggplot(clip.pand.buurt) +
   theme_minimal() 
 plot.nme = paste0('rs_panden_within_buurt_',neighbourhood,'.png')
 plot.store <-paste0(plots.dir,plot.nme)
-ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio, dpi=dpi)
-
+ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio*3, dpi=dpi)
 
 #haal alle percelen weg die niet in de buurt en panden vallen
 clip.pand.buurt.percelen = sf::st_intersection(clip.pand.buurt, percelen_sf) 
@@ -109,10 +102,8 @@ plot.nme = paste0('rs_panden_within_buurt_percelen_',neighbourhood,'.png')
 plot.store <-paste0(plots.dir,plot.nme)
 ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio, dpi=dpi)
 
-
 ## Clean environment
 #rm(list=ls()[! ls() %in% c("buurt_sf","panden_sf_sub", "percelen_sf_sub", "clip.pand.buurt.percelen")])
-
 
 #-----------------------------------------------------------------------------------------------
 #post-processing
@@ -139,9 +130,6 @@ panden_sf <- panden_sf  %>%
 #add id to rownames
 rownames(panden_sf)<-panden_sf$identificatie
 
-#relevant features for percelen polygon
-percelen_cols<-colnames(percelen_sf)
-
 #-----------------------------------------------------------------------------------------------
 #create vector geopackage (GPKG)
 sf::st_write(buurt_sf, dsn=neigh.vec.loc, layer='buurt',layer_options = "OVERWRITE=YES",append=FALSE)
@@ -155,3 +143,11 @@ buurt_sf <- st_read(neigh.vec.loc, layer= "buurt")
 panden_sf <- st_read(neigh.vec.loc, layer= "panden")
 percelen_sf <- st_read(neigh.vec.loc, layer= "percelen")
 }
+
+#-----------------------------------------------------------------------------------------------
+
+#relevant features percelen
+percelen_cols<-colnames(percelen_sf)
+
+#relevant features panden
+panden_cols<-colnames(panden_sf)
