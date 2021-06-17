@@ -59,7 +59,7 @@ names(ai)
 
 #set correct layer names
 #https://www.mngeo.state.mn.us/chouse/airphoto/cir.html
-names(ai) <- c("NIR Band","Red Band","Green Band", "AllOpacity")
+names(ai) <- c("nir","red","green", "allopacity")
 
 plot(ai)
 
@@ -96,6 +96,7 @@ Sys.setenv(GDAL_PAM_ENABLED = "NO")
 
 #create (fresh) multi-raster GeoPackage
 #NIR
+names(ai_crop[[1]]) <-"nir"
 ai_crop[[1]] %>% #RasterLayer
   st_as_stars %>% # convert the RasterLayer to a stars object
   write_stars(neigh.ras.loc
@@ -104,6 +105,7 @@ ai_crop[[1]] %>% #RasterLayer
                             )
   )
 #RED
+names(ai_crop[[2]]) <-"red"
 ai_crop[[2]] %>% #RasterLayer
   st_as_stars %>% # convert the RasterLayer to a stars object
   write_stars(neigh.ras.loc
@@ -117,3 +119,4 @@ ai_crop[[2]] %>% #RasterLayer
 
 #GDAL options for GPKG
 #https://gdal.org/drivers/raster/gpkg.html#creation-options
+

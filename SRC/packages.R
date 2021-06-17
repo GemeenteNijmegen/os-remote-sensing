@@ -18,6 +18,10 @@ options(Ncpus = 8)
 if(proj_env == TRUE) {
   #  #containerized packages (in case you encounter issue with the current version of packages within your computing set-up)
   if (!require("renv")) install.packages("renv")
+  renv::upgrade() # upgrades renv, if new version is available
+  renv::update() # updates packages from CRAN and GitHub, within the project
+  renv::hydrate(update = "all") # populates the renv cache with copies of-up-to-date packages
+  renv::snapshot() # inspect the message before confirming to overwrite renv.lock
   library("renv")
   renv::init()
 }
@@ -45,6 +49,8 @@ packages <- c(
   #'tools',
   #Essentials
   'tidyverse',
+  #datafraem extension
+  'data.table',
   #Web client
   'curl','httr',
   #Simple Features 

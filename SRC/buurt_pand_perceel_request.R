@@ -44,6 +44,8 @@ cen<-unlist(centroid_alt)
 x_centroid<-cen[1]
 y_centroid<-cen[2]
 
+#-----------------------------------------------------------------------------------------------
+
 #Pand request
 url <- parse_url("https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1?")
 url$query <- list(service = "wfs",
@@ -54,9 +56,12 @@ url$query <- list(service = "wfs",
                   bbox = bbox,
                   outputFormat='json')
 request <- build_url(url);request
-panden_sf <- st_read(request)
+panden_sf <- sf::st_read(request)
 #subset panden within buurt
-panden_sf_sub <- panden_sf[buurt_sf,]
+panden_sf <- panden_sf[buurt_sf,]
+
+#relevant features panden
+panden_cols<-colnames(panden_sf)
 
 #Perceel request
 url <- parse_url("https://geodata.nationaalgeoregister.nl/kadastralekaart/wfs/v4_0?")
@@ -68,9 +73,14 @@ url$query <- list(service = "wfs",
                   bbox = bbox,
                   outputFormat='json')
 request <- build_url(url);request
-percelen_sf <- st_read(request)
+percelen_sf <- sf::st_read(request)
 #subset percelen within buurt
-percelen_sf_sub <- percelen_sf[buurt_sf$geom,]
+percelen_sf <- percelen_sf[buurt_sf$geom,]
+
+#relevant features percelen
+percelen_cols<-colnames(percelen_sf)
+
+#-----------------------------------------------------------------------------------------------
 
 #combine pand, buurt en perceel (clip)
 plot(buurt_sf$geom)
@@ -78,10 +88,11 @@ plot(panden_sf$geometry, add=TRUE)
 
 #Overlapping area (clipping)
 #haal alle panden weg die niet in de buurt vallen
-clip.pand.buurt = st_intersection(buurt_sf$geom, panden_sf$geometry) 
+clip.pand.buurt = sf::st_intersection(buurt_sf, panden_sf) 
 
+#clip.pand.buurt = st_intersection(buurt_sf$geom, panden_sf$geometry) 
 ggplot(clip.pand.buurt) +
-  geom_sf(aes()) + 
+  geom_sf(aes(fill=gebruiksdoel)) + 
   theme_minimal() 
 plot.nme = paste0('rs_panden_within_buurt_',neighbourhood,'.png')
 plot.store <-paste0(plots.dir,plot.nme)
@@ -89,7 +100,7 @@ ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio, d
 
 
 #haal alle percelen weg die niet in de buurt en panden vallen
-clip.pand.buurt.percelen = st_intersection(clip.pand.buurt, percelen_sf$geometry) 
+clip.pand.buurt.percelen = sf::st_intersection(clip.pand.buurt, percelen_sf) 
 
 ggplot(clip.pand.buurt.percelen) +
   geom_sf(aes()) + 
@@ -101,10 +112,38 @@ ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio, d
 
 ## Clean environment
 #rm(list=ls()[! ls() %in% c("buurt_sf","panden_sf_sub", "percelen_sf_sub", "clip.pand.buurt.percelen")])
-rm(panden_sf_sub,percelen_sf_sub)
-   #,clip.pand.buurt,clip.pand.buurt.percelen)
 
-#create geopackage
+
+#-----------------------------------------------------------------------------------------------
+#post-processing
+
+# Filter-out invalid features, calculate surface area
+percelen_sf <- percelen_sf  %>% 
+  #make sure shapes are valid  
+  st_make_valid()  %>%
+  #feature area calculation (m^2)
+  mutate(area = st_area(percelen_sf))
+
+#add id to rownames
+rownames(percelen_sf)<-percelen_sf$identificatieLokaalID
+head(percelen_sf)
+
+percelen_cols<-colnames(percelen_sf)
+
+
+# Filter-out invalid features, calculate surface area
+panden_sf <- panden_sf  %>% 
+  #make sure shapes are valid  
+  st_make_valid()  
+
+#add id to rownames
+rownames(panden_sf)<-panden_sf$identificatie
+
+#relevant features for percelen polygon
+percelen_cols<-colnames(percelen_sf)
+
+#-----------------------------------------------------------------------------------------------
+#create vector geopackage (GPKG)
 sf::st_write(buurt_sf, dsn=neigh.vec.loc, layer='buurt',layer_options = "OVERWRITE=YES",append=FALSE)
 sf::st_write(panden_sf, dsn=neigh.vec.loc, layer='panden',layer_options = "OVERWRITE=YES",append=FALSE)
 sf::st_write(percelen_sf, dsn=neigh.vec.loc, layer='percelen',layer_options = "OVERWRITE=YES",append=FALSE)
@@ -115,7 +154,4 @@ sf::st_layers(neigh.vec.loc)
 buurt_sf <- st_read(neigh.vec.loc, layer= "buurt")
 panden_sf <- st_read(neigh.vec.loc, layer= "panden")
 percelen_sf <- st_read(neigh.vec.loc, layer= "percelen")
-
-#plot(percelen_sf_sub[1]) 
-## ! Alleen bij de percelen geeft percelen_sf_sub een andere (foutieve) output, hoe kan dat?
 }

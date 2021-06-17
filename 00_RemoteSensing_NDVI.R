@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------------------------
 
 # date created: 11-05-2021
-# date modified: 14-06-2021
+# date modified: 17-06-2021
 
 #-----------------------------------------------------------------------------------------------
 
@@ -20,7 +20,7 @@
 
 proj_env <- FALSE #default (F)
 
-#external dependencies Rtools, GEOS, GDAL, proj.4, (Anaconda)
+#external dependencies Rtools, GEOS, GDAL, PROJ.4, (Anaconda)
 
 #setup and packages
 source('SRC/packages.R')
@@ -75,34 +75,20 @@ source(here('SRC/buurt_pand_perceel_request.R'))
 
 #-----------------------------------------------------------------------------------------------
 
-# Filter-out invalid and unneeded features, calculate surface area
-percelen_sf <- percelen_sf  %>% 
-        #make sure shapes are valid  
-        st_make_valid()  %>%
-        #filter() %>%
-        #feature area calculation (m^2)
-        mutate(area = st_area(percelen_sf))
-
-#add id to rownames
-rownames(percelen_sf)<-percelen_sf$identificatieLokaalID
-head(percelen_sf)
-
 mapview(percelen_sf,alpha.regions = 0.7, alpha = 1)
 
 #cut out buildings (panden) to discover potential gardens
-#panden
-#percelen_panden_intersect_sf<- st_difference(percelen_sf,panden_py)
-#percelen_garden_sf<- st_difference(percelen_sf,panden_py)
+percelen_garden_sf <- sf::st_difference(percelen_sf,panden_sf)
 
-#mapview(percelen_garden_sf)
-percelen_garden_sf<-percelen_sf
+#gardens on percelen with woonfunctie
+woonpercelen_garden_sf <- percelen_garden_sf[percelen_garden_sf$gebruiksdoel %like% "woonfunctie",]
 
-#write garden surface as geopackage to temdata dir
-sf::st_write(percelen_garden_sf,
-         dsn = paste0(temp.dir,neighbourhood,"_percelen_gardens.gpkg"), 
-         layer="percelen", 
-         delete_dsn = TRUE
-)
+#plot(buurt_sf$geom)
+#plot(woonpercelen_garden_sf$geom, add=TRUE)
+
+#write layer to vector gpkg 
+#sf::st_write(percelen_garden_sf, dsn=neigh.vec.loc, layer='garden',layer_options = "OVERWRITE=YES",append=FALSE)
+#sf::st_layers(neigh.vec.loc)
 
 #-----------------------------------------------------------------------------------------------
 
@@ -132,7 +118,7 @@ nir <- ai_crop[[1]]
 ndvi <- raster::overlay(red, nir, fun = function(x, y) { (y-x) / (y+x) })
 
 plot(ndvi)
-#plot(st_geometry(panden_sf), add = TRUE)
+#plot(st_geometry(woonpercelen_garden_sf), add = TRUE)
 
 #reclassifying nvdi (all values between negative infinity and 0.4 be NAs)
 #Cells with NDVI values greater than 0.4 are definitely vegetation
@@ -150,9 +136,8 @@ vegc <- reclassify(ndvi, c(-Inf,0.25,1, 0.25,0.3,2, 0.3,0.4,3, 0.4,0.5,4, 0.5,In
 #Reduces the effects of atmosphere and topography
 rvi  <- nir / red
 
-
 #-----------------------------------------------------------------------------------------------
-#create fresh multi-raster GeoPackage (gpkg) containing all green indices
+#create fresh multi-raster GeoPackage (gpkg) containing all green indices (write)
 
 unlink(paste0(temp.dir,neighbourhood,"_green_indices.gpkg"))
 #Stars-packagke
@@ -188,7 +173,7 @@ gdalUtils::gdalinfo(paste0(temp.dir,neighbourhood,"_green_indices.gpkg")) %>%
 #        cat(sep = "\n")
 
 
-#create RasterBrick
+#create RasterBrick (read)
 green_indices <- 
         read_stars(paste0(temp.dir,neighbourhood,"_green_indices.gpkg")
                    #subsetting
@@ -206,8 +191,6 @@ green_indices
 
 source(here('SRC/vegi plots.R'))
 
-#hist(ndvi)
-
 #-----------------------------------------------------------------------------------------------
 
 # Polygon filtering
@@ -218,30 +201,30 @@ source(here('SRC/vegi plots.R'))
 #https://cran.r-project.org/web/packages/exactextractr/exactextractr.pdf
 
 #surface covered by substantial green per polygon element
-#set crop to true once positioning of areal image is correct
-ndvi_cover <- exactextractr::coverage_fraction(vegi, percelen_sf, crop = FALSE)
+#ndvi_cover <- exactextractr::coverage_fraction(vegi, woonpercelen_garden_sf, crop = TRUE)
 
 
 #Mean value of cells that intersect the polygon, weighted by the percent of the cell that is covered.
 #mean ndvi per polygon element
-#percelen_sf should be substituted by effective garden
-ndvi_avg<-exactextractr::exact_extract(vegi, percelen_sf, 
+
+#!!why is this not working anymore!!
+
+ndvi_avg<-exactextractr::exact_extract(ndvi, woonpercelen_garden_sf, 
                                              #the mean cell value, weighted by the fraction of each cell 
                                              #that is covered by the polygon
                                              'mean',
                                              force_df =TRUE)
 
 
+
 #Sum of raster cells covered by the polygon, with each raster value weighted by its coverage fraction 
 #and weighting raster value.
-#ndvi_weighted_sum<-exactextractr::exact_extract(vegi, percelen_sf, 
+#ndvi_weighted_sum<-exactextractr::exact_extract(vegi, woonpercelen_garden_sf, 
 #                                             'weighted_sum',
 #                                             weights=,
 #                                             force_df =TRUE)
 
 
-
-#update gpkg
 
 #-----------------------------------------------------------------------------------------------
 

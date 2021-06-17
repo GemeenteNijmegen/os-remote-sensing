@@ -10,7 +10,7 @@ plot_ndvi <- gplot(ndvi) +
   geom_tile(aes(fill = value)) +
   scale_fill_gradientn(colours = rev(terrain.colors(225))) +
   #coord_equal() +
-  #geom_sf(data = st_geometry(clip.pand.buurt)) +
+  #geom_sf(aes(st_sf(st_geometry(woonpercelen_garden_sf)))) +
   theme_minimal() 
 plot.nme = paste0('rs_ndvi_',neighbourhood,'.png')
 plot.store <-paste0(plots.dir,plot.nme)
