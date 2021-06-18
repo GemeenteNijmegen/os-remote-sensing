@@ -5,6 +5,8 @@
 
 #-----------------------------------------------------------------------------------------------
 
+
+
 #plots based on rasterviz
 
 # plot NDVI
@@ -12,16 +14,24 @@ plot_ndvi <- gplot(ndvi) +
   geom_tile(aes(fill = value)) +
   scale_fill_gradientn(colours = rev(terrain.colors(225))) +
   #geom_sf(aes(st_sf(st_geometry(woonpercelen_garden_sf)))) +
-  theme_minimal() 
+  theme_minimal() +
+labs(fill = "NDVI")
 plot.nme = paste0('rs_ndvi_',neighbourhood,'.png')
 plot.store <-paste0(plots.dir,plot.nme)
 ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio, dpi=dpi)
 
+#lattice-style levelplot NDVI
+png(paste0(plots.dir,"rs_ndvi_percelen_",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio, height=png_height)
+plt <- levelplot(ndvi)
+plt + latticeExtra::layer(sp.lines(percelen_sp, col="white", lwd=0.2))
+dev.off()
+
 # plot vegetation classes
 plot_vegi <-  gplot(vegc) + 
   geom_tile(aes(fill = value)) +
-  scale_fill_gradientn(colours = rev(terrain.colors(4))) +
-  theme_minimal() 
+  scale_fill_gradientn(colours = rev(terrain.colors(5))) +
+  theme_minimal() +
+  labs(fill = "NDVI classes")
 plot.nme = paste0('rs_ndvi_classes_',neighbourhood,'.png')
 plot.store <-paste0(plots.dir,plot.nme)
 ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio, dpi=dpi)
@@ -29,8 +39,9 @@ ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio, d
 # plot substantial green
 plot_vegi <-  gplot(vegi) + 
   geom_tile(aes(fill = value)) +
-  scale_fill_gradientn(colours = rev(terrain.colors(225))) +
-  theme_minimal() 
+  scale_fill_gradientn(colours = rev(terrain.colors(225)), na.value ="transparent") +
+  theme_minimal() +
+  labs(fill = "NDVI")
 plot.nme = paste0('rs_ndvi_substantial_',neighbourhood,'.png')
 plot.store <-paste0(plots.dir,plot.nme)
 ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio, dpi=dpi)
@@ -40,6 +51,7 @@ png(paste0(plots.dir,"rs_rgbplot_vegi_",neighbourhood,".png"), bg="white", width
 par(col.axis = "white", col.lab = "white", tck = 0)
 plotRGB(ai_crop, r=1, g=2, b=3, axes=TRUE, stretch="lin", main=paste0("composite image stack and subtantial vegetation ", neighbourhood))
 plot(vegi, add=TRUE, legend=FALSE)
+plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
 
@@ -47,7 +59,8 @@ dev.off()
 plot_rvi <-  gplot(rvi) + 
   geom_tile(aes(fill = value)) +
   scale_fill_gradientn(colours = rev(terrain.colors(225))) +
-  theme_minimal() 
+  theme_minimal() +
+  labs(fill = "RVI")
 plot.nme = paste0('rs_rvi_',neighbourhood,'.png')
 plot.store <-paste0(plots.dir,plot.nme)
 ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio, dpi=dpi)

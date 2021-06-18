@@ -75,9 +75,9 @@ source(here('SRC/buurt_pand_perceel_request.R'))
 
 #-----------------------------------------------------------------------------------------------
 
-mapview(percelen_sf,alpha.regions = 0.7, alpha = 1)
+mapview(percelen_sf,alpha.regions = 0.6, alpha = 1)
 
-#cut out buildings (panden) to discover potential gardens
+#cut out buildings (panden) from percelen to discover potential gardens
 percelen_garden_sf <- sf::st_difference(percelen_sf,panden_sf)
 
 #gardens on percelen with woonfunctie
@@ -86,11 +86,13 @@ woonpercelen_garden_sf <- percelen_garden_sf[percelen_garden_sf$gebruiksdoel %li
 #cast explicitly to polygon
 woonpercelen_garden_sf<-sf::st_cast(woonpercelen_garden_sf,to="POLYGON")
        
+#st_cast(buurt_sf, "GEOMETRYCOLLECTION") %>% st_collection_extract("POLYGON")
+
 #plot(buurt_sf$geom)
 #plot(st_geometry(woonpercelen_garden_sf), add=TRUE)
 
 #write layer to vector gpkg 
-sf::st_write(woonpercelen_garden_sf, dsn=neigh.vec.loc, layer='garden',layer_options = "OVERWRITE=YES",append=FALSE)
+sf::st_write(woonpercelen_garden_sf, dsn=neigh.vec.loc, layer='garden_private',layer_options = "OVERWRITE=YES",append=FALSE)
 sf::st_layers(neigh.vec.loc)
 
 #-----------------------------------------------------------------------------------------------
@@ -99,7 +101,7 @@ sf::st_layers(neigh.vec.loc)
 
 #-----------------------------------------------------------------------------------------------
 
-source(here('import_image.R'))
+source(here('SRC/import_image.R'))
 
 #plot layers
 plot(ai_crop)
@@ -110,9 +112,9 @@ plot(ai_crop)
 
 #-----------------------------------------------------------------------------------------------
 
-#calculate NDVI en RVI using the red band and nir band
-red <- ai_crop[[2]]
+#calculate NDVI en RVI using the nir band and red band
 nir <- ai_crop[[1]]
+red <- ai_crop[[2]]
 
 #Normalized difference vegetation index (NDVI) 
 #Ranges from -1 to 1
@@ -120,7 +122,7 @@ nir <- ai_crop[[1]]
 #Does not eliminate atmospheric effects
 ndvi <- raster::overlay(red, nir, fun = function(x, y) { (y-x) / (y+x) })
 
-plot(ndvi)
+#plot(ndvi)
 #plot(st_geometry(woonpercelen_garden_sf), add = TRUE)
 
 #reclassifying nvdi (all values between negative infinity and 0.4 be NAs)
@@ -201,26 +203,35 @@ source(here('SRC/vegi plots.R'))
 #filter ndvi raster by polygon
 #https://cran.r-project.org/web/packages/exactextractr/exactextractr.pdf
 
-#!!why is this not working anymore with the new polygons!!
+#projection
+crs(vegi)<-crs(percelen_sf)
+crs(ndvi)<-crs(percelen_sf)
 
 #surface covered by substantial green per polygon element
-#ndvi_cover <- exactextractr::coverage_fraction(vegi, woonpercelen_garden_sf$geom, crop = FALSE)
 
-#Mean value of cells that intersect the polygon, weighted by the percent of the cell that is covered.
-#mean ndvi per polygon element
+ndvi2<-raster::raster(ndvi)
+percelen_sf2<-sf::st_sf(percelen_sf)
 
-#ndvi_avg<-exactextractr::exact_extract(ndvi, woonpercelen_garden_sf, 
+ndvi_cover <- exactextractr::coverage_fraction(ndvi2,percelen_sf2, crop = FALSE)
+rm(ndvi2,percelen_sf2)
+
+#Mean value (NDVI) of cells that intersect the polygon, weighted by the percent of the cell that is covered.
+#mean ndvi per polygon element (perceel)
+ndvi_avg<-exactextractr::exact_extract(ndvi, percelen_sf, 
                                              #the mean cell value, weighted by the fraction of each cell 
                                              #that is covered by the polygon
-#                                             fun ='mean',
-#                                             force_df =TRUE)
+                                             fun ='mean',
+                                             force_df =TRUE)
 
+
+#add mean ndvi values to percelen_sf
+percelen_sf$ndvi_avg<-ndvi_avg
 
 #Sum of raster cells covered by the polygon, with each raster value weighted by its coverage fraction 
 #and weighting raster value.
 #ndvi_weighted_sum<-exactextractr::exact_extract(vegi, woonpercelen_garden_sf, 
 #                                             'weighted_sum',
-#                                             weights=,
+#                                             weights=raster(woonpercelen_garden_sf$geom),
 #                                             force_df =TRUE)
 
 

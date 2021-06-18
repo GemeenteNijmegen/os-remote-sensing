@@ -14,8 +14,8 @@ valid_gdal
 tiff.as.source<-FALSE
 
 #location of aerial image
-input <- "tempdata/amsterdam.ecw"
-output <- "tempdata/amst.tiff"
+input <- paste0(temp.dir,"amsterdam.ecw")
+output <- paste0(temp.dir,"amst.tiff")
 
 #TIFF exists?
 tiff.rdy<-FALSE
@@ -69,7 +69,7 @@ ai_crop <- crop(ai, buurt_sf)
 
 rm(ai)
 
-png(paste0(plots.dir,"rs_rgbplot_",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio, height=png_height)
+png(paste0(plots.dir,"rs_rgb_",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio, height=png_height)
 par(col.axis = "white", col.lab = "white", tck = 0)
 aerial_rgb<-plotRGB(ai_crop,
                     r = 1, g = 2, b = 3,
@@ -77,6 +77,7 @@ aerial_rgb<-plotRGB(ai_crop,
                     stretch = "lin",
                     axes = TRUE,
                     main = paste0("composite image stack ", neighbourhood))
+plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 aerial_rgb
 dev.off()
@@ -93,7 +94,7 @@ unlink(neigh.ras.loc)
 #NIR
 names(ai_crop[[1]]) <-"nir"
 ai_crop[[1]] %>% #RasterLayer
-  st_as_stars %>% # convert the RasterLayer to a stars object
+  st_as_stars %>% #convert to a stars object
   write_stars(neigh.ras.loc
               , driver = "GPKG"
               , options = c("RASTER_TABLE=NIR.BAND","APPEND_SUBDATASET=YES"
@@ -102,7 +103,7 @@ ai_crop[[1]] %>% #RasterLayer
 #RED
 names(ai_crop[[2]]) <-"red"
 ai_crop[[2]] %>% #RasterLayer
-  st_as_stars %>% # convert the RasterLayer to a stars object
+  st_as_stars %>% #convert to a stars object
   write_stars(neigh.ras.loc
               , driver = "GPKG"
               , options = c("RASTER_TABLE=Red.BAND","APPEND_SUBDATASET=YES")
