@@ -17,6 +17,8 @@ Sys.getlocale()
 options(encoding = "UTF-8")      
 # use getOption("encoding") to see if things were changed
 
+options(stringsAsFactors = FALSE)
+
 #directories
 #create directories on-the-fly if not exist
 

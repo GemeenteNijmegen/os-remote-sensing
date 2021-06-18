@@ -102,27 +102,27 @@ plot.store <-paste0(plots.dir,plot.nme)
 png(plot.store, width = 10, height = 8, units = "in", res = 300)
 par(mar = c(10.8, 5, 10.8, 2), mfrow = c(1, 2))
 plotRGB(ai_crop, r=1, g=2, b=3, axes=TRUE, stretch="lin", main = "RGB")
-plot(gi_cl, main = "Clara", col = viridis_pal(option = "D")(k))
+plot(gi_cl, main = "Clara", col = viridis_pal(option = "C")(k))
 dev.off()
 
 #panel plot NVDI and Kmeans
-plot.nme = paste0('rs_nvdi_kmeans_',neighbourhood,'.png')
+plot.nme = paste0('rs_ndvi_kmeans_',neighbourhood,'.png')
 plot.store <-paste0(plots.dir,plot.nme)
 png(plot.store, width = 10, height = 8, units = "in", res = 300)
 par(mar = c(10.8, 5, 10.8, 2), mfrow = c(1, 2))
-plot(ndvi, col = rev(terrain.colors(10)), main = "NDVI")
+plot(ndvi, col = rev(terrain.colors(10)), main = "NDVI", zlim = c(-0.5,1))
 plot(st_geometry(percelen_sf), add=TRUE)
 plot(gi_km, main = "Kmeans", col = viridis_pal(option = "D")(k))
 dev.off()
 
 #panel plot NVDI and Clara
-plot.nme = paste0('rs_nvdi_clara_',neighbourhood,'.png')
+plot.nme = paste0('rs_ndvi_clara_',neighbourhood,'.png')
 plot.store <-paste0(plots.dir,plot.nme)
 png(plot.store, width = 10, height = 8, units = "in", res = 300)
 par(mar = c(10.8, 5, 10.8, 2), mfrow = c(1, 2))
-plot(ndvi, col = rev(terrain.colors(10)), main = "NDVI")
+plot(ndvi, col = rev(terrain.colors(10)), main = "NDVI", zlim = c(-0.5,1))
 plot(st_geometry(percelen_sf), add=TRUE)
-plot(gi_cl, main = "Clara", col = viridis_pal(option = "D")(k))
+plot(gi_cl, main = "Clara", col = viridis_pal(option = "C")(k))
 dev.off()
 
 #panel plot Kmeans and Clara
@@ -131,7 +131,7 @@ plot.store <-paste0(plots.dir,plot.nme)
 png(plot.store, width = 10, height = 8, units = "in", res = 300)
 par(mar = c(10.8, 5, 10.8, 2), mfrow = c(1, 2))
 plot(gi_km, main = "Kmeans", col = viridis_pal(option = "D")(k))
-plot(gi_cl, main = "Clara", col = viridis_pal(option = "D")(k))
+plot(gi_cl, main = "Clara", col = viridis_pal(option = "C")(k))
 dev.off()
 
 

@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------------------------
 
 # date created: 11-05-2021
-# date modified: 17-06-2021
+# date modified: 18-06-2021
 
 #-----------------------------------------------------------------------------------------------
 
@@ -69,13 +69,13 @@ neigh.ras.loc<-paste0(temp.dir,neighbourhood,"_raster.gpkg")
 #create geopackage with buurt, percelen and panden polygons
 source(here('SRC/buurt_pand_perceel_request.R'))
 
+mapview(list(percelen_sf, panden_sf),alpha.regions = 0.6, alpha = 1)
+
 #-----------------------------------------------------------------------------------------------
 
 # percelen disection
 
 #-----------------------------------------------------------------------------------------------
-
-mapview(percelen_sf,alpha.regions = 0.6, alpha = 1)
 
 #cut out buildings (panden) from percelen to discover potential gardens
 percelen_garden_sf <- sf::st_difference(percelen_sf,panden_sf)
@@ -86,8 +86,6 @@ woonpercelen_garden_sf <- percelen_garden_sf[percelen_garden_sf$gebruiksdoel %li
 #cast explicitly to polygon
 woonpercelen_garden_sf<-sf::st_cast(woonpercelen_garden_sf,to="POLYGON")
        
-#st_cast(buurt_sf, "GEOMETRYCOLLECTION") %>% st_collection_extract("POLYGON")
-
 #plot(buurt_sf$geom)
 #plot(st_geometry(woonpercelen_garden_sf), add=TRUE)
 
@@ -131,10 +129,10 @@ ndvi <- raster::overlay(red, nir, fun = function(x, y) { (y-x) / (y+x) })
 vegi <- raster::reclassify(ndvi, cbind(-Inf, 0.4, NA))
 
 #open land
-land <- reclassify(ndvi, c(-Inf, 0.25, NA,  0.25, 0.3, 1,  0.3, Inf, NA))
+land <- raster::reclassify(ndvi, c(-Inf, 0.25, NA,  0.25, 0.3, 1,  0.3, Inf, NA))
 
 #vegetation in classes
-vegc <- reclassify(ndvi, c(-Inf,0.25,1, 0.25,0.3,2, 0.3,0.4,3, 0.4,0.5,4, 0.5,Inf, 5))
+vegc <- raster::reclassify(ndvi, c(-Inf,0.25,1, 0.25,0.3,2, 0.3,0.4,3, 0.4,0.5,4, 0.5,Inf, 5))
 
 #Ratio vegetation index (RVI)
 #Indicates amount of vegetation
@@ -152,6 +150,7 @@ ndvi %>%
         st_as_stars %>% # convert the RasterLayer to a stars object
         write_stars(paste0(temp.dir,neighbourhood,"_green_indices.gpkg"),
                     driver = "GPKG",options = c("RASTER_TABLE=ndvi","APPEND_SUBDATASET=YES"))
+
 #subset of substantial green
 vegi %>% 
         st_as_stars %>% # convert the RasterLayer to a stars object
