@@ -3,30 +3,30 @@ import os, struct
 import numpy as np
 
 # Load variables
-from variables import *
+from start import files_basename, gpkg_raster
 
 #Dit is een QGIS command
 #layer = iface.activeLayer()
 #provider = layer.dataProvider()
 #path = provider.dataSourceUri()
 
-clip_lufo_path = files_basename + ".tif"
+clip_tif_path = files_basename + ".tif"
 
 fmttypes = {'Byte':'B', 'UInt16':'H', 'Int16':'h', 'UInt32':'I', 'Int32':'i', 'Float32':'f', 'Float64':'d'}
 
 #Openen van TIF
-dataset = gdal.Open(clip_lufo_path)
+dataset = gdal.Open(clip_tif_path)
 #print(dataset)
 
 #Get projection
 prj = dataset.GetProjection()
-#print(prj)
+print(prj)
 
 ## RED
 
 #setting number band (red in this case)
 number_band = 2
-colour = str("red")
+name = str("red")
 
 band = dataset.GetRasterBand(number_band)
 
@@ -34,7 +34,7 @@ geotransform = dataset.GetGeoTransform()
 
 # Set name of output raster
 if number_band == 2:
-    output_file = files_basename + "_" + colour + ".tif"
+    output_file = files_basename + "_" + name + ".tif"
 
 # Create gtif file with rows and columns from parent raster
 driver = gdal.GetDriverByName("GTiff")
@@ -86,7 +86,7 @@ dst_ds = None
 
 #setting number band (red in this case)
 number_band = 1
-colour = str("nir")
+name = str("nir")
 
 band = dataset.GetRasterBand(number_band)
 
@@ -94,7 +94,7 @@ geotransform = dataset.GetGeoTransform()
 
 # Set name of output raster
 if number_band == 1:
-    output_file = files_basename + "_" + colour + ".tif"
+    output_file = files_basename + "_" + name + ".tif"
 
 # Create gtif file with rows and columns from parent raster
 driver = gdal.GetDriverByName("GTiff")
@@ -142,8 +142,10 @@ dst_ds.SetProjection( srs.ExportToWkt() )
 dst_ds = None
 ###
 
+
 ##Close main raster dataset
 dataset = None
+
 
 
 ## Write to GPKG
@@ -159,3 +161,27 @@ sourcetif_nir = files_basename + "_nir.tif"
 lyr_nir = "nir"
 gdal_string_nir = 'gdal_translate -of GPKG "{}" "{}" -co RASTER_TABLE={} -co APPEND_SUBDATASET=YES'.format(sourcetif_nir, gpkg_raster, lyr_nir)
 os.system(gdal_string_nir)
+
+
+
+
+
+
+#TODO Remove temp tif
+
+""" Uitzoeken of herprojectie nodig is
+tif_red_temp = files_basename + "_red_temp.tif"
+input_raster_red = gdal.Open(tif_red_temp)
+output_raster_red = files_basename + "_red.tif"
+gdal.Warp(output_raster_red,input_raster_red,dstSRS="epsg:28992")
+
+tif_nir_temp = files_basename + "_nir_temp.tif"
+input_raster_nir = gdal.Open(tif_nir_temp)
+output_raster_nir = files_basename + "_nir.tif"
+gdal.Warp(output_raster_nir,input_raster_nir,dstSRS="epsg:28992")
+"""
+
+
+
+
+
