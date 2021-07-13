@@ -4,7 +4,7 @@ from requests import Request
 from owslib.wfs import WebFeatureService
 
 # Load variables
-from variables import *
+from start import buurtcode, gpkg_vector
 
 # Start script
 # URL for WFS backend
