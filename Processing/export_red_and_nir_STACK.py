@@ -3,7 +3,7 @@ import os, struct
 import numpy as np
 
 # Load variables
-from variables import *
+from start import files_basename, gpkg_raster
 
 #Dit is een QGIS command
 #layer = iface.activeLayer()
@@ -175,13 +175,15 @@ os.system(gdal_string_nir)
 #"C:\Program Files\GDAL\gdal_translate.exe" -of GTiff -a_nodata 0 "\\apeldoorn.nl\base$\groupdata\DatalAP\Innovatie\VNG_Remote_Sensing\werk\tempdata\BU03638600_red.tif" "\\apeldoorn.nl\base$\groupdata\DatalAP\Innovatie\VNG_Remote_Sensing\werk\tempdata\BU03638600_rednodata.tif"
 
 
-input_raster = gdal.Open(sourcetif_red)
-output_raster = files_basename + "_red_reproj.tif"
 
-gdal.Warp(output_raster,input_raster,dstSRS="epsg:28992")
+#Uitzoeken of herprojectie nodig is
+#input_raster = gdal.Open(sourcetif_red)
+#output_raster = files_basename + "_red_reproj.tif"
+
+#gdal.Warp(output_raster,input_raster,dstSRS="epsg:28992")
 
 
-input_raster_nir = gdal.Open(sourcetif_nir)
-output_raster_nir = files_basename + "_nir_reproj.tif"
+#input_raster_nir = gdal.Open(sourcetif_nir)
+#output_raster_nir = files_basename + "_nir_reproj.tif"
 
-gdal.Warp(output_raster_nir,input_raster_nir,dstSRS="epsg:28992")
+#gdal.Warp(output_raster_nir,input_raster_nir,dstSRS="epsg:28992")
