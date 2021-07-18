@@ -14,7 +14,7 @@ system <- Sys.info()['sysname']
 # encoding
 Sys.getlocale()
 
-options(encoding = "UTF-8")      
+options(encoding = "UTF-8")
 # use getOption("encoding") to see if things were changed
 
 options(stringsAsFactors = FALSE)
@@ -49,7 +49,20 @@ sub_title<-''
 crs_wgs84 <- st_crs(4326) # WGS84 has EPSG code 4326
 crs_wgs84
 cat(crs_wgs84$wkt)
-crs_wgs84$epsg  
+crs_wgs84$epsg
 
 #in case of Rprofile issues
 #file.edit(file.path("~", ".Rprofile"))
+
+#webdav Transip Stack credentials
+webdav_hostname <- "https://datasciencevng.nl/remote.php/webdav/"
+webdav_login <- "remotesensing"
+webdav_password <- "VNGRS2021!"
+
+#clear graphs folder
+clear_locations <- c(plots.dir)
+
+# get all files in the directories, recursively
+f <- list.files(clear_locations, include.dirs = F, full.names = T, recursive = T)
+# remove the files
+file.remove(f)

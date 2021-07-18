@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------------------------
 
 # date created: 11-05-2021
-# date modified: 18-06-2021
+# date modified: 18-07-2021
 
 #-----------------------------------------------------------------------------------------------
 
@@ -15,9 +15,6 @@
 #-----------------------------------------------------------------------------------------------
 
 #Run in project environment (to avoid package conflicts)
-#FALSE : use current version of packages (recommended)
-#TRUE : fresh install of packages in isolated environment
-
 proj_env <- FALSE #default (F)
 
 #external dependencies Rtools, GEOS, GDAL, PROJ.4, (Anaconda)
@@ -34,7 +31,7 @@ source(here('SRC/globals.R'))
 
 #-----------------------------------------------------------------------------------------------
 
-#Python environment 
+#Python environment
 #source(here('SRC/python.R'))
 
 #-----------------------------------------------------------------------------------------------
@@ -52,13 +49,13 @@ source(here('SRC/functions.R'))
 #-----------------------------------------------------------------------------------------------
 
 #id neighbourhood
-neighbourhood<-"BU03638600"
+neighbourhood<-"BU07530003" #Batadorp in Best
 
-#location geopackages 
+#location geopackages
 #vector layers (polygons buurt, percelen, panden)
-neigh.vec.loc<-paste0(temp.dir,neighbourhood,"_vector.gpkg")
-#geographic raster data (incl. areial photo, NDVI, NH3?)
-neigh.ras.loc<-paste0(temp.dir,neighbourhood,"_raster.gpkg")
+gpkg_vector<-paste0(temp.dir,neighbourhood,"_vector.gpkg")
+#geographic raster data (incl. areial photo, NDVI, NHx?)
+gpkg_raster<-paste0(temp.dir,neighbourhood,"_raster.gpkg")
 
 #-----------------------------------------------------------------------------------------------
 
@@ -81,17 +78,22 @@ mapview(list(percelen_sf, panden_sf),alpha.regions = 0.6, alpha = 1)
 percelen_garden_sf <- sf::st_difference(percelen_sf,panden_sf)
 
 #gardens on percelen with woonfunctie
-woonpercelen_garden_sf <- percelen_garden_sf[percelen_garden_sf$gebruiksdoel %like% "woonfunctie",]
+woonpercelen_garden_sf <- percelen_garden_sf[percelen_garden_sf$gebruiksdoel %like% "woonfunctie",] %>%
+        st_make_valid()
+
+#empty polygons?
+any(is.na(st_dimension(woonpercelen_garden_sf)))
+#corrupt or invalid?
+#any(na.omit(st_is_valid(woonpercelen_garden_sf)) == FALSE)
+#reason for invalidity
+#st_is_valid(woonpercelen_garden_sf, reason = TRUE)
 
 #cast explicitly to polygon
-woonpercelen_garden_sf<-sf::st_cast(woonpercelen_garden_sf,to="POLYGON")
-       
-#plot(buurt_sf$geom)
-#plot(st_geometry(woonpercelen_garden_sf), add=TRUE)
+woonpercelen_garden_sf<-sf::st_cast(woonpercelen_garden_sf,to="MULTIPOLYGON")
 
-#write layer to vector gpkg 
-sf::st_write(woonpercelen_garden_sf, dsn=neigh.vec.loc, layer='garden_private',layer_options = "OVERWRITE=YES",append=FALSE)
-sf::st_layers(neigh.vec.loc)
+#write layer to vector gpkg
+sf::st_write(woonpercelen_garden_sf, dsn=gpkg_vector, layer='gardens',layer_options = "OVERWRITE=YES",append=FALSE)
+sf::st_layers(gpkg_vector)
 
 #-----------------------------------------------------------------------------------------------
 
@@ -99,7 +101,7 @@ sf::st_layers(neigh.vec.loc)
 
 #-----------------------------------------------------------------------------------------------
 
-source(here('SRC/import_image.R'))
+source(here('SRC/image.R'))
 
 #plot layers
 plot(ai_crop)
@@ -114,7 +116,7 @@ plot(ai_crop)
 nir <- ai_crop[[1]]
 red <- ai_crop[[2]]
 
-#Normalized difference vegetation index (NDVI) 
+#Normalized difference vegetation index (NDVI)
 #Ranges from -1 to 1
 #Indicates amount of vegetation, distinguishes veg from soil, minimizes topographic effects
 #Does not eliminate atmospheric effects
@@ -146,42 +148,42 @@ unlink(paste0(temp.dir,neighbourhood,"_green_indices.gpkg"))
 #Stars-packagke
 
 #NDVI values
-ndvi %>% 
+ndvi %>%
         st_as_stars %>% # convert the RasterLayer to a stars object
         write_stars(paste0(temp.dir,neighbourhood,"_green_indices.gpkg"),
                     driver = "GPKG",options = c("RASTER_TABLE=ndvi","APPEND_SUBDATASET=YES"))
 
 #subset of substantial green
-vegi %>% 
+vegi %>%
         st_as_stars %>% # convert the RasterLayer to a stars object
         write_stars(paste0(temp.dir,neighbourhood,"_green_indices.gpkg"),
                     driver = "GPKG", options = c("RASTER_TABLE=vegi","APPEND_SUBDATASET=YES"))
 
 #RVI values
-rvi %>% 
+rvi %>%
         st_as_stars %>% # convert the RasterLayer to a stars object
         write_stars(paste0(temp.dir,neighbourhood,"_green_indices.gpkg"),
                     driver = "GPKG", options = c("RASTER_TABLE=rvi","APPEND_SUBDATASET=YES"))
 
 #review raster layers in gpkg-file
-gdalUtils::gdalinfo(paste0(temp.dir,neighbourhood,"_green_indices.gpkg")) %>% 
+gdalUtils::gdalinfo(paste0(temp.dir,neighbourhood,"_green_indices.gpkg")) %>%
         cat(sep = "\n")
 
-#gdalUtils::gdalinfo(paste0(temp.dir,neighbourhood,"_green_indices.gpkg"), 
+#gdalUtils::gdalinfo(paste0(temp.dir,neighbourhood,"_green_indices.gpkg"),
                     # provide metadata of first subdataset:
 #                    sd=1, #ndvi
                     # the following arguments just control formatting of the output:
-#                    approx_stats = TRUE, mm = TRUE, proj4 = TRUE) %>% 
+#                    approx_stats = TRUE, mm = TRUE, proj4 = TRUE) %>%
 #        cat(sep = "\n")
 
 
 #create RasterBrick (read)
-green_indices <- 
+green_indices <-
         read_stars(paste0(temp.dir,neighbourhood,"_green_indices.gpkg")
                    #subsetting
                    #,sub = "ndvi"
-                   ,quiet = TRUE         
-                   ) %>% 
+                   ,quiet = TRUE
+                   ) %>%
         as("Raster")
 green_indices
 
@@ -216,8 +218,8 @@ rm(ndvi2,percelen_sf2)
 
 #Mean value (NDVI) of cells that intersect the polygon, weighted by the percent of the cell that is covered.
 #mean ndvi per polygon element (perceel)
-ndvi_avg<-exactextractr::exact_extract(ndvi, percelen_sf, 
-                                             #the mean cell value, weighted by the fraction of each cell 
+ndvi_avg<-exactextractr::exact_extract(ndvi, percelen_sf,
+                                             #the mean cell value, weighted by the fraction of each cell
                                              #that is covered by the polygon
                                              fun ='mean',
                                              force_df =TRUE)
@@ -226,9 +228,9 @@ ndvi_avg<-exactextractr::exact_extract(ndvi, percelen_sf,
 #add mean ndvi values to percelen_sf
 percelen_sf$ndvi_avg<-ndvi_avg
 
-#Sum of raster cells covered by the polygon, with each raster value weighted by its coverage fraction 
+#Sum of raster cells covered by the polygon, with each raster value weighted by its coverage fraction
 #and weighting raster value.
-#ndvi_weighted_sum<-exactextractr::exact_extract(vegi, woonpercelen_garden_sf, 
+#ndvi_weighted_sum<-exactextractr::exact_extract(vegi, woonpercelen_garden_sf,
 #                                             'weighted_sum',
 #                                             weights=raster(woonpercelen_garden_sf$geom),
 #                                             force_df =TRUE)

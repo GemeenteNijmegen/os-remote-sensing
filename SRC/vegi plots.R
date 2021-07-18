@@ -7,13 +7,13 @@
 
 #plots based on rasterviz
 #NDVI distribution
-png(paste0(plots.dir,"rs_ndvi_density_",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio, height=png_height)
+png(paste0(plots.dir,"rs_ndvi_density_distribution_",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio, height=png_height)
 dp<-densityplot(ndvi)
 dp
 dev.off()
 
 # plot NDVI
-plot_ndvi <- gplot(ndvi) + 
+plot_ndvi <- gplot(ndvi) +
   geom_tile(aes(fill = value)) +
   scale_fill_gradientn(colours = rev(terrain.colors(225)), limits = c(-0.5,1)) +
   #geom_sf(aes(st_sf(st_geometry(woonpercelen_garden_sf)))) +
@@ -24,14 +24,14 @@ plot.store <-paste0(plots.dir,plot.nme)
 ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio, dpi=dpi)
 
 #lattice-style levelplot NDVI
-png(paste0(plots.dir,"rs_ndvi_percelen_",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio, height=png_height)
+png(paste0(plots.dir,"rs_ndvi_levelplot_",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio, height=png_height)
 plt <- levelplot(ndvi)
 plt + latticeExtra::layer(sp.lines(percelen_sp, col="white", lwd=0.2))
 plt
 dev.off()
 
 # plot vegetation classes
-plot_vegi <-  gplot(vegc) + 
+plot_vegi <-  gplot(vegc) +
   geom_tile(aes(fill = value)) +
   scale_fill_gradientn(colours = rev(terrain.colors(5))) +
   theme_minimal() +
@@ -41,7 +41,7 @@ plot.store <-paste0(plots.dir,plot.nme)
 ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio, dpi=dpi)
 
 # plot substantial green
-plot_vegi <-  gplot(vegi) + 
+plot_vegi <-  gplot(vegi) +
   geom_tile(aes(fill = value)) +
   scale_fill_gradientn(colours = rev(terrain.colors(225)), na.value ="transparent",limits = c(0.4,1)) +
   theme_minimal() +
@@ -60,7 +60,7 @@ box(col = "white")
 dev.off()
 
 #plot RVI
-plot_rvi <-  gplot(rvi) + 
+plot_rvi <-  gplot(rvi) +
   geom_tile(aes(fill = value)) +
   scale_fill_gradientn(colours = rev(terrain.colors(225))) +
   theme_minimal() +
@@ -69,7 +69,7 @@ plot.nme = paste0('rs_rvi_',neighbourhood,'.png')
 plot.store <-paste0(plots.dir,plot.nme)
 ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio, dpi=dpi)
 
-plot_ndvi_subset <- plot_ndvi + plot_vegi 
+plot_ndvi_subset <- plot_ndvi + plot_vegi
 plot.nme = paste0('rs_ndvi_substantialgreen_',neighbourhood,'.png')
 plot.store <-paste0(plots.dir,plot.nme)
 ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio*2, dpi=dpi)

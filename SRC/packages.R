@@ -5,8 +5,11 @@
 
 #-----------------------------------------------------------------------------------------------
 
+#restart session
+#.rs.restartR()
+
 #clear console
-cat("\014")  
+cat("\014")
 
 #garbage collection
 gc(verbose = FALSE, full = TRUE)
@@ -32,7 +35,7 @@ options(warn = -1)
 options("rgdal_show_exportToProj4_warnings"="none")
 
 #prevents an auxiliary file being written next to *.gpkg
-Sys.setenv(GDAL_PAM_ENABLED = "NO") 
+Sys.setenv(GDAL_PAM_ENABLED = "NO")
 
 # load CRAN packages
 packages <- c(
@@ -53,7 +56,7 @@ packages <- c(
   'data.table',
   #Web client
   'curl','httr',
-  #Simple Features 
+  #Simple Features
   'sf',
   #Geographic Data Analysis and Modeling
   'raster',
