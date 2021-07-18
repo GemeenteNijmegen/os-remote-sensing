@@ -47,6 +47,7 @@ packages <- c(
   'rlang',
   #Relative paths
   'here',
+  'R.utils',
   #Environment variables
   #'usethis',
   #'tools',

@@ -14,14 +14,26 @@ valid_gdal
 tiff.as.source<-TRUE
 
 #location of aerial image
+#ECW
 input <- paste0(temp.dir,"amsterdam.ecw")
 output <- paste0(temp.dir,neighbourhood,".tif")
 
-#TIFF exists?
+#remote TIFF
+path_tif <- paste0("https://datasciencevng.nl/remote.php/webdav/Data/cir2020perbuurt/",neighbourhood,".tif")
+library(R.utils)
+tif <- downloadFile(url      = path_tif,
+                    path     = temp.dir,
+                    username = "remotesensing", 
+                    password = "VNGRS2021!", 
+                    verbose  = FALSE)
+
+
+#local TIFF exists?
 tiff.rdy<-FALSE
 tiff.rdy<-file.exists(output)
 tiff.rdy
 
+#ECW
 if(tiff.as.source==FALSE & tiff.rdy==FALSE) {
 gdalUtils::gdal_translate(input, output, overwrite=T)
 }
@@ -33,7 +45,7 @@ if(tiff.as.source==TRUE) {
 GDALinfo(output)
 
 #stars based on Tiff
-(x = read_stars(output))
+(x = read_stars(tif))
 #plot(x)
 (ai = as(x, "Raster"))
 rm(x)
