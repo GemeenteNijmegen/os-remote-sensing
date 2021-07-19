@@ -5,9 +5,6 @@
 
 #-----------------------------------------------------------------------------------------------
 
-#restart session
-#.rs.restartR()
-
 #clear console
 cat("\014")
 
@@ -48,6 +45,7 @@ packages <- c(
   #Relative paths
   'here',
   'R.utils',
+  'Rmisc',
   #Environment variables
   #'usethis',
   #'tools',

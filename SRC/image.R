@@ -10,33 +10,41 @@
 valid_gdal <- !is.null(getOption("gdalUtils_gdalPath"))
 valid_gdal
 
-#read TIFF instead of ECW (FALSE=ECW, TRUE=TIFF)
-tiff.as.source<-TRUE
-
 #location of aerial image
-#ECW
+#local ECW
 input <- paste0(temp.dir,"amsterdam.ecw")
+#local TIFF (output)
 output <- paste0(temp.dir,neighbourhood,".tif")
 
-#remote TIFF
-path_tif <- paste0("https://datasciencevng.nl/remote.php/webdav/Data/cir2020perbuurt/",neighbourhood,".tif")
-library(R.utils)
-tif <- downloadFile(url      = path_tif,
-                    path     = temp.dir,
-                    username = "remotesensing", 
-                    password = "VNGRS2021!", 
-                    verbose  = FALSE)
-
+#read TIFF instead of ECW (FALSE=ECW, TRUE=TIFF)
+tiff.as.source<-TRUE
 
 #local TIFF exists?
 tiff.rdy<-FALSE
 tiff.rdy<-file.exists(output)
 tiff.rdy
 
+#-----------------------------------------------------------------------------------------------
+
+if(tiff.as.source==TRUE & tiff.rdy==FALSE) {
+#remote TIFF (input)
+path_tif <- paste0("https://datasciencevng.nl/remote.php/webdav/Data/cir2020perbuurt/",neighbourhood,".tif")
+
+tif <- downloadFile(url      = path_tif,
+                    path     = temp.dir,
+                    username = "remotesensing", 
+                    password = "VNGRS2021!", 
+                    verbose  = FALSE)
+}
+
+#-----------------------------------------------------------------------------------------------
+
 #ECW
 if(tiff.as.source==FALSE & tiff.rdy==FALSE) {
 gdalUtils::gdal_translate(input, output, overwrite=T)
 }
+
+#-----------------------------------------------------------------------------------------------
 
 #create RasterBrick
 if(tiff.as.source==TRUE) {
@@ -45,10 +53,10 @@ if(tiff.as.source==TRUE) {
 GDALinfo(output)
 
 #stars based on Tiff
-(x = read_stars(tif))
+(x = read_stars(output))
 #plot(x)
 (ai = as(x, "Raster"))
-rm(x)
+rm(x,tif)
 } else {
 #ECW as source
 ai<-raster::brick(output)
@@ -73,7 +81,7 @@ names(ai)
 #https://www.mngeo.state.mn.us/chouse/airphoto/cir.html
 names(ai) <- c("nir","red","green")
 
-plot(ai)
+#plot(ai)
 
 #crop neighbourhood
 ai_crop <- crop(ai, buurt_sf)
@@ -81,26 +89,50 @@ ai_crop <- crop(ai, buurt_sf)
 
 rm(ai)
 
+# mask tuinen
+ai_tuinen <- raster::mask(ai_crop, tuinen_sf)
+
+#-----------------------------------------------------------------------------------------------
+#RGB plots
+
+#buurt
 png(paste0(plots.dir,"rs_rgb_",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio, height=png_height)
 par(col.axis = "white", col.lab = "white", tck = 0)
-aerial_rgb<-plotRGB(ai_crop,
+aerial_rgb<-raster::plotRGB(ai_crop,
                     r = 1, g = 2, b = 3,
                     #stretch the values to increase the contrast of the image
                     stretch = "lin",
                     axes = TRUE,
-                    main = paste0("composite image stack ", neighbourhood))
+                    main = paste0("composite image stack neighbourhood ", neighbourhood))
 plot(percelen_sf$geom, add=TRUE, legend=FALSE)
+#add centroid perceel
+cntrd_perceel = st_centroid(st_geometry(percelen_sf))
 box(col = "white")
 aerial_rgb
+plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
 dev.off()
 
-#plot NIR and polygon percelen
-plot(ai_crop[[1]])
-plot(st_geometry(percelen_sf), add=TRUE)
+
+#tuinen in buurt
+png(paste0(plots.dir,"rs_rgb_",neighbourhood,"_tuinen.png"), bg="white", width=png_height*aspect_ratio, height=png_height)
+par(col.axis = "white", col.lab = "white", tck = 0)
+aerial_rgb<-raster::plotRGB(ai_tuinen,
+                            r = 1, g = 2, b = 3,
+                            #stretch the values to increase the contrast of the image
+                            stretch = "lin",
+                            axes = TRUE,
+                            main = paste0("composite image stack gardens ", neighbourhood))
+plot(percelen_sf$geom, add=TRUE, legend=FALSE)
+#add centroid perceel
+box(col = "white")
+aerial_rgb
+plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
 dev.off()
 
 #remove existing raster geopackage
 unlink(gpkg_raster)
+
+#-----------------------------------------------------------------------------------------------
 
 #create (fresh) multi-raster GeoPackage
 #NIR

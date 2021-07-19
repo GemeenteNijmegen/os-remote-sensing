@@ -53,9 +53,15 @@ url$query <- list(service = "wfs",
                   outputFormat='json')
 request <- build_url(url);request
 panden_sf <- sf::st_read(request)
+
+#relevant features panden
+panden_cols<-colnames(panden_sf)
+
 #subset panden within buurt
 panden_sf <- panden_sf[buurt_sf,] #containing
 panden_sf <- sf::st_intersection(buurt_sf, panden_sf) #clipping
+
+#-----------------------------------------------------------------------------------------------
 
 #Perceel request
 url <- parse_url("https://geodata.nationaalgeoregister.nl/kadastralekaart/wfs/v4_0?")
@@ -68,9 +74,15 @@ url$query <- list(service = "wfs",
                   outputFormat='json')
 request <- build_url(url);request
 percelen_sf <- sf::st_read(request)
+
+#relevant features percelen
+percelen_cols<-colnames(percelen_sf)
+
 #subset percelen within buurt
-percelen_sf <- percelen_sf[buurt_sf$geom,] #containing
-percelen_sf <- sf::st_intersection(buurt_sf, percelen_sf) #clipping
+percelen_sf <- percelen_sf[buurt_sf,] #containing
+#percelen_sf <- sf::st_intersection(buurt_sf, percelen_sf) #clipping 
+
+#-----------------------------------------------------------------------------------------------
 
 #Verblijfsobjecten request
 url <- parse_url("https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1?")
@@ -83,7 +95,11 @@ url$query <- list(service = "wfs",
                   outputFormat='json')
 request <- build_url(url);request
 verblijfsobject_sf <- sf::st_read(request)
-#subset percelen within buurt
+
+#relevant features verblijfsobjecten
+verblijfsobject_cols<-colnames(verblijfsobject_sf)
+
+#subset verblijfsobjecten within buurt
 verblijfsobject_sf <- verblijfsobject_sf[buurt_sf$geom,] #containing
 verblijfsobject_sf <- sf::st_intersection(buurt_sf, verblijfsobject_sf) #clipping
 
@@ -97,14 +113,12 @@ verblijfsobject_sf <- sf::st_intersection(buurt_sf, verblijfsobject_sf) #clippin
 #filter-out invalid features, calculate surface area
 percelen_sf <- percelen_sf  %>%
   #make sure shapes are valid (after clipping)
-  st_make_valid()  %>%
+  st_make_valid()  #%>%
   #feature area calculation (m^2)
-  mutate(area = st_area(percelen_sf))
+  #mutate(area = st_area(percelen_sf))
 
 #add id to rownames
 rownames(percelen_sf)<-percelen_sf$identificatieLokaalID
-
-percelen_cols<-colnames(percelen_sf)
 
 #panden
 #filter-out invalid features, calculate surface area
@@ -125,23 +139,13 @@ sf::st_layers(gpkg_vector)
 
 } else {
 #read existing geopackage, individual layers
-buurt_sf <- sf::st_read(gpkg_vector, layer= "buurt")
-panden_sf <- sf::st_read(gpkg_vector, layer= "panden")
-percelen_sf <- sf::st_read(gpkg_vector, layer= "percelen")
-verblijfsobject_sf <- sf::st_read(gpkg_vector, layer= "verblijfsobjecten")
+buurt_sf <- sf::st_read(gpkg_vector, layer= "buurt", geometry_column="geom")
+panden_sf <- sf::st_read(gpkg_vector, layer= "panden",geometry_column="geom")
+percelen_sf <- sf::st_read(gpkg_vector, layer= "percelen",geometry_column="geom")
+verblijfsobject_sf <- sf::st_read(gpkg_vector, layer= "verblijfsobjecten", geometry_column="geom")
 }
 
-#-----------------------------------------------------------------------------------------------
-
-#relevant features percelen
-percelen_cols<-colnames(percelen_sf)
-
-#relevant features panden
-panden_cols<-colnames(panden_sf)
-
-#relevant features verblijfsobjecten
-verblijfsobject_cols<-colnames(verblijfsobject_sf)
-
+#plot(st_geometry(percelen_sf))
 
 #-----------------------------------------------------------------------------------------------
 
@@ -177,6 +181,19 @@ ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio, d
 }
 
 #-----------------------------------------------------------------------------------------------
+
+
+#dd<-percelen_sf %>%
+#  st_make_valid() %>%
+#  st_cast('MULTIPOLYGON') %>%
+#  st_cast('POLYGON', warn=FALSE) %>%
+#  filter(st_area(.) > units::set_units(1, m^2)) %>%
+#  group_by(id) %>%
+#  summarize(geometry = st_combine(geometry))
+
+
+
+
 
 ## Clean environment
 #rm(list=ls()[! ls() %in% c("buurt_sf","panden_sf_sub", "percelen_sf_sub", "clip.pand.buurt.percelen")])

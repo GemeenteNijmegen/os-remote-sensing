@@ -23,13 +23,13 @@ options(stringsAsFactors = FALSE)
 #create directories on-the-fly if not exist
 
 #location data
-data.dir <- here("DATA",'/')
+data.dir <- here::here("DATA",'/')
 
 #location temp data
-temp.dir <- here("tempdata",'/')
+temp.dir <- data.dir
 
 #location plots
-plots.dir <- here("PLOTS",'/')
+plots.dir <- here::here("PLOTS",'/')
 
 #create locations if not exist
 locations <- c(data.dir, temp.dir, plots.dir)
@@ -59,8 +59,8 @@ webdav_hostname <- "https://datasciencevng.nl/remote.php/webdav/"
 webdav_login <- "remotesensing"
 webdav_password <- "VNGRS2021!"
 
-#clear graphs folder
-clear_locations <- c(plots.dir)
+#clear graphs and data folder
+clear_locations <- c(plots.dir, data.dir)
 
 # get all files in the directories, recursively
 f <- list.files(clear_locations, include.dirs = F, full.names = T, recursive = T)
