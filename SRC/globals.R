@@ -19,27 +19,34 @@ options(encoding = "UTF-8")
 
 options(stringsAsFactors = FALSE)
 
+#turn off warnings
+if(debug_mode==FALSE) {
+  options(warn = -1)
+} else {
+  options(warn = 0)  
+} 
+
+#turn of dplyr's summarise notifications
+options(dplyr.summarise.inform = FALSE)
+
 #directories
 #create directories on-the-fly if not exist
 
 #location data
 data.dir <- here::here("DATA",'/')
 
-#location temp data
-temp.dir <- data.dir
-
 #location plots
 plots.dir <- here::here("PLOTS",'/')
 
 #create locations if not exist
-locations <- c(data.dir, temp.dir, plots.dir)
+locations <- c(data.dir, plots.dir)
 
 lapply(locations, function(x) {
   if (!dir.exists(x)) {dir.create(x)}
 })
 
 #dimension and quality plots
-graph_height <- 9
+graph_height <- 12
 png_height <- 600
 aspect_ratio <- 1
 dpi <- 320 #retina
@@ -51,7 +58,7 @@ crs_wgs84
 cat(crs_wgs84$wkt)
 crs_wgs84$epsg
 
-#in case of Rprofile issues
+#store Stack credentials here and remove below
 #file.edit(file.path("~", ".Rprofile"))
 
 #webdav Transip Stack credentials

@@ -1,12 +1,18 @@
 
-# download prefab geopackage from VNG Stack
+#-----------------------------------------------------------------------------------------------
+
+# Polygon data 
+
+#-----------------------------------------------------------------------------------------------
+
+# download prefab geopackage from VNG Stack location
 path_processed <- file.path("https://datasciencevng.nl/remote.php/webdav/Data/processed", 
                             neighbourhood, paste0(neighbourhood, "_vector.gpkg"))
 gpkg_vector <- R.utils::downloadFile(url      = path_processed,
-                                           path     = "DATA",
-                                           username = webdav_login, 
-                                           password = webdav_password, 
-                                           verbose  = FALSE)
+                                     path     = data.dir,
+                                     username = webdav_login, 
+                                     password = webdav_password, 
+                                     verbose  = FALSE)
 
 #sf::st_layers(gpkg_vector)
 

@@ -17,6 +17,9 @@
 #Run in project environment (to avoid package conflicts)
 proj_env <- FALSE #default (F)
 
+#debug mode
+debug_mode <- FALSE #default (F)
+
 #external dependencies Rtools, GEOS, GDAL, PROJ.4, (Anaconda)
 
 #setup and packages
@@ -46,9 +49,9 @@ neighbourhood<-"BU04411401" #another neighbourhood
 
 #location geopackages
 #vector layers (polygons buurt, percelen, panden, tuinen)
-gpkg_vector<-paste0(temp.dir,neighbourhood,"_vector.gpkg")
+gpkg_vector<-paste0(data.dir,neighbourhood,"_vector.gpkg")
 #geographic raster data (incl. aerial photo, NDVI, NHx?)
-gpkg_raster<-paste0(temp.dir,neighbourhood,"_raster.gpkg")
+gpkg_raster<-paste0(data.dir,neighbourhood,"_raster.gpkg")
 
 #-----------------------------------------------------------------------------------------------
 
@@ -56,13 +59,15 @@ gpkg_raster<-paste0(temp.dir,neighbourhood,"_raster.gpkg")
 
 #-----------------------------------------------------------------------------------------------
 
+#geopackage with buurt, percelen and panden polygons
+
 prefab_polygons <- TRUE 
 
 if(prefab_polygons==TRUE) {
 #download prefab geopackage        
-        source(here::here('SRC/vector_gpkg_request.R'))       
+ source(here::here('SRC/vector_gpkg_request.R'))       
 } else {
-#create geopackage with buurt, percelen and panden polygons
+#create geopackage
  source(here::here('SRC/buurt_pand_perceel_request.R')) 
 }
 
@@ -111,7 +116,7 @@ source(here::here('SRC/green_classes.R'))
 veg_s <- raster::reclassify(ndvi, cbind(-Inf, 0.4, NA))
 
 #vegetation in classes (Deloitte)
-veg_c <- raster::reclassify(ndvi, c(-Inf,0.2,1, 0.2,0.4,2, 0.4,1,3))
+veg_c <- raster::reclassify(ndvi, c(-Inf,0.2,1,0.2,0.4,2,0.4,1,3))
 
 #Ratio vegetation index (RVI)
 #Indicates amount of vegetation
@@ -122,44 +127,44 @@ rvi  <- nir / red
 #-----------------------------------------------------------------------------------------------
 #create fresh multi-raster GeoPackage (gpkg) containing all green indices (write)
 
-unlink(paste0(temp.dir,neighbourhood,"_green_indices.gpkg"))
+unlink(paste0(data.dir,neighbourhood,"_green_indices.gpkg"))
 #Stars-packagke
 
 #NDVI 
 ndvi %>%
         st_as_stars %>% # convert the RasterLayer to a stars object
-        write_stars(paste0(temp.dir,neighbourhood,"_green_indices.gpkg"),
+        write_stars(paste0(data.dir,neighbourhood,"_green_indices.gpkg"),
                     driver = "GPKG",options = c("RASTER_TABLE=ndvi","APPEND_SUBDATASET=YES"))
 
 #substantial green (fixed)
 veg_s %>%
         st_as_stars %>% # convert the RasterLayer to a stars object
-        write_stars(paste0(temp.dir,neighbourhood,"_green_indices.gpkg"),
+        write_stars(paste0(data.dir,neighbourhood,"_green_indices.gpkg"),
                     driver = "GPKG", options = c("RASTER_TABLE=veg_substantial_fixed","APPEND_SUBDATASET=YES"))
 
 #green classes (fixed)
 veg_c %>%
         st_as_stars %>% # convert the RasterLayer to a stars object
-        write_stars(paste0(temp.dir,neighbourhood,"_green_indices.gpkg"),
+        write_stars(paste0(data.dir,neighbourhood,"_green_indices.gpkg"),
                     driver = "GPKG", options = c("RASTER_TABLE=veg_classes_fixed","APPEND_SUBDATASET=YES"))
 
 #green classes unsupervised 
 veg_clus %>%
         st_as_stars %>% # convert the RasterLayer to a stars object
-        write_stars(paste0(temp.dir,neighbourhood,"_green_indices.gpkg"),
+        write_stars(paste0(data.dir,neighbourhood,"_green_indices.gpkg"),
                     driver = "GPKG", options = c("RASTER_TABLE=veg_classes_unsupervised","APPEND_SUBDATASET=YES"))
 
 #RVI
 rvi %>%
         st_as_stars %>% # convert the RasterLayer to a stars object
-        write_stars(paste0(temp.dir,neighbourhood,"_green_indices.gpkg"),
+        write_stars(paste0(data.dir,neighbourhood,"_green_indices.gpkg"),
                     driver = "GPKG", options = c("RASTER_TABLE=rvi","APPEND_SUBDATASET=YES"))
 
 #review raster layers in gpkg-file
-gdalUtils::gdalinfo(paste0(temp.dir,neighbourhood,"_green_indices.gpkg")) %>%
+gdalUtils::gdalinfo(paste0(data.dir,neighbourhood,"_green_indices.gpkg")) %>%
         cat(sep = "\n")
 
-#gdalUtils::gdalinfo(paste0(temp.dir,neighbourhood,"_green_indices.gpkg"),
+#gdalUtils::gdalinfo(paste0(data.dir,neighbourhood,"_green_indices.gpkg"),
                     # provide metadata of first subdataset:
 #                    sd=1, #ndvi
                     # the following arguments just control formatting of the output:
@@ -169,7 +174,7 @@ gdalUtils::gdalinfo(paste0(temp.dir,neighbourhood,"_green_indices.gpkg")) %>%
 
 #create RasterBrick (read gpkg)
 green_indices <-
-        read_stars(paste0(temp.dir,neighbourhood,"_green_indices.gpkg")
+        read_stars(paste0(data.dir,neighbourhood,"_green_indices.gpkg")
                    #subsetting
                    #,sub = "ndvi"
                    ,quiet = TRUE
@@ -183,26 +188,58 @@ green_indices
 
 #-----------------------------------------------------------------------------------------------
 
-source(here::here('SRC/vegi plots.R'))
+source(here::here('SRC/vegitation_plots.R'))
 
 #-----------------------------------------------------------------------------------------------
 
-# Polygon filtering
+# Polygon filtering, green coverage and mean NDVI 
 
 #-----------------------------------------------------------------------------------------------
+
+
+#under contruction by Mark
 
 #filter ndvi raster by polygon
 #https://cran.r-project.org/web/packages/exactextractr/exactextractr.pdf
 
+#Distribution of raster cell NDVI values
+png(paste0(plots.dir,"rs_raster_cell_ndvi",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio*2, height=png_height)
+hist(ndvi,
+     main = paste0("Distribution of raster cell NDVI values ",neighbourhood),
+     xlab = "ndvi", ylab = "cells",
+     col = "steelblue")
+dev.off()
+
+#classification matrix
+reclass_df <- c(0, 0.2, NA,
+                0.2, 1, 1)
+reclass_df
+
+#reshape the object into a matrix with columns and rows
+reclass_m <- matrix(reclass_df,
+                    ncol = 3,
+                    byrow = TRUE)
+reclass_m
+
+
 #projection
 crs(ndvi)<-crs(percelen_sf)
+ndvi_raster<-raster::raster(ndvi)
 
-#surface covered by substantial green per polygon element (tuin)
-ndvi2<-raster::raster(ndvi)
-tuinen_sf2<-sf::st_sf(tuinen_sf)
+ndvi_classified <- reclassify(ndvi_raster,
+                             reclass_m)
 
-ndvi_cover <- exactextractr::coverage_fraction(ndvi2,tuinen_sf2, crop = FALSE)
-rm(ndvi2,percelen_sf2)
+#surface covered by substantial green (ndvi_classified) per polygon element (tuin)
+ndvi_cover <- exactextractr::coverage_fraction(ndvi_raster,tuinen_sf, crop = FALSE)
+rm(ndvi_raster)
+
+#store green coverage gardens
+for (i in length(ndvi_cover)) {
+ndvi_cover[[i]] %>%
+        st_as_stars %>% # convert the RasterLayer to a stars object
+        write_stars(paste0(data.dir,neighbourhood,"_green_coverage_tuinen.gpkg"),
+                    driver = "GPKG", options = c("RASTER_TABLE=green_cover","APPEND_SUBDATASET=YES"))
+}
 
 #Mean value (NDVI) of cells that intersect the polygon, weighted by the percent of the cell that is covered.
 #mean ndvi per polygon element (tuin)
@@ -212,9 +249,19 @@ ndvi_avg<-exactextractr::exact_extract(ndvi, tuinen_sf,
                                              fun ='mean',
                                              force_df =TRUE)
 
-
 #add mean ndvi values to tuinen_sf
 tuinen_sf$ndvi_avg<-ndvi_avg
+
+plot.title = paste0('mean NDVI garden')
+ggplot(data = tuinen_sf) +
+        geom_sf(aes(fill = ndvi_avg$mean)) +
+        scale_fill_viridis_c(option = "plasma", direction = -1,name = "mean NDVI") +
+        #xlab("Longitude") + ylab("Latitude") +
+theme_minimal() 
+plot.nme = paste0('NDVI_mean_garden.png')
+plot.store <-paste0(plots.dir,plot.nme)
+ggsave(plot.store, height = graph_height , width = graph_height * aspect_ratio, dpi=dpi)
+
 
 #Sum of raster cells covered by the polygon, with each raster value weighted by its coverage fraction
 #and weighting raster value.
@@ -224,14 +271,8 @@ tuinen_sf$ndvi_avg<-ndvi_avg
 #                                             force_df =TRUE)
 
 
+#under contruction by Mark
 
-#-----------------------------------------------------------------------------------------------
-
-# Unsupervised classification
-
-#-----------------------------------------------------------------------------------------------
-
-#source(here::here('SRC/classification.R'))
 
 #-----------------------------------------------------------------------------------------------
 
