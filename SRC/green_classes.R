@@ -59,7 +59,7 @@ ggplot(ndvi_cluster, aes(x = gi, y = ndvi)) +
                 position = position_dodge(0.9)) +
   xlab("Cluster")+
   ylab("NDVI") +
-  theme_minimal() 
+  theme_light() 
   plot.nme = paste0('NDVI_cluster_boundaries.png')
 plot.store <-paste0(plots.dir,plot.nme)
 ggsave(plot.store, height = graph_height , width = graph_height * aspect_ratio, dpi=dpi)

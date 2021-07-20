@@ -29,10 +29,34 @@ plot.nme = paste0('rs_ndvi_',neighbourhood,'.png')
 plot.store <-paste0(plots.dir,plot.nme)
 ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio, dpi=dpi)
 
+# plot EVI2
+plot_ndvi <- gplot(evi2) +
+  geom_tile(aes(fill = value)) +
+  scale_fill_gradientn(colours = rev(terrain.colors(225)), na.value ="transparent") +
+  #geom_sf(aes(st_sf(st_geometry(tuinen_sf)))) +
+  theme_minimal() +
+  labs(fill = "EVI2")
+plot.nme = paste0('rs_evi2_',neighbourhood,'.png')
+plot.store <-paste0(plots.dir,plot.nme)
+ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio, dpi=dpi)
+
+# plot RVI
+plot_ndvi <- gplot(rvi) +
+  geom_tile(aes(fill = value)) +
+  scale_fill_gradientn(colours = rev(terrain.colors(225)), na.value ="transparent") +
+  #geom_sf(aes(st_sf(st_geometry(tuinen_sf)))) +
+  theme_minimal() +
+  labs(fill = "RVI")
+plot.nme = paste0('rs_rvi_',neighbourhood,'.png')
+plot.store <-paste0(plots.dir,plot.nme)
+ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio, dpi=dpi)
+
+library(colorspace)
 # plot vegetation classes
 plot_vegi <-  gplot(veg_c) +
-  geom_tile(aes(fill = value)) +
-  scale_fill_gradientn(colours = rev(terrain.colors(5)), na.value ="transparent") +
+  geom_tile(aes(fill = as.factor(value))) +
+  #scale_fill_gradientn(colours = rev(terrain.colors(5)), na.value ="transparent") +
+  scale_fill_discrete_sequential(palette = "Terrain") +
   theme_minimal() +
   labs(fill = "NDVI classes (fixed)")
 plot.nme = paste0('rs_ndvi_classes_fixed_',neighbourhood,'.png')
@@ -41,8 +65,9 @@ ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio, d
 
 # plot vegetation classes
 plot_vegi <-  gplot(veg_clus) +
-  geom_tile(aes(fill = value)) +
-  scale_fill_gradientn(colours = rev(terrain.colors(5)), na.value ="transparent") +
+  geom_tile(aes(fill = as.factor(value))) +
+  #scale_fill_gradientn(colours = rev(terrain.colors(5)), na.value ="transparent") +
+  scale_fill_discrete_sequential(palette = "Terrain") +
   theme_minimal() +
   labs(fill = "NDVI classes (unsupervised)")
 plot.nme = paste0('rs_ndvi_classes_unsupervised_',neighbourhood,'.png')
