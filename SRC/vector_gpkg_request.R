@@ -22,3 +22,4 @@ panden_sf <- sf::st_read(gpkg_vector, layer= "panden",geometry_column="geom")
 percelen_sf <- sf::st_read(gpkg_vector, layer= "percelen",geometry_column="geom")
 verblijfsobject_sf <- sf::st_read(gpkg_vector, layer= "verblijfsobjecten", geometry_column="geom")
 tuinen_sf   <- st_read(gpkg_vector, layer = "tuinen", geometry_column="geom")
+

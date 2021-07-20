@@ -77,4 +77,4 @@ veg_clus <- raster::reclassify(ndvi, c(-Inf, rng_list[[1]], 1,
                                    rng_list[[3]], rng_list[[4]], 4,
                                    rng_list[[4]], Inf, 5))
 
-rm(tmp)
+rm(tmp, gi_km)

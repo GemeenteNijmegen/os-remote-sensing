@@ -38,8 +38,11 @@ data.dir <- here::here("DATA",'/')
 #location plots
 plots.dir <- here::here("PLOTS",'/')
 
+#aerial photo (local source)
+ai.dir <- here::here("AI",'/')
+
 #create locations if not exist
-locations <- c(data.dir, plots.dir)
+locations <- c(data.dir, plots.dir, ai.dir)
 
 lapply(locations, function(x) {
   if (!dir.exists(x)) {dir.create(x)}

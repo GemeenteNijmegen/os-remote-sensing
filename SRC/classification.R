@@ -20,6 +20,7 @@ nvdi_valid_array <- nvdi_array[i]
 
 str(nvdi_valid_array)
 
+
 #-----------------------------------------------------------------------------------------------
 #Kmeans clustering
 
@@ -65,6 +66,8 @@ gi_km <- ndvi
 gi_km[] <- NA
 gi_km[] <- km$cluster
 
+
+
 #-----------------------------------------------------------------------------------------------
 ## Clara classification (Clustering for Large Applications) 
 
@@ -92,7 +95,7 @@ plot.nme = paste0('rs_rgb_kmeans_',neighbourhood,'.png')
 plot.store <-paste0(plots.dir,plot.nme)
 png(plot.store, width = 10, height = 8, units = "in", res = 300)
 par(mar = c(10.8, 5, 10.8, 2), mfrow = c(1, 2))
-plotRGB(ai_crop, r=1, g=2, b=3, axes=TRUE, stretch="lin", main = "RGB")
+plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin", main = "RGB")
 plot(gi_km, main = "Kmeans", col = viridis_pal(option = "D")(k))
 dev.off()
 
@@ -101,7 +104,7 @@ plot.nme = paste0('rs_rgb_clara_',neighbourhood,'.png')
 plot.store <-paste0(plots.dir,plot.nme)
 png(plot.store, width = 10, height = 8, units = "in", res = 300)
 par(mar = c(10.8, 5, 10.8, 2), mfrow = c(1, 2))
-plotRGB(ai_crop, r=1, g=2, b=3, axes=TRUE, stretch="lin", main = "RGB")
+plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin", main = "RGB")
 plot(gi_cl, main = "Clara", col = viridis_pal(option = "C")(k))
 dev.off()
 

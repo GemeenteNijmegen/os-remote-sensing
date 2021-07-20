@@ -44,6 +44,7 @@ packages <- c(
   'rlang',
   #Relative paths
   'here',
+  'scales',
   'R.utils',
   'Rmisc',
   #Environment variables

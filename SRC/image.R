@@ -12,7 +12,7 @@ valid_gdal
 
 #location of aerial image
 #local ECW
-input <- paste0(data.dir,"amsterdam.ecw")
+input <- paste0(ai.dir,"amsterdam.ecw")
 #local TIFF (output)
 output <- paste0(data.dir,neighbourhood,".tif")
 
@@ -84,16 +84,20 @@ names(ai)
 #https://www.mngeo.state.mn.us/chouse/airphoto/cir.html
 names(ai) <- c("nir","red","green")
 
+
 #-----------------------------------------------------------------------------------------------
 #cropping and masking 
 
 #crop neighbourhood
 ai_crop <- crop(ai, buurt_sf)
 
-rm(ai)
+#mask buurt
+ai_buurt <- raster::mask(ai_crop, buurt_sf)
 
 #mask tuinen
 ai_tuinen <- raster::mask(ai_crop, tuinen_sf)
+
+rm(ai, ai_crop)
 
 #-----------------------------------------------------------------------------------------------
 #Geopackage raster data
@@ -103,8 +107,8 @@ unlink(gpkg_raster)
 
 #create (fresh) multi-raster GeoPackage
 #NIR
-names(ai_crop[[1]]) <-"nir"
-ai_crop[[1]] %>% #RasterLayer
+names(ai_buurt[[1]]) <-"nir"
+ai_buurt[[1]] %>% #RasterLayer
   st_as_stars %>% #convert to a stars object
   write_stars(gpkg_raster
               , driver = "GPKG"
@@ -113,8 +117,8 @@ ai_crop[[1]] %>% #RasterLayer
   )
 
 #RED
-names(ai_crop[[2]]) <-"red"
-ai_crop[[2]] %>% #RasterLayer
+names(ai_buurt[[2]]) <-"red"
+ai_buurt[[2]] %>% #RasterLayer
   st_as_stars %>% #convert to a stars object
   write_stars(gpkg_raster
               , driver = "GPKG"
@@ -132,23 +136,22 @@ ai_crop[[2]] %>% #RasterLayer
 #-----------------------------------------------------------------------------------------------
 #RGB plots
 
+
+
 #buurt
 png(paste0(plots.dir,"rs_rgb_",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio, height=png_height)
 par(col.axis = "white", col.lab = "white", tck = 0)
-aerial_rgb <- raster::plotRGB(ai_crop,
+aerial_rgb <- raster::plotRGB(ai_buurt,
                               r = 1, g = 2, b = 3,
                               #stretch the values to increase the contrast of the image
                               stretch = "lin",
                               axes = TRUE,
-                              main = paste0("composite image stack neighbourhood ", neighbourhood))
+                              main = paste0("composite image stack RGB neighbourhood ", neighbourhood))
 plot(percelen_sf$geom, add=TRUE, legend=FALSE)
-#add centroid perceel
-cntrd_perceel = st_centroid(st_geometry(percelen_sf))
 box(col = "white")
 aerial_rgb
 plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
 dev.off()
-
 
 #tuinen in buurt
 png(paste0(plots.dir,"rs_rgb_",neighbourhood,"_tuinen.png"), bg="white", width=png_height*aspect_ratio, height=png_height)
@@ -158,9 +161,8 @@ aerial_rgb <- raster::plotRGB(ai_tuinen,
                               #stretch the values to increase the contrast of the image
                               stretch = "lin",
                               axes = TRUE,
-                              main = paste0("composite image stack gardens ", neighbourhood))
+                              main = paste0("composite image stack RGB gardens ", neighbourhood))
 plot(percelen_sf$geom, add=TRUE, legend=FALSE)
-#add centroid perceel
 box(col = "white")
 aerial_rgb
 plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)

@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------------------------
 
 # date created: 11-05-2021
-# date modified: 19-07-2021
+# date modified: 20-07-2021
 
 #-----------------------------------------------------------------------------------------------
 
@@ -53,6 +53,9 @@ gpkg_vector<-paste0(data.dir,neighbourhood,"_vector.gpkg")
 #geographic raster data (incl. aerial photo, NDVI, NHx?)
 gpkg_raster<-paste0(data.dir,neighbourhood,"_raster.gpkg")
 
+#pipeline timer
+start_time <- Sys.time()
+
 #-----------------------------------------------------------------------------------------------
 
 # Polygons
@@ -71,6 +74,14 @@ if(prefab_polygons==TRUE) {
  source(here::here('SRC/buurt_pand_perceel_request.R')) 
 }
 
+#centroid perceel
+cntrd_perceel <- st_centroid(st_geometry(percelen_sf))
+
+#centroid perceel
+cntrd_tuinen <- st_centroid(st_geometry(tuinen_sf))
+
+coord_tuinen<-as.data.frame(st_coordinates(cntrd_tuinen))
+id_perceel <- percelen_sf$perceelnummer
 #mapview(list(buurt_sf,percelen_sf, panden_sf),alpha.regions = 0.6, alpha = 1)
 
 #-----------------------------------------------------------------------------------------------
@@ -102,6 +113,7 @@ ndvi <- raster::overlay(red, nir, fun = function(x, y) { (y-x) / (y+x) })
 
 #plot(ndvi)
 
+#unsupervised boundary detection (classes)
 source(here::here('SRC/green_classes.R'))
 
 #ranges according to Deloitte research
@@ -112,7 +124,6 @@ source(here::here('SRC/green_classes.R'))
 
 #substantial green
 #reclassifying nvdi (all values between negative infinity and 0.4 be NAs)
-#Cells with NDVI values greater than 0.4 are definitely vegetation
 veg_s <- raster::reclassify(ndvi, cbind(-Inf, 0.4, NA))
 
 #vegetation in classes (Deloitte)
@@ -121,8 +132,7 @@ veg_c <- raster::reclassify(ndvi, c(-Inf,0.2,1,0.2,0.4,2,0.4,1,3))
 #Ratio vegetation index (RVI)
 #Indicates amount of vegetation
 #Reduces the effects of atmosphere and topography
-rvi  <- nir / red
-
+rvi <- nir / red
 
 #-----------------------------------------------------------------------------------------------
 #create fresh multi-raster GeoPackage (gpkg) containing all green indices (write)
@@ -196,7 +206,6 @@ source(here::here('SRC/vegitation_plots.R'))
 
 #-----------------------------------------------------------------------------------------------
 
-
 #under contruction by Mark
 
 #filter ndvi raster by polygon
@@ -211,8 +220,8 @@ hist(ndvi,
 dev.off()
 
 #classification matrix
-reclass_df <- c(0, 0.2, NA,
-                0.2, 1, 1)
+reclass_df <- c(-Inf, 0.2, NA,
+                0.2, Inf, 1)
 reclass_df
 
 #reshape the object into a matrix with columns and rows
@@ -221,16 +230,13 @@ reclass_m <- matrix(reclass_df,
                     byrow = TRUE)
 reclass_m
 
-
-#projection
-crs(ndvi)<-crs(percelen_sf)
-ndvi_raster<-raster::raster(ndvi)
-
-ndvi_classified <- reclassify(ndvi_raster,
+ndvi_classified <- reclassify(ndvi,
                              reclass_m)
 
+plot(ndvi_classified)
+
 #surface covered by substantial green (ndvi_classified) per polygon element (tuin)
-ndvi_cover <- exactextractr::coverage_fraction(ndvi_raster,tuinen_sf, crop = FALSE)
+ndvi_cover <- exactextractr::coverage_fraction(ndvi_classified,tuinen_sf, crop = FALSE)
 rm(ndvi_raster)
 
 #store green coverage gardens
@@ -241,37 +247,72 @@ ndvi_cover[[i]] %>%
                     driver = "GPKG", options = c("RASTER_TABLE=green_cover","APPEND_SUBDATASET=YES"))
 }
 
+
+crs(ndvi)<-crs(percelen_sf)
 #Mean value (NDVI) of cells that intersect the polygon, weighted by the percent of the cell that is covered.
 #mean ndvi per polygon element (tuin)
 ndvi_avg<-exactextractr::exact_extract(ndvi, tuinen_sf,
                                              #the mean cell value, weighted by the fraction of each cell
                                              #that is covered by the polygon
                                              fun ='mean',
-                                             force_df =TRUE)
+                                             force_df =FALSE)
 
 #add mean ndvi values to tuinen_sf
 tuinen_sf$ndvi_avg<-ndvi_avg
 
 plot.title = paste0('mean NDVI garden')
 ggplot(data = tuinen_sf) +
-        geom_sf(aes(fill = ndvi_avg$mean)) +
+        geom_sf(aes(fill = ndvi_avg)) +
         scale_fill_viridis_c(option = "plasma", direction = -1,name = "mean NDVI") +
-        #xlab("Longitude") + ylab("Latitude") +
+        geom_point(size = 0.4, aes(x = coord_tuinen$X,y = coord_tuinen$Y), colour="white", shape = 15) +
+        geom_text(
+                aes(
+                        label = tuinen_sf$perceelnummer,
+                        x = coord_tuinen$X,
+                        y = coord_tuinen$Y
+                ),
+                colour = "black",
+                size = 1.9,hjust = 0, nudge_x = 0.07
+        ) +
+        xlab("Longitude") + ylab("Latitude") +
 theme_minimal() 
 plot.nme = paste0('NDVI_mean_garden.png')
 plot.store <-paste0(plots.dir,plot.nme)
 ggsave(plot.store, height = graph_height , width = graph_height * aspect_ratio, dpi=dpi)
 
+png(paste0(plots.dir,"rs_tuinen_ndvi",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio*2, height=png_height)
+hist(tuinen_sf$ndvi_avg,
+     breaks=8,
+     main = paste0("Distribution of tuinen over NDVI ",neighbourhood),
+     xlab = "mean ndvi", ylab = "freq",
+     col = "steelblue")
+dev.off()
+
+#distribution of gardens over NDVI
+p <-  ggplot(tuinen_sf, aes(x = ndvi_avg)) +  
+        geom_histogram(aes(y = (..count..)/sum(..count..)), binwidth = 0.02,color="lightblue", fill="steelblue") +
+        stat_bin(aes(y=(..count..)/sum(..count..), 
+                     label=paste0(round((..count..)/sum(..count..)*100,1),"%")), 
+                 geom="text", size=4, binwidth = 0.02, vjust=-1.5) +
+        scale_x_continuous(breaks = seq(0,1,0.2), lim = c(0.2,1))+
+        theme_minimal()
+(p)
+plot.nme = paste0('rs_gardens_distibution_ndvi_',neighbourhood,'.png')
+plot.store <-paste0(plots.dir,plot.nme)
+ggsave(plot.store, height = graph_height, width = graph_height * 3, dpi=dpi)
+
 
 #Sum of raster cells covered by the polygon, with each raster value weighted by its coverage fraction
 #and weighting raster value.
-#ndvi_weighted_sum<-exactextractr::exact_extract(vegi, woonpercelen_garden_sf,
+#ndvi_weighted_sum<-exactextractr::exact_extract(ndvi, tuinen_sf,
 #                                             'weighted_sum',
-#                                             weights=raster(woonpercelen_garden_sf$geom),
+#                                             weights=raster(ndvi_cover),
 #                                             force_df =TRUE)
 
-
 #under contruction by Mark
+
+end_time <- Sys.time()
+end_time - start_time
 
 
 #-----------------------------------------------------------------------------------------------
