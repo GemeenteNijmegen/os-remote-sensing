@@ -44,3 +44,5 @@ gdf_pandenwoonfunctie = gdf_pandenwoonfunctie.loc[~gdf_pandenwoonfunctie.index.d
 tuinen = gpd.overlay(gdf_percelenwoonfunctie, gdf_pandenwoonfunctie, how="symmetric_difference")
 
 tuinen.to_file(gpkg_vector, driver='GPKG', layer='tuinen')
+
+#Test
