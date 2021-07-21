@@ -42,10 +42,14 @@ gdf_allvobuurt = gpd.clip(gdf_allvobuurt, gdf_buurt)
 
 gdf_allvobuurt.to_file(gpkg_vector, driver='GPKG', layer='verblijfsobjecten')
 
-#Selecteren alle verblijfsobjecten waar 'Woonfunctie' in voorkomt
-gdf_vobuurtwoonfunctie = gdf_allvobuurt[gdf_allvobuurt['gebruiksdoel'].str.contains('woonfunctie')]
+#Selecteren alle verblijfsobjecten met de status 'in gebruik' en 'verbouwing'
+gdf_vobuurtwoonfunctie = gdf_allvobuurt[gdf_allvobuurt['status'].str.contains('Verblijfsobject in gebruik|Verbouwing verblijfsobject')]
 
+#Selecteren alle verblijfsobjecten waar 'woonfunctie' en 'logiesfunctie' in voorkomt
+gdf_vobuurtwoonfunctie = gdf_allvobuurt[gdf_allvobuurt['gebruiksdoel'].str.contains('woonfunctie|logiesfunctie')]
 
+#Selecteren alle verblijfsobjecten met de status 'in gebruik'
+gdf_vobuurtwoonfunctie = gdf_vobuurtwoonfunctie[gdf_vobuurtwoonfunctie['status'].str.contains('Verblijfsobject in gebruik|Verbouwing verblijfsobject')]
 
 #Alle verblijfsobjecten opslaan die 'Woonfunctie' bevatten in het gebruiksdoel
 gdf_vobuurtwoonfunctie.to_file(gpkg_vector, driver='GPKG', layer='woningen')
