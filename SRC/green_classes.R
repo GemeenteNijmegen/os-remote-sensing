@@ -5,13 +5,14 @@
 
 #-----------------------------------------------------------------------------------------------
 
+ndvi_subset <- ndvi
+class(ndvi_subset)
 
 # ndvi scores greater than 0.25455043 are considered high quality vegi. 
-ndvi@data@values[ndvi@data@values <= 0.25455043] <- NA
-
+ndvi_subset@data@values[ndvi_subset@data@values <= 0.25455043] <- NA
 
 # convert the raster to vector/matrix ('getValues' converts the RasterLAyer to array) )
-ndvi_array <- getValues(ndvi)
+ndvi_array <- getValues(ndvi_subset)
 
 # keep valid observations only
 i <- which(!is.na(ndvi_array))
@@ -35,7 +36,7 @@ km <- kmeans(ndvi_valid_array, centers = centers)
 #table(km$cluster)
 
 # Copy ndvi layer
-gi_km <- ndvi
+gi_km <- ndvi_subset
 
 ## replace raster cell values with km$cluster
 # array
@@ -60,7 +61,7 @@ ggplot(ndvi_cluster, aes(x = gi, y = ndvi)) +
   xlab("Cluster")+
   ylab("NDVI") +
   theme_light() 
-  plot.nme = paste0('NDVI_cluster_boundaries.png')
+  plot.nme = paste0('NDVI_cluster_boundaries_unsupervised.png')
 plot.store <-paste0(plots.dir,plot.nme)
 ggsave(plot.store, height = graph_height , width = graph_height * aspect_ratio, dpi=dpi)
 

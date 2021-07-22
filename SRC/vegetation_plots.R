@@ -51,7 +51,6 @@ plot.nme = paste0('rs_rvi_',neighbourhood,'.png')
 plot.store <-paste0(plots.dir,plot.nme)
 ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio, dpi=dpi)
 
-library(colorspace)
 # plot vegetation classes
 plot_vegi <-  gplot(veg_c) +
   geom_tile(aes(fill = as.factor(value))) +

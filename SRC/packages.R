@@ -78,7 +78,7 @@ packages <- c(
   #unsupervised segmentation
   'cluster',
   #color schemes
-  #'RColorBrewer',
+  'colorspace',
   'viridis',
   #layout plots
   'patchwork'

@@ -49,7 +49,7 @@ lapply(locations, function(x) {
 })
 
 #dimension and quality plots
-graph_height <- 12
+graph_height <- 15
 png_height <- 600
 aspect_ratio <- 1
 dpi <- 320 #retina
