@@ -2,7 +2,12 @@
 import geopandas as gpd
 
 # Load variables
+<<<<<<< HEAD
 from start import gpkg_vector, path_ECW_2020, files_basename, gpkg_raster
+=======
+from variables import *
+
+>>>>>>> origin/hoorns-master-patch-72170
 
 
 # Read buurt
@@ -48,4 +53,97 @@ sourcetif_cir = files_basename + ".tif"
 
 lyr_cir = "cir"
 gdal_string_cir = 'gdal_translate -of GPKG "{}" "{}" -co RASTER_TABLE={} -co APPEND_SUBDATASET=YES'.format(sourcetif_cir, desGPKG, lyr_cir)
+<<<<<<< HEAD
 os.system(gdal_string_cir)
+=======
+os.system(gdal_string_cir)
+
+
+
+
+
+
+
+#########################
+"""
+sourcetif = workingdirectory + "/tempdata/" + buurtcode + ".tif"
+desGPKG = workingdirectory + "/tempdata/" + buurtcode + "_raster.gpkg"
+layername = 'cir'
+
+import subprocess
+args ='gdal_translate -of GPKG -co APPEND_SUBDATASET=YES RASTER_TABLE='test''  + sourcetif + ' ' + desGPKG
+subprocess.call(args, shell=True)
+
+
+
+
+
+#Testen
+sourcetif = workingdirectory + "/tempdata/" + buurtcode + ".tif"
+desGPKG = workingdirectory + "/tempdata/" + buurtcode + ".gpkg"
+gdal.Translate(desGPKG, sourcetif, format='GPKG', APPEND_SUBDATASET='YES', RASTER_TABLE='new_table')
+
+
+
+
+
+
+# Dit werkt
+!gdal_translate -of JPEG "\\apeldoorn.nl\base$\groupdata\DatalAP\Innovatie\VNG_Remote_Sensing\GroeneDaken\Werk\tempdata\BU03638600.tif" "test.jpg"
+#
+
+#Dit werkt ook
+desJPEG = "test.jpg"
+gdal.Translate(desJPEG, sourcetif, format='JPEG')
+#
+
+
+# Dit werkt - convert tif to raster gpkg
+srctif = gdal.Open(workingdirectory + "/tempdata/" + buurtcode + ".tif")
+desGPKGRaster = workingdirectory + "/tempdata/" + buurtcode + "_raster.gpkg"
+
+gdal.Translate(desGPKGRaster, srctif, format='GPKG')
+#
+
+
+#Testen
+sourcetif = workingdirectory + "/tempdata/" + buurtcode + ".tif"
+desGPKG = workingdirectory + "/tempdata/" + buurtcode + ".gpkg"
+gdal.Translate(desGPKG, sourcetif, format='GPKG', APPEND_SUBDATASET='YES', RASTER_TABLE='new_table')
+
+
+import subprocess
+args ='gdal.Translate -of GPKG -co APPEND_SUBDATASET=YES -co RASTER_TABLE=new_table ' + sourcetif + ' ' + desGPKG
+subprocess.call(args, shell=True)
+
+
+subprocess.call('gdal.Translate -of GPKG -co APPEND_SUBDATASET=YES -co RASTER_TABLE=new_table ', sourcetif, ' ', desGPKG)
+
+
+sourcetif = '//apeldoorn.nl/base$/groupdata/DatalAP/Innovatie/VNG_Remote_Sensing/werk/tempdata/BU03638600.tif'
+sourcetif = workingdirectory + "/tempdata/" + buurtcode + ".tif"
+
+
+
+
+srctif = gdal.Open(workingdirectory + "/tempdata/" + buurtcode + ".tif")
+desGPKGRaster = workingdirectory + "/tempdata/" + buurtcode + "_raster.gpkg"
+
+gdal.Translate(desGPKGRaster, srctif, format='GPKG')
+
+desGPKG = workingdirectory + "/tempdata/" + buurtcode + ".gpkg"
+
+
+args ='ogr2ogr -f gpkg ' + desGPKG + ' ' + desGPKGRaster
+
+ogr2ogr -f gpkg desGPKG.gpkg desGPKGRaster.gpkg
+
+import subprocess
+subprocess.call(args, shell=True)
+
+
+
+
+gdal_translate -of GPKG out_image".tif" workingdirectory + "/tempdata/" + buurtcode + ".gpkg".gpkg -co  APPEND_SUBDATASET=YES -co RASTER_TABLE=new_table
+"""
+>>>>>>> origin/hoorns-master-patch-72170
