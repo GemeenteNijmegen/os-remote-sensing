@@ -25,3 +25,6 @@ folium.GeoJson(gdf_panden["geometry"]).add_to(m)
 
 # show the map
 m.save(files_basename + '.html')
+
+
+
