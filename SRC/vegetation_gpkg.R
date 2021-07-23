@@ -10,35 +10,41 @@
 unlink(paste0(data.dir,neighbourhood,"_green_indices.gpkg"))
 #Stars-packagke
 
-#NDVI 
+#NDVI (value)
 ndvi %>%
   st_as_stars %>% # convert the RasterLayer to a stars object
   write_stars(paste0(data.dir,neighbourhood,"_green_indices.gpkg"),
               driver = "GPKG",options = c("RASTER_TABLE=ndvi","APPEND_SUBDATASET=YES"))
 
-#EVI2
+#EVI2 (value)
 evi2 %>%
   st_as_stars %>% # convert the RasterLayer to a stars object
   write_stars(paste0(data.dir,neighbourhood,"_green_indices.gpkg"),
               driver = "GPKG",options = c("RASTER_TABLE=evi2","APPEND_SUBDATASET=YES"))
 
-#substantial green (fixed)
+#vegetation (fixed class)
+veg_g %>%
+  st_as_stars %>% # convert the RasterLayer to a stars object
+  write_stars(paste0(data.dir,neighbourhood,"_green_indices.gpkg"),
+              driver = "GPKG", options = c("RASTER_TABLE=vegetation_fixed","APPEND_SUBDATASET=YES"))
+
+#substantial green (fixed class)
 veg_s %>%
   st_as_stars %>% # convert the RasterLayer to a stars object
   write_stars(paste0(data.dir,neighbourhood,"_green_indices.gpkg"),
-              driver = "GPKG", options = c("RASTER_TABLE=veg_substantial_fixed","APPEND_SUBDATASET=YES"))
+              driver = "GPKG", options = c("RASTER_TABLE=vegetation_substantial_fixed","APPEND_SUBDATASET=YES"))
 
-#green classes (fixed)
+#green classes (fixed classes)
 veg_c %>%
   st_as_stars %>% # convert the RasterLayer to a stars object
   write_stars(paste0(data.dir,neighbourhood,"_green_indices.gpkg"),
-              driver = "GPKG", options = c("RASTER_TABLE=veg_classes_fixed","APPEND_SUBDATASET=YES"))
+              driver = "GPKG", options = c("RASTER_TABLE=vegetation_classes_fixed","APPEND_SUBDATASET=YES"))
 
-#green classes unsupervised 
+#green (unsupervised, classes) 
 veg_clus %>%
   st_as_stars %>% # convert the RasterLayer to a stars object
   write_stars(paste0(data.dir,neighbourhood,"_green_indices.gpkg"),
-              driver = "GPKG", options = c("RASTER_TABLE=veg_classes_unsupervised","APPEND_SUBDATASET=YES"))
+              driver = "GPKG", options = c("RASTER_TABLE=vegetation_classes_unsupervised","APPEND_SUBDATASET=YES"))
 
 #RVI
 rvi %>%

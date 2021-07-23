@@ -167,7 +167,7 @@ ggplot(clip.pand.buurt) +
   scale_fill_viridis(discrete=TRUE, option="E")
 plot.nme = paste0('rs_panden_within_buurt_',neighbourhood,'.png')
 plot.store <-paste0(plots.dir,plot.nme)
-ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio*2, dpi=dpi, limitsize = FALSE)
+ggsave(plot.store, height = graph_height, dpi=dpi, limitsize = FALSE)
 
 #haal alle percelen weg die niet in de buurt en panden vallen
 clip.pand.buurt.percelen = sf::st_intersection(clip.pand.buurt, percelen_sf)
@@ -177,7 +177,7 @@ ggplot(clip.pand.buurt.percelen) +
   theme_minimal()
 plot.nme = paste0('rs_panden_within_buurt_percelen_',neighbourhood,'.png')
 plot.store <-paste0(plots.dir,plot.nme)
-ggsave(plot.store, height = graph_height, width = graph_height * aspect_ratio, dpi=dpi)
+ggsave(plot.store, dpi=dpi)
 }
 
 #-----------------------------------------------------------------------------------------------

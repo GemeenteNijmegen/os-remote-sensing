@@ -51,6 +51,7 @@ ndvi_cluster <- Rmisc::summarySE(tmp, measurevar = "ndvi", groupvars = c("gi"))
 ndvi_cluster$ndvi <- round(ndvi_cluster$ndvi, digits = 2)
 ndvi_cluster <- ndvi_cluster[complete.cases(ndvi_cluster), ]
 
+
 plot.title = paste0('NDVI cluster boundaries')
 ggplot(ndvi_cluster, aes(x = gi, y = ndvi)) + 
   geom_bar(position=position_dodge(), stat="identity", fill="steelblue") +
@@ -63,7 +64,7 @@ ggplot(ndvi_cluster, aes(x = gi, y = ndvi)) +
   theme_light() 
   plot.nme = paste0('NDVI_cluster_boundaries_unsupervised.png')
 plot.store <-paste0(plots.dir,plot.nme)
-ggsave(plot.store, height = graph_height , width = graph_height * aspect_ratio, dpi=dpi)
+ggsave(plot.store, dpi=dpi)
 
 # create list with upper-bounds per cluster
 rng_list <- list()

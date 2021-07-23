@@ -26,8 +26,6 @@ if(proj_env == TRUE) {
   renv::init()
 }
 
-options(warn = -1)
-
 #shutup RGDAL
 options("rgdal_show_exportToProj4_warnings"="none")
 

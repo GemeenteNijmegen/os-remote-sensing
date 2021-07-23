@@ -134,12 +134,20 @@ ai_buurt[[2]] %>% #RasterLayer
 
 
 #-----------------------------------------------------------------------------------------------
-#RGB plots
+#Plots
 
+#Relationship bands NIR and red
+png(paste0(plots.dir,"rs_nir_red_relationship_",neighbourhood,".png"), bg="white")
+pairs(ai_buurt[[2:1]], main = "Red vs NIR")
+dev.off()
 
+#This distribution of points (between NIR and red) is unique due to its triangular shape. Vegetation
+#reflects very highly in the NIR range than red and creates the upper corner close to NIR (y) axis. Water absorbs energy
+#from all the bands and occupies the location close to origin. The furthest corner is created due to highly reflecting
+#surface features like bright soil or concrete.
 
 #buurt
-png(paste0(plots.dir,"rs_rgb_",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio, height=png_height)
+png(paste0(plots.dir,"rs_rgb_",neighbourhood,".png"), bg="white")
 par(col.axis = "white", col.lab = "white", tck = 0)
 aerial_rgb <- raster::plotRGB(ai_buurt,
                               r = 1, g = 2, b = 3,
@@ -154,7 +162,7 @@ plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
 dev.off()
 
 #tuinen in buurt
-png(paste0(plots.dir,"rs_rgb_",neighbourhood,"_tuinen.png"), bg="white", width=png_height*aspect_ratio, height=png_height)
+png(paste0(plots.dir,"rs_rgb_",neighbourhood,"_tuinen.png"), bg="white")
 par(col.axis = "white", col.lab = "white", tck = 0)
 aerial_rgb <- raster::plotRGB(ai_tuinen,
                               r = 1, g = 2, b = 3,
