@@ -8,8 +8,7 @@
 #is geopackage already available
 gpkg.rdy<-FALSE
 
-#disabled for testing purposes
-#gpkg.rdy<-file.exists(gpkg_vector)
+gpkg.rdy<-file.exists(gpkg_vector)
 
 if(gpkg.rdy==FALSE) {
 #not available, let's create gpkg
@@ -160,9 +159,6 @@ tuinen_sf2 <- st_difference(percelenwoonfunctie_sf2,panden_sf)
 
 mapview(list(buurt_sf,percelen_sf,pandenwoonfunctie_sf2,percelenwoonfunctie_sf2),alpha.regions = 0.6, alpha = 1)
 #mapview(list(buurt_sf,percelenwoonfunctie_sf2,percelen_sf),alpha.regions = 0.6, alpha = 1)
-
-
-
 
 
 #-----------------------------------------------------------------------------------------------

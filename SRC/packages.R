@@ -35,7 +35,7 @@ Sys.setenv(GDAL_PAM_ENABLED = "NO")
 # load CRAN packages
 packages <- c(
   #external packages (not-being from cran-repo or similar)
-  #'devtools',
+  'devtools',
   #Python interface
   #'reticulate'
   #Functions for Base Types and Core R and 'Tidyverse' Features
@@ -89,6 +89,15 @@ if(any(!has_available)) install.packages(packages[!has_available])
 lapply(packages,library,character.only = TRUE
        ,quietly = TRUE
 )
+
+is_rahne_available<-FALSE
+is_rahne_available <- require("rAHNextract")
+
+if(is_rahne_available==FALSE) {
+  devtools::install_github("Jellest/rAHNextract")
+}  
+
+library(rAHNextract)
 
 #external dependencies versions of the libraries linked to sf
 sf::sf_extSoftVersion()[1:3]

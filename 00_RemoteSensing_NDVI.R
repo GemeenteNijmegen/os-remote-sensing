@@ -76,6 +76,19 @@ if(prefab_polygons==TRUE) {
  source(here::here('SRC/buurt_pand_perceel_request.R')) 
 }
 
+#-----------------------------------------------------------------------------------------------
+#boundaries
+
+#bounding box
+buurt_extend <- sf::st_bbox(buurt_sf$geom)
+
+#extend
+xmin <- buurt_extend[1]
+xmax <- buurt_extend[3]
+ymin <- buurt_extend[2]
+ymax <- buurt_extend[4]
+bbox <- paste(xmin, ymin, xmax, ymax, sep=",")
+
 #centroid perceel
 cntrd_perceel <- st_centroid(st_geometry(percelen_sf))
 
@@ -83,6 +96,8 @@ cntrd_perceel <- st_centroid(st_geometry(percelen_sf))
 cntrd_tuinen <- st_centroid(st_geometry(tuinen_sf))
 #extract coordinates
 coord_tuinen<-as.data.frame(st_coordinates(cntrd_tuinen))
+
+#-----------------------------------------------------------------------------------------------
 
 #interactive Leaflet presentation of the layers buurt, percelen and panden
 mapview(list(buurt_sf,percelen_sf, panden_sf),alpha.regions = 0.6, alpha = 1)
@@ -101,6 +116,14 @@ red <- ai_tuinen[[2]]
 
 #plot of aerial image bands
 plot(ai_tuinen)
+
+#-----------------------------------------------------------------------------------------------
+
+# AHN
+
+#-----------------------------------------------------------------------------------------------
+
+source(here::here('SRC/ahn.R'))
 
 #-----------------------------------------------------------------------------------------------
 
@@ -129,7 +152,7 @@ res(ndvi)
 #unsupervised boundary detection (NDVI classes)
 source(here::here('SRC/green_classes.R'))
 
-#ranges according to Deloitte research
+#ranges according to Deloitte research, e.o. 
 #       -1 tot -0.1: Water
 #       -0.1 tot 0.2: Zand/Grond/Rots 
 #       0.2 tot 0.4: Gras en lage vegetatie (in-scope)
@@ -167,16 +190,31 @@ evi2 <- 2.5*((nir-red)/(nir+2.4*red+1))
 rvi <- nir / red
 
 
+#------------------------------------
+
+#garden 5m and above (trees)
+reclass_binary <- c(-Inf, 5, 0,
+                    5, Inf, 1)
+
+#reshape the object into a matrix with columns and rows
+reclass_binary_m <- matrix(reclass_binary,
+                           ncol = 3,
+                           byrow = TRUE)
+
+garden_5mplus <- raster::reclassify(ahn_tuinen,reclass_binary_m)
+
+rm(reclass_binary, reclass_binary_m)
+
 #-----------------------------------------------------------------------------------------------
 
 #vegetation geopackage
 
 #-----------------------------------------------------------------------------------------------
 
-#store indices in geopackage
+#store green indices in geopackage
 source(here::here('SRC/vegetation_gpkg.R'))
 
-#create RasterBrick (read gpkg)
+#read geopackage, create RasterBrick 
 green_indices <-
         read_stars(paste0(data.dir,neighbourhood,"_green_indices.gpkg")
                    #subsetting
@@ -283,11 +321,23 @@ ndvi_cover<-exactextractr::exact_extract(veg_g,tuinen_sf,
 tuinen_sf$green_cover<-round(ndvi_cover*100,0)
 
 
+#tree cover per polygon element (tuin)
+ndvi_cover<-exactextractr::exact_extract(garden_5mplus,tuinen_sf,
+                                         #the mean cell value, weighted by the fraction of each cell
+                                         #that is covered by the polygon
+                                         fun ='mean',
+                                         force_df =FALSE)
+
+
+tuinen_sf$tree_cover<-round(ndvi_cover*100,0)
+
+
 #------------------------------------
 
 #surface culculation (m2)
 tuinen_sf <- tuinen_sf %>%
            mutate(green_surface = round((opp*(green_cover/100)),1),
+                  tree_surface = round((opp*(tree_cover/100)),1),
                   green_potential = opp-green_surface,
                   buurt_selection = neighbourhood
                   )        
@@ -295,11 +345,24 @@ tuinen_sf <- tuinen_sf %>%
 #compute buurt statistics
 buurt_garden_stats <- tuinen_sf %>%
         group_by(buurt_selection)  %>%
-        summarise(garden_surface = sum(opp), 
+        summarise(
+                  #tuin oppervlak
+                  garden_surface = sum(opp), 
+                  #aandeel vegetatie in tuin
                   green_cover_avg = round(mean(green_cover),1),
+                  #aandeel bomen in tuin
+                  tree_cover_avg = round(mean(tree_cover),1),
+                  #oppervlak vegetatie
                   green_surface_sum = sum(green_surface),
+                  #oppervlak bomen
+                  tree_surface_sum = sum(tree_surface),
+                  #aandeel bomen in vegetatie
+                  treeingreen_cover_avg = round(tree_surface_sum/green_surface_sum*100,1),
+                  #oppervlak potentieel vegetatie
                   green_potential_sum = sum(green_potential),
+                  #gemiddelde NDVI waarde tuin
                   ndvi_avg = round(mean(ndvi_avg,na.rm = TRUE),1),
+                  #gemiddelde NDVI waarde vegetatie
                   ndvi_green_avg = round(mean(ndvi_green_avg,na.rm = TRUE),1) 
                   ) 
  
