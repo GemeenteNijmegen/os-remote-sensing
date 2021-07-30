@@ -35,6 +35,8 @@ options(dplyr.summarise.inform = FALSE)
 #location data
 data.dir <- here::here("DATA",'/')
 
+tempdata.dir <- here::here("tempdata",'/')
+
 #location plots
 plots.dir <- here::here("PLOTS",'/')
 
@@ -42,7 +44,7 @@ plots.dir <- here::here("PLOTS",'/')
 ai.dir <- here::here("AI",'/')
 
 #create locations if not exist
-locations <- c(data.dir, plots.dir, ai.dir)
+locations <- c(data.dir, plots.dir, ai.dir, tempdata.dir)
 
 lapply(locations, function(x) {
   if (!dir.exists(x)) {dir.create(x)}

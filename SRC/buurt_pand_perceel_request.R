@@ -7,7 +7,9 @@
 
 #is geopackage already available
 gpkg.rdy<-FALSE
-gpkg.rdy<-file.exists(gpkg_vector)
+
+#disabled for testing purposes
+#gpkg.rdy<-file.exists(gpkg_vector)
 
 if(gpkg.rdy==FALSE) {
 #not available, let's create gpkg
@@ -24,12 +26,13 @@ buurt_sf <- buurt_sf[, c('buurtcode', 'buurtnaam', 'gemeentecode', 'geom')]
 buurt_sf <- st_cast(buurt_sf, "GEOMETRYCOLLECTION") %>% st_collection_extract("POLYGON")
 
 #Bounding box
-buurt_sf$bbox_geom <- st_bbox_by_feature(buurt_sf$geom)
+buurt_extend <- sf::st_bbox(buurt_sf$geom)
+#class(buurt_extend)
 
-xmin <- min(buurt_sf$bbox_geom[[1]][[1]][,1])
-xmax <- max(buurt_sf$bbox_geom[[1]][[1]][,1])
-ymin <- min(buurt_sf$bbox_geom[[1]][[1]][,2])
-ymax <- max(buurt_sf$bbox_geom[[1]][[1]][,2])
+xmin <- buurt_extend[1]
+xmax <- buurt_extend[3]
+ymin <- buurt_extend[2]
+ymax <- buurt_extend[4]
 bbox <- paste(xmin, ymin, xmax, ymax, sep=",")
 
 #centroid buurt
@@ -79,8 +82,18 @@ percelen_sf <- sf::st_read(request)
 percelen_cols<-colnames(percelen_sf)
 
 #subset percelen within buurt
-percelen_sf <- percelen_sf[buurt_sf,] #containing
+#percelen_sf <- percelen_sf[buurt_sf,] #containing
 #percelen_sf <- sf::st_intersection(buurt_sf, percelen_sf) #clipping 
+
+
+#does not work!!
+
+#percelen_sf2 <- sf::st_intersection(percelen_sf, buurt_sf)
+
+#percelen_sf2 <- percelen_sf2 %>%
+#  dplyr::select(one_of(percelen_cols))
+  
+
 
 #-----------------------------------------------------------------------------------------------
 
@@ -94,17 +107,63 @@ url$query <- list(service = "wfs",
                   bbox = bbox,
                   outputFormat='json')
 request <- build_url(url);request
-verblijfsobject_sf <- sf::st_read(request)
+verblijfsobjecten_sf <- sf::st_read(request)
 
 #relevant features verblijfsobjecten
-verblijfsobject_cols<-colnames(verblijfsobject_sf)
+verblijfsobjecten_cols<-colnames(verblijfsobjecten_sf)
 
 #subset verblijfsobjecten within buurt
-verblijfsobject_sf <- verblijfsobject_sf[buurt_sf$geom,] #containing
-verblijfsobject_sf <- sf::st_intersection(buurt_sf, verblijfsobject_sf) #clipping
+verblijfsobjecten_sf <- verblijfsobjecten_sf[buurt_sf$geom,] #containing
+verblijfsobjecten_sf <- sf::st_intersection(buurt_sf, verblijfsobjecten_sf) #clipping
 
 #spatial object percelen
 #percelen_sp <- as(st_geometry(percelen_sf), Class="Spatial")
+
+#-----------------------------------------------------------------------------------------------
+#tuinen within percelen with object woonfunctie
+
+
+
+#verblijfsobjecten with status 'in gebruik' or 'verbouwing'
+woningen_sf <- verblijfsobjecten_sf[verblijfsobjecten_sf$status %like% "Verblijfsobject in gebruik" | verblijfsobjecten_sf$status %like% "Verbouwing verblijfsobject" ,]
+
+#verblijfsobjecten with object 'woonfunctie' or 'logiesfunctie'
+woningen_sf <- woningen_sf[woningen_sf$gebruiksdoel %like% "woonfunctie" | woningen_sf$gebruiksdoel %like% "logiesfunctie",]
+
+
+#percelen with woonverblijfsobject 
+percelenwoonfunctie_sf <- sf::st_intersection(percelen_sf, woningen_sf) 
+
+#correct
+percelenwoonfunctie_sf2 <- percelen_sf[woningen_sf,]
+percelenwoonfunctie_sf2 <- sf::st_intersection(buurt_sf, percelenwoonfunctie_sf2) #clipping 
+
+#percelenwoonfunctie_sf <- percelenwoonfunctie_sf %>%
+#  dplyr::select(one_of(percelen_cols))
+  
+#panden with woonfunctie
+#pandenwoonfunctie_sf <- sf::st_intersection(panden_sf, woningen_sf) 
+#pandenwoonfunctie_sf <- pandenwoonfunctie_sf %>%
+#  dplyr::select(one_of(panden_cols))
+
+#correct
+pandenwoonfunctie_sf2 <- panden_sf[woningen_sf,]
+
+
+
+#tuin = perceelwoonfunctie-panden
+
+#why so much records?
+tuinen_sf2 <- st_difference(percelenwoonfunctie_sf2,panden_sf)
+
+#interactive Leaflet presentation of the layers buurt, percelen and panden
+
+mapview(list(buurt_sf,percelen_sf,pandenwoonfunctie_sf2,percelenwoonfunctie_sf2),alpha.regions = 0.6, alpha = 1)
+#mapview(list(buurt_sf,percelenwoonfunctie_sf2,percelen_sf),alpha.regions = 0.6, alpha = 1)
+
+
+
+
 
 #-----------------------------------------------------------------------------------------------
 #post-processing
@@ -129,12 +188,30 @@ panden_sf <- panden_sf  %>%
 #add id to rownames
 rownames(panden_sf)<-panden_sf$identificatie
 
+
+#-----------------------------------------------------------------------------------------------
+
+#compare python vs r (records/features)
+
+#panden: 249/10 - 249/13 (OK, but 3 more features in R)
+#percelen: 212/23 - 229/23 (NOT OK, PROBLEM IN R) percelen not clipped by buurt polygon
+#verblijfsobjecten 167/16 - 167/19 (OK, but 3 more features in R)
+#woningen 156/16 - 156/19 (OK, but 3 more features in R)
+#tuinen 148/15 - ?
+
+#percelenwoonfunctie2  ? - 147/26
+#pandenwoonfunctie2  ? - 156/13
+
+
 #-----------------------------------------------------------------------------------------------
 #create vector geopackage (GPKG)
 sf::st_write(buurt_sf, dsn=gpkg_vector, layer='buurt',layer_options = "OVERWRITE=YES",append=FALSE)
 sf::st_write(panden_sf, dsn=gpkg_vector, layer='panden',layer_options = "OVERWRITE=YES",append=FALSE)
 sf::st_write(percelen_sf, dsn=gpkg_vector, layer='percelen',layer_options = "OVERWRITE=YES",append=FALSE)
-sf::st_write(verblijfsobject_sf, dsn=gpkg_vector, layer='verblijfsobjecten',layer_options = "OVERWRITE=YES",append=FALSE)
+sf::st_write(verblijfsobjecten_sf, dsn=gpkg_vector, layer='verblijfsobjecten',layer_options = "OVERWRITE=YES",append=FALSE)
+sf::st_write(woningen_sf, dsn=gpkg_vector, layer='woningen',layer_options = "OVERWRITE=YES",append=FALSE)
+sf::st_write(tuinen_sf, dsn=neigh.vec.loc, layer='tuinen',layer_options = "OVERWRITE=YES",append=FALSE)
+
 sf::st_layers(gpkg_vector)
 
 } else {
@@ -142,7 +219,9 @@ sf::st_layers(gpkg_vector)
 buurt_sf <- sf::st_read(gpkg_vector, layer= "buurt", geometry_column="geom")
 panden_sf <- sf::st_read(gpkg_vector, layer= "panden",geometry_column="geom")
 percelen_sf <- sf::st_read(gpkg_vector, layer= "percelen",geometry_column="geom")
-verblijfsobject_sf <- sf::st_read(gpkg_vector, layer= "verblijfsobjecten", geometry_column="geom")
+verblijfsobjecten_sf <- sf::st_read(gpkg_vector, layer= "verblijfsobjecten", geometry_column="geom")
+woningen_sf <- sf::st_read(gpkg_vector, layer= "woningen", geometry_column="geom")
+tuinen_sf <- sf::st_read(gpkg_vector, layer= "tuinen", geometry_column="geom")
 }
 
 #plot(st_geometry(percelen_sf))
@@ -182,7 +261,7 @@ ggsave(plot.store, dpi=dpi)
 
 #-----------------------------------------------------------------------------------------------
 
-
+#old stuff
 #dd<-percelen_sf %>%
 #  st_make_valid() %>%
 #  st_cast('MULTIPOLYGON') %>%
@@ -190,8 +269,6 @@ ggsave(plot.store, dpi=dpi)
 #  filter(st_area(.) > units::set_units(1, m^2)) %>%
 #  group_by(id) %>%
 #  summarize(geometry = st_combine(geometry))
-
-
 
 
 

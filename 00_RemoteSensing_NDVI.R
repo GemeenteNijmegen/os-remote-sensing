@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------------------------
 
 # date created: 11-05-2021
-# date modified: 23-07-2021
+# date modified: 30-07-2021
 
 #-----------------------------------------------------------------------------------------------
 
@@ -64,7 +64,8 @@ start_time <- Sys.time()
 
 #geopackage with buurt, percelen and panden polygons
 
-prefab_polygons <- TRUE 
+#prefab geopackage from Python procedure
+prefab_polygons <- TRUE #default (T) 
 
 if(prefab_polygons==TRUE) {
 #download prefab geopackage from VNG Stack        
