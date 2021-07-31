@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------------------------
 
 # date created: 11-05-2021
-# date modified: 30-07-2021
+# date modified: 31-07-2021
 
 #-----------------------------------------------------------------------------------------------
 
@@ -104,7 +104,7 @@ mapview(list(buurt_sf,percelen_sf, panden_sf),alpha.regions = 0.6, alpha = 1)
 
 #-----------------------------------------------------------------------------------------------
 
-# Aerial image
+# Aerial image 
 
 #-----------------------------------------------------------------------------------------------
 
@@ -119,35 +119,24 @@ plot(ai_tuinen)
 
 #-----------------------------------------------------------------------------------------------
 
-# AHN
-
-#-----------------------------------------------------------------------------------------------
-
-source(here::here('SRC/ahn.R'))
-
-#-----------------------------------------------------------------------------------------------
-
 # Vegetation indices
 
 #-----------------------------------------------------------------------------------------------
 
-#calculate NDVI, EVI2 and RVI using the nir band and red band
+#calculate green indices : NDVI, EVI2 and RVI
 
-#------------------------------------
+#--------------------------------------------------
+
 #Normalized difference vegetation index (NDVI)
+
+#--------------------------------------------------
 #Indicates amount of vegetation, distinguishes veg from soil, minimizes topographic effects
 ndvi <- raster::overlay(red, nir, fun = function(x, y) { (y-x) / (y+x) })
 
 png(paste0(plots.dir,"rs_ndvi_raw_",neighbourhood,".png"))
 plot(ndvi)
 dev.off()
-res(ndvi)
 
-#improve resolution
-#ndvi_disaggregate <- raster::disaggregate(ndvi, fact=4)
-#res(ndvi_disaggregate)
-#plot(ndvi_disaggregate)
-#ndvi<-ndvi_disaggregate
 
 #unsupervised boundary detection (NDVI classes)
 source(here::here('SRC/green_classes.R'))
@@ -178,32 +167,22 @@ veg_s <- raster::reclassify(ndvi, cbind(-Inf, 0.4, NA))
 #vegetation in classes (Deloitte)
 veg_c <- raster::reclassify(ndvi, c(-Inf,0.2,1,0.2,0.4,2,0.4,1,3))
 
-#------------------------------------
+#--------------------------------------------------
 
 #Enhanced vegetation index - Two-band (EVI2)
+
+#--------------------------------------------------
 evi2 <- 2.5*((nir-red)/(nir+2.4*red+1))
 
-#------------------------------------
+#--------------------------------------------------
+
 #Ratio vegetation index (RVI)
+
+#--------------------------------------------------
+
 #Indicates amount of vegetation
 #Reduces the effects of atmosphere and topography
 rvi <- nir / red
-
-
-#------------------------------------
-
-#garden 5m and above (trees)
-reclass_binary <- c(-Inf, 5, 0,
-                    5, Inf, 1)
-
-#reshape the object into a matrix with columns and rows
-reclass_binary_m <- matrix(reclass_binary,
-                           ncol = 3,
-                           byrow = TRUE)
-
-garden_5mplus <- raster::reclassify(ahn_tuinen,reclass_binary_m)
-
-rm(reclass_binary, reclass_binary_m)
 
 #-----------------------------------------------------------------------------------------------
 
@@ -224,13 +203,33 @@ green_indices <-
         as("Raster")
 green_indices
 
-#-----------------------------------------------------------------------------------------------
-
-#vegetation plots
 
 #-----------------------------------------------------------------------------------------------
 
-source(here::here('SRC/vegetation_plots.R'))
+# AHN
+
+#-----------------------------------------------------------------------------------------------
+
+source(here::here('SRC/ahn.R'))
+
+#-----------------------------------------------------------------------------------------------
+
+#Garden above 5m
+
+#-----------------------------------------------------------------------------------------------
+
+#garden 5m and above
+reclass_binary <- c(-Inf, 5, 0,
+                    5, Inf, 1)
+
+#reshape the object into a matrix with columns and rows
+reclass_binary_m <- matrix(reclass_binary,
+                           ncol = 3,
+                           byrow = TRUE)
+
+garden_5mplus <- raster::reclassify(ahn_buurt,reclass_binary_m)
+
+rm(reclass_binary, reclass_binary_m)
 
 #-----------------------------------------------------------------------------------------------
 
@@ -277,6 +276,11 @@ reclass_binary_m <- matrix(reclass_binary,
 
 veg_g <- raster::reclassify(ndvi,reclass_binary_m)
 
+#trees in vegetation garden
+veg_t <- garden_5mplus*veg_g
+
+
+crs(veg_t)<-crs(percelen_sf)
 
 #------------------------------------
 
@@ -318,36 +322,52 @@ ndvi_cover<-exactextractr::exact_extract(veg_g,tuinen_sf,
                                        force_df =FALSE)
 
 
-tuinen_sf$green_cover<-round(ndvi_cover*100,0)
+tuinen_sf$green_cover<-round(ndvi_cover*100,1)
 
 
-#tree cover per polygon element (tuin)
-ndvi_cover<-exactextractr::exact_extract(garden_5mplus,tuinen_sf,
+#tree cover per polygon element (tuin) 
+tree_cover<-exactextractr::exact_extract(veg_t,tuinen_sf,
                                          #the mean cell value, weighted by the fraction of each cell
                                          #that is covered by the polygon
                                          fun ='mean',
                                          force_df =FALSE)
 
 
-tuinen_sf$tree_cover<-round(ndvi_cover*100,0)
+tuinen_sf$tree_cover<-round(tree_cover*100,1)
 
 
 #------------------------------------
 
+#make sure the surface is the effective garden area after geometric operations (and not perceel as in 'opp' from PDOK source)
+tuinen_sf$oppervlakte_tuin_unit <- st_area(tuinen_sf$geom) #keep for unit translations
+#change data type to numeric (from 'S3: units' with m^2 suffix)
+tuinen_sf$oppervlakte_tuin <- as.numeric(tuinen_sf$oppervlakte_tuin_unit)
+
+
 #surface culculation (m2)
 tuinen_sf <- tuinen_sf %>%
-           mutate(green_surface = round((opp*(green_cover/100)),1),
-                  tree_surface = round((opp*(tree_cover/100)),1),
-                  green_potential = opp-green_surface,
+           mutate(
+                  #oppervlakte vegetatie 
+                  green_surface = round((oppervlakte_tuin*(green_cover/100)),1),
+                  #oppervlak bomen (for now: surface garden 5m and above)
+                  tree_surface = round((oppervlakte_tuin*(tree_cover/100)),1),
+                  #aandeel bomen in vegetatie
+                  treeingreen_cover = round(tree_surface/green_surface*100,1),
+                  #oppervlak potentieel vegetatie
+                  green_potential = oppervlakte_tuin-green_surface,
+                  #buurtcode meenemen
                   buurt_selection = neighbourhood
                   )        
-        
+ 
+#gardens with 5m and above, but no vegetation cover (todo: tackle in polygon section!) : infinite to Na
+is.na(tuinen_sf$treeingreen_cover) <- sapply(tuinen_sf$treeingreen_cover, is.infinite)
+       
 #compute buurt statistics
 buurt_garden_stats <- tuinen_sf %>%
         group_by(buurt_selection)  %>%
         summarise(
                   #tuin oppervlak
-                  garden_surface = sum(opp), 
+                  garden_surface_sum = sum(oppervlakte_tuin), 
                   #aandeel vegetatie in tuin
                   green_cover_avg = round(mean(green_cover),1),
                   #aandeel bomen in tuin
@@ -357,7 +377,7 @@ buurt_garden_stats <- tuinen_sf %>%
                   #oppervlak bomen
                   tree_surface_sum = sum(tree_surface),
                   #aandeel bomen in vegetatie
-                  treeingreen_cover_avg = round(tree_surface_sum/green_surface_sum*100,1),
+                  treeingreen_cover_avg = round(mean(treeingreen_cover,na.rm = TRUE),1),
                   #oppervlak potentieel vegetatie
                   green_potential_sum = sum(green_potential),
                   #gemiddelde NDVI waarde tuin
@@ -369,95 +389,14 @@ buurt_garden_stats <- tuinen_sf %>%
 buurt_garden_stats <- cbind(buurt_sf,buurt_garden_stats)
 
 
-#------------------------------------
-#plots
 
-#mean NVDI garden
-ggplot(data = tuinen_sf) +
-        geom_sf(aes(fill = ndvi_avg)) +
-        scale_fill_viridis_c(option = "turbo", direction = 1,name = "mean NDVI") +
-        #scale_fill_continuous_diverging(palette = "qz_ndvi") +
-        geom_point(size = 0.4, aes(x = coord_tuinen$X,y = coord_tuinen$Y), colour="white", shape = 15) +
-        geom_text(
-                aes(
-                        label = tuinen_sf$ndvi_avg,
-                        x = coord_tuinen$X,
-                        y = coord_tuinen$Y
-                ),
-                colour = "black",
-                size = 1.9,hjust = 0, nudge_x = 0.07
-        ) +
-        xlab("Longitude") + ylab("Latitude") +
-theme_minimal() 
-plot.nme = paste0('NDVI_mean_garden.png')
-plot.store <-paste0(plots.dir,plot.nme)
-ggsave(plot.store, dpi=dpi)
+#-----------------------------------------------------------------------------------------------
 
-#mean NVDI for vegetation in garden
-ggplot(data = tuinen_sf) +
-        geom_sf(aes(fill = ndvi_green_avg)) +
-        scale_fill_viridis_c(option = "turbo", direction = 1,name = "mean NDVI") +
-        geom_point(size = 0.4, aes(x = coord_tuinen$X,y = coord_tuinen$Y), colour="white", shape = 15) +
-        geom_text(
-                aes(
-                        label = tuinen_sf$ndvi_green_avg,
-                        x = coord_tuinen$X,
-                        y = coord_tuinen$Y
-                ),
-                colour = "black",
-                size = 1.9,hjust = 0, nudge_x = 0.07
-        ) +
-        xlab("Longitude") + ylab("Latitude") +
-        theme_minimal() 
-plot.nme = paste0('NDVI_mean_vegetation_garden.png')
-plot.store <-paste0(plots.dir,plot.nme)
-ggsave(plot.store, dpi=dpi)
+#vegetation plots
 
-#Distribution of gardens over NDVI
-png(paste0(plots.dir,"rs_garden_ndvi_",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio*2, height=png_height)
-hist(tuinen_sf$ndvi_avg,
-     breaks=8,
-     main = paste0("Distribution of gardens over NDVI ",neighbourhood),
-     xlab = "mean ndvi", ylab = "freq",
-     col = "steelblue")
-dev.off()
+#-----------------------------------------------------------------------------------------------
 
-#distribution of gardens over NDVI
-ggplot(tuinen_sf, aes(x = ndvi_avg)) +  
-        geom_histogram(aes(y = (..count..)/sum(..count..)), binwidth = 0.02,color="lightblue", fill="steelblue") +
-        stat_bin(aes(y=(..count..)/sum(..count..), 
-                     label=paste0(round((..count..)/sum(..count..)*100,1),"%")), 
-                 geom="text", size=4, binwidth = 0.08, vjust=-1.5) +
-        #scale_x_continuous(breaks = seq(0.2,0.8,0.1))+
-        theme_light()
-plot.nme = paste0('rs_gardens_distibution_ndvi_',neighbourhood,'.png')
-plot.store <-paste0(plots.dir,plot.nme)
-ggsave(plot.store, dpi=dpi)
-
-#green coverage of gardens
-ggplot(data = tuinen_sf) +
-        geom_sf(aes(fill = ndvi_cover)) +
-        scale_fill_viridis_c(option = "viridis", direction = 1,name = "green cover proportion") +
-        geom_point(size = 0.4, aes(x = coord_tuinen$X,y = coord_tuinen$Y), colour="white", shape = 15) +
-        geom_text(
-                aes(
-                        label = tuinen_sf$green_cover,
-                        x = coord_tuinen$X,
-                        y = coord_tuinen$Y
-                ),
-                colour = "black",
-                size = 2.2,hjust = 0, nudge_x = 0.07
-        ) +
-        xlab("Longitude") + ylab("Latitude") +
-        theme_minimal() 
-plot.nme = paste0('green_coverage_garden.png')
-plot.store <-paste0(plots.dir,plot.nme)
-ggsave(plot.store, dpi=dpi)
-
-#END under contruction by Mark
-
-end_time <- Sys.time()
-end_time - start_time
+source(here::here('SRC/vegetation_plots.R'))
 
 
 #-----------------------------------------------------------------------------------------------
@@ -465,6 +404,9 @@ end_time - start_time
 # Debugging
 
 #-----------------------------------------------------------------------------------------------
+
+end_time <- Sys.time()
+end_time - start_time
 
 rlang::last_error()
 rlang::last_trace()

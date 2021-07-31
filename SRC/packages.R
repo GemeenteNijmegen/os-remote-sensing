@@ -60,6 +60,8 @@ packages <- c(
   'raster',
   #Spatiotemporal Arrays, Raster and Vector Data Cubes
   'stars',
+  #calculations vectors
+  'units',
   #Bindings for the 'Geospatial' Data Abstraction Library
   'rgdal',
   #Wrappers for the Geospatial Data Abstraction Library (GDAL) Utilities

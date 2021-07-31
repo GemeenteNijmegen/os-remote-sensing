@@ -93,7 +93,6 @@ percelen_cols<-colnames(percelen_sf)
 #  dplyr::select(one_of(percelen_cols))
   
 
-
 #-----------------------------------------------------------------------------------------------
 
 #Verblijfsobjecten request
@@ -122,13 +121,11 @@ verblijfsobjecten_sf <- sf::st_intersection(buurt_sf, verblijfsobjecten_sf) #cli
 #tuinen within percelen with object woonfunctie
 
 
-
 #verblijfsobjecten with status 'in gebruik' or 'verbouwing'
 woningen_sf <- verblijfsobjecten_sf[verblijfsobjecten_sf$status %like% "Verblijfsobject in gebruik" | verblijfsobjecten_sf$status %like% "Verbouwing verblijfsobject" ,]
 
 #verblijfsobjecten with object 'woonfunctie' or 'logiesfunctie'
 woningen_sf <- woningen_sf[woningen_sf$gebruiksdoel %like% "woonfunctie" | woningen_sf$gebruiksdoel %like% "logiesfunctie",]
-
 
 #percelen with woonverblijfsobject 
 percelenwoonfunctie_sf <- sf::st_intersection(percelen_sf, woningen_sf) 
@@ -147,8 +144,6 @@ percelenwoonfunctie_sf2 <- sf::st_intersection(buurt_sf, percelenwoonfunctie_sf2
 
 #correct
 pandenwoonfunctie_sf2 <- panden_sf[woningen_sf,]
-
-
 
 #tuin = perceelwoonfunctie-panden
 

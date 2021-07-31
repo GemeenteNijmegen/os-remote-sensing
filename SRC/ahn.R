@@ -11,12 +11,18 @@ ahn_raster <- ahn_area(name = "BBOX rs", bbox = c(xmin, ymin, xmax,ymax), resolu
 #points cloud
 #ahn_points <- ahn_pc(name = "BBOX pc", bbox = c(xmin, ymin, xmax,ymax), AHN = "AHN2", gefilterd = TRUE)
 
-#mask rasters
-ahn_buurt <- raster::mask(ahn_raster, buurt_sf)
-ahn_tuinen <- raster::mask(ahn_raster, tuinen_sf)
-ahn_panden <- raster::mask(ahn_raster, panden_sf)
+#adjust resolution (to match aerial image)
+ahn_raster_hr <- raster::disaggregate(ahn_raster, fact=4)
 
-rm(ahn_raster)
+#resample to match dimension, resolution and extent with nearest neighbor as method (we do not want to change values as with bilinear method)
+ahn_raster_hr_rs <- raster::resample(ahn_raster_hr,ndvi, method = 'ngb') # or raster::projectRaster
+
+#mask rasters
+ahn_buurt <- raster::mask(ahn_raster_hr_rs, buurt_sf)
+ahn_tuinen <- raster::mask(ahn_raster_hr_rs, tuinen_sf)
+ahn_panden <- raster::mask(ahn_raster_hr_rs, panden_sf)
+
+rm(ahn_raster, ahn_raster_ahn,ahn_raster_hr)
 
 plot(ahn_buurt, xlab = "X", ylab = "Y", main = "AHN Elevation buurt (m)")
 #plot(ahn_tuinen, xlab = "X", ylab = "Y", main = "AHN Elevation tuinen (m)")
