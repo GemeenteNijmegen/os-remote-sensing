@@ -1,7 +1,7 @@
 
 #-----------------------------------------------------------------------------------------------
 
-# Actueel Hoogtebestand Nederland (AHN)
+#Current Dutch Elevation (Actueel Hoogtebestand Nederland, AHN) 
 
 #-----------------------------------------------------------------------------------------------
 
@@ -12,17 +12,22 @@ ahn_raster <- ahn_area(name = "BBOX rs", bbox = c(xmin, ymin, xmax,ymax), resolu
 #ahn_points <- ahn_pc(name = "BBOX pc", bbox = c(xmin, ymin, xmax,ymax), AHN = "AHN2", gefilterd = TRUE)
 
 #adjust resolution (to match aerial image)
-ahn_raster_hr <- raster::disaggregate(ahn_raster, fact=4)
+#ahn_raster_hr <- raster::disaggregate(ahn_raster, fact=4)
+ahn_raster_hr <- terra::disaggregate(ahn_raster, fact=4)
 
 #resample to match dimension, resolution and extent with nearest neighbor as method (we do not want to change values as with bilinear method)
-ahn_raster_hr_rs <- raster::resample(ahn_raster_hr,ndvi, method = 'ngb') # or raster::projectRaster
+#ahn_raster_hr_rs <- raster::resample(ahn_raster_hr,ndvi, method = 'ngb') # or raster::projectRaster
+ahn_raster_hr_rs <- terra::resample(ahn_raster_hr,ndvi, method = 'ngb') # or raster::projectRaster
 
 #mask rasters
-ahn_buurt <- raster::mask(ahn_raster_hr_rs, buurt_sf)
-ahn_tuinen <- raster::mask(ahn_raster_hr_rs, tuinen_sf)
-ahn_panden <- raster::mask(ahn_raster_hr_rs, panden_sf)
+#ahn_buurt <- raster::mask(ahn_raster_hr_rs, buurt_sf)
+ahn_buurt <- terra::mask(ahn_raster_hr_rs, buurt_sf)
+#ahn_tuinen <- raster::mask(ahn_raster_hr_rs, tuinen_sf)
+ahn_tuinen <- terra::mask(ahn_raster_hr_rs, tuinen_sf)
+#ahn_panden <- raster::mask(ahn_raster_hr_rs, panden_sf)
+ahn_panden <- terra::mask(ahn_raster_hr_rs, panden_sf)
 
-rm(ahn_raster, ahn_raster_ahn,ahn_raster_hr)
+rm(ahn_raster, ahn_raster_ahn,ahn_raster_hr, ahn_raster_hr_rs)
 
 plot(ahn_buurt, xlab = "X", ylab = "Y", main = "AHN Elevation buurt (m)")
 #plot(ahn_tuinen, xlab = "X", ylab = "Y", main = "AHN Elevation tuinen (m)")
@@ -55,21 +60,21 @@ ahn_panden %>% #RasterLayer
               )
   )
 
-
 #-----------------------------------------------------------------------------------------------
 #Plots
 
 #buurt
 png(paste0(plots.dir,"rs_ahn_buurt_",neighbourhood,".png"), bg="white")
 par(col.axis = "white", col.lab = "white", tck = 0)
-aerial_rgb <- raster::plotRGB(ai_buurt,
+aerial_rgb <- terra::plotRGB(ai_buurt,
                               r = 1, g = 2, b = 3,
                               #stretch the values to increase the contrast of the image
                               stretch = "lin",
                               alpha=0,#hide (0), show(255)
                               axes = TRUE,
-                              main = paste0("composite image stack RGB AHN panden neighbourhood ", neighbourhood))
+                              main = paste0("AHN buurt ", neighbourhood))
 plot(ahn_buurt, add=TRUE, legend=FALSE)
+plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 aerial_rgb
 plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
@@ -78,14 +83,15 @@ dev.off()
 #panden
 png(paste0(plots.dir,"rs_ahn_panden_",neighbourhood,".png"), bg="white")
 par(col.axis = "white", col.lab = "white", tck = 0)
-aerial_rgb <- raster::plotRGB(ai_buurt,
+aerial_rgb <- terra::plotRGB(ai_buurt,
                               r = 1, g = 2, b = 3,
                               #stretch the values to increase the contrast of the image
                               stretch = "lin",
                               alpha=0,#hide (0), show(255)
                               axes = TRUE,
-                              main = paste0("composite image stack RGB AHN panden neighbourhood ", neighbourhood))
+                              main = paste0("AHN panden ", neighbourhood))
 plot(ahn_panden, add=TRUE, legend=FALSE)
+plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 aerial_rgb
 plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
@@ -94,14 +100,15 @@ dev.off()
 #tuinen
 png(paste0(plots.dir,"rs_ahn_tuinen_",neighbourhood,".png"), bg="white")
 par(col.axis = "white", col.lab = "white", tck = 0)
-aerial_rgb <- raster::plotRGB(ai_buurt,
+aerial_rgb <- terra::plotRGB(ai_buurt,
                               r = 1, g = 2, b = 3,
                               #stretch the values to increase the contrast of the image
                               stretch = "lin",
                               alpha=0,#hide (0), show(255)
                               axes = TRUE,
-                              main = paste0("composite image stack RGB AHN tuinen neighbourhood ", neighbourhood))
+                              main = paste0("AHN tuinen ", neighbourhood))
 plot(ahn_tuinen, add=TRUE, legend=FALSE)
+plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 aerial_rgb
 plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)

@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------------------------
 
 # date created: 11-05-2021
-# date modified: 31-07-2021
+# date modified: 02-08-2021
 
 #-----------------------------------------------------------------------------------------------
 
@@ -64,7 +64,7 @@ start_time <- Sys.time()
 
 #geopackage with buurt, percelen and panden polygons
 
-#prefab geopackage from Python procedure
+#prefab geopackage (from Python procedure)
 prefab_polygons <- TRUE #default (T) 
 
 if(prefab_polygons==TRUE) {
@@ -94,6 +94,7 @@ cntrd_perceel <- st_centroid(st_geometry(percelen_sf))
 
 #centroid tuinen
 cntrd_tuinen <- st_centroid(st_geometry(tuinen_sf))
+
 #extract coordinates
 coord_tuinen<-as.data.frame(st_coordinates(cntrd_tuinen))
 
@@ -132,11 +133,7 @@ plot(ai_tuinen)
 #--------------------------------------------------
 #Indicates amount of vegetation, distinguishes veg from soil, minimizes topographic effects
 ndvi <- raster::overlay(red, nir, fun = function(x, y) { (y-x) / (y+x) })
-
-png(paste0(plots.dir,"rs_ndvi_raw_",neighbourhood,".png"))
-plot(ndvi)
-dev.off()
-
+names(ndvi)<-"ndvi"
 
 #unsupervised boundary detection (NDVI classes)
 source(here::here('SRC/green_classes.R'))
@@ -160,6 +157,16 @@ reclass_binary_m <- matrix(reclass_binary,
 
 veg_g <- raster::reclassify(ndvi,reclass_binary_m)
 
+#contour lines vegetation
+veg_contour <- raster::rasterToContour(veg_g)
+#todo transform to polygon
+
+png(paste0(plots.dir,"rs_ndvi_raw_",neighbourhood,".png"))
+plot(ndvi)
+plot(veg_contour, add=TRUE)
+plot(percelen_sf$geom, add=TRUE, legend=FALSE)
+dev.off()
+
 #substantial green (fixed boundary at 0.4)
 #reclassifying nvdi (all values between negative infinity and 0.4 be NAs)
 veg_s <- raster::reclassify(ndvi, cbind(-Inf, 0.4, NA))
@@ -172,7 +179,9 @@ veg_c <- raster::reclassify(ndvi, c(-Inf,0.2,1,0.2,0.4,2,0.4,1,3))
 #Enhanced vegetation index - Two-band (EVI2)
 
 #--------------------------------------------------
-evi2 <- 2.5*((nir-red)/(nir+2.4*red+1))
+
+#evi2 <- 2.5*((nir-red)/(nir+2.4*red+1))
+evi2 <- raster::overlay(red, nir, fun = function(x, y) { (y-x) / (y+2.4*x+1) })
 
 #--------------------------------------------------
 

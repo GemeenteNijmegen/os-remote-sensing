@@ -46,18 +46,12 @@ if(tiff.as.source==FALSE & tiff.rdy==FALSE) {
 
 #-----------------------------------------------------------------------------------------------
 
-#create RasterBrick
-if(tiff.as.source==TRUE) {
   #TIFF as source
   #info on TIFF
   #GDALinfo(output)
   
-  ai <-  as(stars::read_stars(output), "Raster")
+  ai <- terra::rast(output)
   rm(tif)
-} else {
-  #ECW as source
-  ai<-raster::brick(output)
-}
 
 #-----------------------------------------------------------------------------------------------
 #meta data 
@@ -66,13 +60,7 @@ if(tiff.as.source==TRUE) {
 str(ai)
 
 #projection
-raster::crs(ai) <- "EPSG:4326"
-
-#layers
-nlayers(ai)
-
-#extent
-extent(ai)
+terra::crs(ai) <- "EPSG:4326"
 
 #layer names
 names(ai)
@@ -86,16 +74,14 @@ names(ai) <- c("nir","red","green")
 #cropping and masking 
 
 #crop neighbourhood
-ai_crop <- raster::crop(ai, buurt_sf)
+ai_crop <- terra::crop(ai,vect(buurt_sf))
 rm(ai)
-
 #mask buurt
-ai_buurt <- raster::mask(ai_crop, buurt_sf)
+ai_buurt <- raster::mask(ai_crop,vect(buurt_sf))
 
 #mask tuinen
-ai_tuinen <- raster::mask(ai_crop, tuinen_sf)
-
-rm(ai, ai_crop)
+ai_tuinen <- raster::mask(ai_crop,vect(tuinen_sf))
+rm(ai_crop)
 
 #-----------------------------------------------------------------------------------------------
 #Geopackage raster data

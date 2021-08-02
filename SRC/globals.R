@@ -50,6 +50,14 @@ lapply(locations, function(x) {
   if (!dir.exists(x)) {dir.create(x)}
 })
 
+#clear graphs and data folder
+clear_locations <- c(plots.dir, data.dir)
+
+# get all files in the directories, recursively
+f <- list.files(clear_locations, include.dirs = F, full.names = T, recursive = T)
+# remove the files
+file.remove(f)
+
 #dimension and quality plots
 graph_height <- 12
 png_height <- 600
@@ -71,10 +79,6 @@ webdav_hostname <- "https://datasciencevng.nl/remote.php/webdav/"
 webdav_login <- "remotesensing"
 webdav_password <- "VNGRS2021!"
 
-#clear graphs and data folder
-clear_locations <- c(plots.dir, data.dir)
-
-# get all files in the directories, recursively
-f <- list.files(clear_locations, include.dirs = F, full.names = T, recursive = T)
-# remove the files
-file.remove(f)
+#Maximum number of cells to read into memory.
+#The default value of maxmemory is 5e+09 (4.66GB)
+rasterOptions(maxmemory = 7e+09)

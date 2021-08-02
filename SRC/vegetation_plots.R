@@ -105,7 +105,7 @@ png(paste0(plots.dir,"rs_rgb_vegetation_",neighbourhood,".png"), bg="white")
 par(col.axis = "white", col.lab = "white", tck = 0)
 raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("vegetation ", neighbourhood))
 plot(veg_g, add=TRUE, legend=FALSE)
-#plot(percelen_sf$geom, add=TRUE, legend=FALSE)
+plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
 
@@ -144,11 +144,6 @@ plot(rvi, add=TRUE, legend=FALSE)
 plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
-
-plot_ndvi_subset <- mplot_ndvi + mplot_veg_s
-plot.nme = paste0('rs_ndvi_substantialgreen_',neighbourhood,'.png')
-plot.store <-paste0(plots.dir,plot.nme)
-ggsave(plot.store, dpi=dpi)
 
 #bomen
 png(paste0(plots.dir,"rs_rgb_veg_5m_",neighbourhood,".png"), bg="white")

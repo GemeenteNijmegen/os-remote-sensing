@@ -58,6 +58,8 @@ packages <- c(
   'sf',
   #Geographic Data Analysis and Modeling
   'raster',
+  #replacement for raster (TODO rewrite raster functions to terra)
+  'terra',
   #Spatiotemporal Arrays, Raster and Vector Data Cubes
   'stars',
   #calculations vectors

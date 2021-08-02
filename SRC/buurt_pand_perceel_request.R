@@ -14,10 +14,16 @@ if(gpkg.rdy==FALSE) {
 #not available, let's create gpkg
 
 #neighbourhood request
-request <- "https://geodata.nationaalgeoregister.nl/wijkenbuurten2020/wfs?request=GetCapabilities"
+url <- parse_url("https://geodata.nationaalgeoregister.nl/wijkenbuurten2020/wfs?")
+url$query <- list(service = "wfs",
+                  version = "2.0.0",
+                  request = "GetCapabilities",
+                  srsName  = "EPSG:28992",
+                  outputFormat='json')
+request <- build_url(url);request
 
-buurt_sf <- st_read(request, layer = "wijkenbuurten2020:cbs_buurten_2020") %>%
-                    subset(buurtcode == neighbourhood)
+buurt_sf <- sf::st_read(request, layer = "wijkenbuurten2020:cbs_buurten_2020") %>%
+                                 subset(buurtcode == neighbourhood)
 
 buurt_sf <- buurt_sf[, c('buurtcode', 'buurtnaam', 'gemeentecode', 'geom')]
 
@@ -62,6 +68,7 @@ panden_cols<-colnames(panden_sf)
 #subset panden within buurt
 panden_sf <- panden_sf[buurt_sf,] #containing
 panden_sf <- sf::st_intersection(buurt_sf, panden_sf) #clipping
+panden_sf <- panden_sf %>% dplyr::select(one_of(panden_cols))
 
 #-----------------------------------------------------------------------------------------------
 
@@ -81,17 +88,11 @@ percelen_sf <- sf::st_read(request)
 percelen_cols<-colnames(percelen_sf)
 
 #subset percelen within buurt
-#percelen_sf <- percelen_sf[buurt_sf,] #containing
-#percelen_sf <- sf::st_intersection(buurt_sf, percelen_sf) #clipping 
+percelen_sf <- percelen_sf[buurt_sf,] 
+percelen_sf <- sf::st_intersection(buurt_sf, percelen_sf) %>% st_collection_extract("POLYGON") %>%  st_make_valid() 
+percelen_sf <- distinct(percelen_sf, id, .keep_all = TRUE)
+percelen_sf <- percelen_sf %>% dplyr::select(one_of(percelen_cols))
 
-
-#does not work!!
-
-#percelen_sf2 <- sf::st_intersection(percelen_sf, buurt_sf)
-
-#percelen_sf2 <- percelen_sf2 %>%
-#  dplyr::select(one_of(percelen_cols))
-  
 
 #-----------------------------------------------------------------------------------------------
 
@@ -134,13 +135,6 @@ percelenwoonfunctie_sf <- sf::st_intersection(percelen_sf, woningen_sf)
 percelenwoonfunctie_sf2 <- percelen_sf[woningen_sf,]
 percelenwoonfunctie_sf2 <- sf::st_intersection(buurt_sf, percelenwoonfunctie_sf2) #clipping 
 
-#percelenwoonfunctie_sf <- percelenwoonfunctie_sf %>%
-#  dplyr::select(one_of(percelen_cols))
-  
-#panden with woonfunctie
-#pandenwoonfunctie_sf <- sf::st_intersection(panden_sf, woningen_sf) 
-#pandenwoonfunctie_sf <- pandenwoonfunctie_sf %>%
-#  dplyr::select(one_of(panden_cols))
 
 #correct
 pandenwoonfunctie_sf2 <- panden_sf[woningen_sf,]
@@ -148,12 +142,15 @@ pandenwoonfunctie_sf2 <- panden_sf[woningen_sf,]
 #tuin = perceelwoonfunctie-panden
 
 #why so much records?
-tuinen_sf2 <- st_difference(percelenwoonfunctie_sf2,panden_sf)
+tuinen_sf2 <- st_difference(percelenwoonfunctie_sf2,pandenwoonfunctie_sf2)
+tuinen_sf3 <- distinct(tuinen_sf2, id, .keep_all = TRUE)
+
 
 #interactive Leaflet presentation of the layers buurt, percelen and panden
 
-mapview(list(buurt_sf,percelen_sf,pandenwoonfunctie_sf2,percelenwoonfunctie_sf2),alpha.regions = 0.6, alpha = 1)
+mapview(list(buurt_sf,pandenwoonfunctie_sf2,percelenwoonfunctie_sf2),alpha.regions = 0.6, alpha = 1)
 #mapview(list(buurt_sf,percelenwoonfunctie_sf2,percelen_sf),alpha.regions = 0.6, alpha = 1)
+plot(tuinen_sf2$geom)
 
 
 #-----------------------------------------------------------------------------------------------
@@ -184,14 +181,14 @@ rownames(panden_sf)<-panden_sf$identificatie
 
 #compare python vs r (records/features)
 
-#panden: 249/10 - 249/13 (OK, but 3 more features in R)
-#percelen: 212/23 - 229/23 (NOT OK, PROBLEM IN R) percelen not clipped by buurt polygon
+#panden: 249/10 - 249/10 
+#percelen: 212/23 - 219/23 (a bit more percelen, OK?)
 #verblijfsobjecten 167/16 - 167/19 (OK, but 3 more features in R)
 #woningen 156/16 - 156/19 (OK, but 3 more features in R)
-#tuinen 148/15 - ?
+#tuinen3 148/15 - 147/35 (one less tuin, OK?)
 
 #percelenwoonfunctie2  ? - 147/26
-#pandenwoonfunctie2  ? - 156/13
+#pandenwoonfunctie2  ? - 156/10
 
 
 #-----------------------------------------------------------------------------------------------
@@ -201,7 +198,8 @@ sf::st_write(panden_sf, dsn=gpkg_vector, layer='panden',layer_options = "OVERWRI
 sf::st_write(percelen_sf, dsn=gpkg_vector, layer='percelen',layer_options = "OVERWRITE=YES",append=FALSE)
 sf::st_write(verblijfsobjecten_sf, dsn=gpkg_vector, layer='verblijfsobjecten',layer_options = "OVERWRITE=YES",append=FALSE)
 sf::st_write(woningen_sf, dsn=gpkg_vector, layer='woningen',layer_options = "OVERWRITE=YES",append=FALSE)
-sf::st_write(tuinen_sf, dsn=neigh.vec.loc, layer='tuinen',layer_options = "OVERWRITE=YES",append=FALSE)
+sf::st_write(tuinen_sf3, dsn=neigh.vec.loc, layer='tuinen',layer_options = "OVERWRITE=YES",append=FALSE)
+sf::st_write(percelenwoonfunctie_sf2, dsn=neigh.vec.loc, layer='percelenwoonfunctie',layer_options = "OVERWRITE=YES",append=FALSE)
 
 sf::st_layers(gpkg_vector)
 
