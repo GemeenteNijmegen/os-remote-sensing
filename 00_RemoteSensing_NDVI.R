@@ -182,6 +182,7 @@ veg_c <- raster::reclassify(ndvi, c(-Inf,0.2,1,0.2,0.4,2,0.4,1,3))
 
 #evi2 <- 2.5*((nir-red)/(nir+2.4*red+1))
 evi2 <- raster::overlay(red, nir, fun = function(x, y) { (y-x) / (y+2.4*x+1) })
+names(evi2)<-"evi2"
 
 #--------------------------------------------------
 
@@ -211,7 +212,6 @@ green_indices <-
                    ) %>%
         as("Raster")
 green_indices
-
 
 #-----------------------------------------------------------------------------------------------
 
@@ -396,7 +396,6 @@ buurt_garden_stats <- tuinen_sf %>%
                   ) 
  
 buurt_garden_stats <- cbind(buurt_sf,buurt_garden_stats)
-
 
 
 #-----------------------------------------------------------------------------------------------
