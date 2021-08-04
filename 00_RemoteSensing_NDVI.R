@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------------------------
 
 # date created: 11-05-2021
-# date modified: 02-08-2021
+# date modified: 04-08-2021
 
 #-----------------------------------------------------------------------------------------------
 
@@ -44,14 +44,16 @@ source(here::here('SRC/globals.R'))
 #-----------------------------------------------------------------------------------------------
 
 #id neighbourhood
-#neighbourhood<-"BU08280002" 
+#neighbourhood<-"BU08280002" #Oss
 neighbourhood<-"BU04411401" #Sint Maartensvlotbrug, Schagen
 
 #location geopackages
 #vector layers (polygons buurt, percelen, panden, tuinen)
-gpkg_vector<-paste0(data.dir,neighbourhood,"_vector.gpkg")
-#geographic raster data (incl. aerial photo, NDVI, NHx?)
-gpkg_raster<-paste0(data.dir,neighbourhood,"_raster.gpkg")
+gpkg_vector <- paste0(data.dir,neighbourhood,"_vector.gpkg")
+#raster data: aerial photo, NH3
+gpkg_raster <- paste0(data.dir,neighbourhood,"_raster.gpkg")
+#raster data: vegetation indices
+gpkg_indices <- paste0(data.dir,neighbourhood,"_green_indices.gpkg")
 
 #pipeline timer
 start_time <- Sys.time()
@@ -79,10 +81,9 @@ if(prefab_polygons==TRUE) {
 #-----------------------------------------------------------------------------------------------
 #boundaries
 
-#bounding box
+#extend and bounding box
 buurt_extend <- sf::st_bbox(buurt_sf$geom)
 
-#extend
 xmin <- buurt_extend[1]
 xmax <- buurt_extend[3]
 ymin <- buurt_extend[2]
@@ -194,24 +195,6 @@ names(evi2)<-"evi2"
 #Reduces the effects of atmosphere and topography
 rvi <- nir / red
 
-#-----------------------------------------------------------------------------------------------
-
-#vegetation geopackage
-
-#-----------------------------------------------------------------------------------------------
-
-#store green indices in geopackage
-source(here::here('SRC/vegetation_gpkg.R'))
-
-#read geopackage, create RasterBrick 
-green_indices <-
-        read_stars(paste0(data.dir,neighbourhood,"_green_indices.gpkg")
-                   #subsetting
-                   #,sub = "ndvi"
-                   ,quiet = TRUE
-                   ) %>%
-        as("Raster")
-green_indices
 
 #-----------------------------------------------------------------------------------------------
 
@@ -223,9 +206,24 @@ source(here::here('SRC/ahn.R'))
 
 #-----------------------------------------------------------------------------------------------
 
-#Garden above 5m
+#Garden above xmeter
 
 #-----------------------------------------------------------------------------------------------
+
+#garden 3m and above
+reclass_binary <- c(-Inf, 3, 0,
+                    3, Inf, 1)
+
+#reshape the object into a matrix with columns and rows
+reclass_binary_m <- matrix(reclass_binary,
+                           ncol = 3,
+                           byrow = TRUE)
+
+garden_3mplus <- raster::reclassify(ahn_buurt,reclass_binary_m)
+
+rm(reclass_binary, reclass_binary_m)
+
+#---------------------------
 
 #garden 5m and above
 reclass_binary <- c(-Inf, 5, 0,
@@ -239,6 +237,7 @@ reclass_binary_m <- matrix(reclass_binary,
 garden_5mplus <- raster::reclassify(ahn_buurt,reclass_binary_m)
 
 rm(reclass_binary, reclass_binary_m)
+
 
 #-----------------------------------------------------------------------------------------------
 
@@ -286,10 +285,33 @@ reclass_binary_m <- matrix(reclass_binary,
 veg_g <- raster::reclassify(ndvi,reclass_binary_m)
 
 #trees in vegetation garden
-veg_t <- garden_5mplus*veg_g
+#3m (medium and large trees)
+veg_t3 <- garden_3mplus*veg_g
+crs(veg_t3)<-crs(percelen_sf)
 
+#5m (large trees)
+veg_t5 <- garden_5mplus*veg_g
+crs(veg_t5)<-crs(percelen_sf)
 
-crs(veg_t)<-crs(percelen_sf)
+#-----------------------------------------------------------------------------------------------
+
+#vegetation geopackage
+
+#-----------------------------------------------------------------------------------------------
+
+#store green indices in geopackage
+source(here::here('SRC/vegetation_gpkg.R'))
+
+#read geopackage, create RasterBrick 
+green_indices <-
+        read_stars(paste0(data.dir,neighbourhood,"_green_indices.gpkg")
+                   #subsetting
+                   #,sub = "ndvi"
+                   ,quiet = TRUE
+        ) %>%
+        as("Raster")
+green_indices
+
 
 #------------------------------------
 
@@ -334,15 +356,25 @@ ndvi_cover<-exactextractr::exact_extract(veg_g,tuinen_sf,
 tuinen_sf$green_cover<-round(ndvi_cover*100,1)
 
 
-#tree cover per polygon element (tuin) 
-tree_cover<-exactextractr::exact_extract(veg_t,tuinen_sf,
+#5m+ tree cover per polygon element (tuin) 
+tree_cover_3m<-exactextractr::exact_extract(veg_t3,tuinen_sf,
+                                            #the mean cell value, weighted by the fraction of each cell
+                                            #that is covered by the polygon
+                                            fun ='mean',
+                                            force_df =FALSE)
+
+
+tuinen_sf$tree_cover_3m<-round(tree_cover_3m*100,1)
+
+#5m+ tree cover per polygon element (tuin) 
+tree_cover_5m<-exactextractr::exact_extract(veg_t5,tuinen_sf,
                                          #the mean cell value, weighted by the fraction of each cell
                                          #that is covered by the polygon
                                          fun ='mean',
                                          force_df =FALSE)
 
 
-tuinen_sf$tree_cover<-round(tree_cover*100,1)
+tuinen_sf$tree_cover_5m<-round(tree_cover_5m*100,1)
 
 
 #------------------------------------
@@ -358,10 +390,12 @@ tuinen_sf <- tuinen_sf %>%
            mutate(
                   #oppervlakte vegetatie 
                   green_surface = round((oppervlakte_tuin*(green_cover/100)),1),
-                  #oppervlak bomen (for now: surface garden 5m and above)
-                  tree_surface = round((oppervlakte_tuin*(tree_cover/100)),1),
-                  #aandeel bomen in vegetatie
-                  treeingreen_cover = round(tree_surface/green_surface*100,1),
+                  #oppervlak bomen (5m and above)
+                  tree_surface_5m = round((oppervlakte_tuin*(tree_cover_5m/100)),1),
+                  #oppervlak bomen (3m and above)
+                  tree_surface_3m = round((oppervlakte_tuin*(tree_cover_3m/100)),1),
+                  #aandeel bomen in vegetatie (3m and above)
+                  treeingreen_cover = round(tree_surface_3m/green_surface*100,1),
                   #oppervlak potentieel vegetatie
                   green_potential = oppervlakte_tuin-green_surface,
                   #buurtcode meenemen
@@ -369,7 +403,7 @@ tuinen_sf <- tuinen_sf %>%
                   )        
  
 #gardens with 5m and above, but no vegetation cover (todo: tackle in polygon section!) : infinite to Na
-is.na(tuinen_sf$treeingreen_cover) <- sapply(tuinen_sf$treeingreen_cover, is.infinite)
+#is.na(tuinen_sf$treeingreen_cover) <- sapply(tuinen_sf$treeingreen_cover, is.infinite)
        
 #compute buurt statistics
 buurt_garden_stats <- tuinen_sf %>%
@@ -379,12 +413,14 @@ buurt_garden_stats <- tuinen_sf %>%
                   garden_surface_sum = sum(oppervlakte_tuin), 
                   #aandeel vegetatie in tuin
                   green_cover_avg = round(mean(green_cover),1),
-                  #aandeel bomen in tuin
-                  tree_cover_avg = round(mean(tree_cover),1),
+                  #aandeel bomen in tuin (3m and above)
+                  tree_cover_3m_avg = round(mean(tree_cover_3m),1),
+                  #aandeel bomen in tuin (5m and above)
+                  tree_cover_5m_avg = round(mean(tree_cover_5m),1),
                   #oppervlak vegetatie
                   green_surface_sum = sum(green_surface),
-                  #oppervlak bomen
-                  tree_surface_sum = sum(tree_surface),
+                  #oppervlak bomen (3m and above)
+                  tree_surface_sum = sum(tree_surface_3m),
                   #aandeel bomen in vegetatie
                   treeingreen_cover_avg = round(mean(treeingreen_cover,na.rm = TRUE),1),
                   #oppervlak potentieel vegetatie

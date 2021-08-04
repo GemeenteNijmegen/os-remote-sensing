@@ -64,7 +64,7 @@ reticulate::py_discover_config()
 
 
 #create environment
-reticulate::conda_create("remotesensing") 
+#reticulate::conda_create("remotesensing") 
 
 #list all environments
 reticulate::conda_list(conda = "auto")
@@ -84,5 +84,3 @@ os <- import(os, geopandas)
 
 source_python('Processing/variables.py')
 py_run_file("Processing/start.py")
-
-?import_main

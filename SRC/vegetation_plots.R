@@ -22,7 +22,7 @@ dev.off()
 #minimal theme
 
 # plot NDVI
-mplot_ndvi <- gplot(ndvi) +
+mplot_ndvi <- rasterVis::gplot(ndvi) +
   geom_tile(aes(fill = value)) +
   scale_fill_gradientn(colours = rev(terrain.colors(225)), na.value ="transparent", limits = c(-0.5,1)) +
   #geom_sf(aes(st_sf(st_geometry(tuinen_sf)))) +
@@ -33,7 +33,7 @@ plot.store <-paste0(plots.dir,plot.nme)
 ggsave(plot.store, dpi=dpi)
 
 # plot EVI2
-mplot_evi2 <- gplot(evi2) +
+mplot_evi2 <- rasterVis::gplot(evi2) +
   geom_tile(aes(fill = value)) +
   scale_fill_gradientn(colours = rev(terrain.colors(225)), na.value ="transparent") +
   #geom_sf(aes(st_sf(st_geometry(tuinen_sf)))) +
@@ -44,7 +44,7 @@ plot.store <-paste0(plots.dir,plot.nme)
 ggsave(plot.store, dpi=dpi)
 
 # plot RVI
-mplot_rvi <- gplot(rvi) +
+mplot_rvi <- rasterVis::gplot(rvi) +
   geom_tile(aes(fill = value)) +
   scale_fill_gradientn(colours = rev(terrain.colors(225)), na.value ="transparent") +
   #geom_sf(aes(st_sf(st_geometry(tuinen_sf)))) +
@@ -55,7 +55,7 @@ plot.store <-paste0(plots.dir,plot.nme)
 ggsave(plot.store, dpi=dpi)
 
 # plot vegetation classes
-mplot_veg_c <-  gplot(veg_c) +
+mplot_veg_c <- rasterVis::gplot(veg_c) +
   geom_tile(aes(fill = as.factor(value))) +
   #scale_fill_gradientn(colours = rev(terrain.colors(5)), na.value ="transparent") +
   scale_fill_discrete_sequential(palette = "Terrain") +
@@ -66,7 +66,7 @@ plot.store <-paste0(plots.dir,plot.nme)
 ggsave(plot.store, dpi=dpi)
 
 # plot vegetation classes
-mplot_veg_clus <-  gplot(veg_clus) +
+mplot_veg_clus <- rasterVis::gplot(veg_clus) +
   geom_tile(aes(fill = as.factor(value))) +
   #scale_fill_gradientn(colours = rev(terrain.colors(5)), na.value ="transparent") +
   scale_fill_discrete_sequential(palette = "Terrain") +
@@ -77,7 +77,7 @@ plot.store <-paste0(plots.dir,plot.nme)
 ggsave(plot.store, dpi=dpi)
 
 # plot substantial green
-mplot_veg_s <-  gplot(veg_s) +
+mplot_veg_s <- rasterVis::gplot(veg_s) +
   geom_tile(aes(fill = value)) +
   scale_fill_gradientn(colours = rev(terrain.colors(225)), na.value ="transparent",limits = c(0.4,1)) +
   theme_minimal() +
@@ -85,7 +85,6 @@ mplot_veg_s <-  gplot(veg_s) +
 plot.nme = paste0('rs_ndvi_substantial_',neighbourhood,'.png')
 plot.store <-paste0(plots.dir,plot.nme)
 ggsave(plot.store, dpi=dpi)
-
 
 
 #-----------------------------------------------------------------------------------------------
@@ -100,7 +99,7 @@ plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
 
-#vegetation
+#plot rgb and vegetation
 png(paste0(plots.dir,"rs_rgb_vegetation_",neighbourhood,".png"), bg="white")
 par(col.axis = "white", col.lab = "white", tck = 0)
 raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("vegetation ", neighbourhood))
@@ -145,11 +144,20 @@ plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
 
-#bomen
+#bomen (3m and above)
+png(paste0(plots.dir,"rs_rgb_veg_3m_",neighbourhood,".png"), bg="white")
+par(col.axis = "white", col.lab = "white", tck = 0)
+raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("3m+ trees ", neighbourhood))
+plot(veg_t3, add=TRUE, legend=FALSE)
+plot(percelen_sf$geom, add=TRUE, legend=FALSE)
+box(col = "white")
+dev.off()
+
+#bomen (5m and above)
 png(paste0(plots.dir,"rs_rgb_veg_5m_",neighbourhood,".png"), bg="white")
 par(col.axis = "white", col.lab = "white", tck = 0)
 raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("5m+ trees ", neighbourhood))
-plot(veg_t, add=TRUE, legend=FALSE)
+plot(veg_t5, add=TRUE, legend=FALSE)
 plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
@@ -233,5 +241,17 @@ ggplot(data = tuinen_sf) +
   xlab("Longitude") + ylab("Latitude") +
   theme_minimal() 
 plot.nme = paste0('green_coverage_garden.png')
+plot.store <-paste0(plots.dir,plot.nme)
+ggsave(plot.store, dpi=dpi)
+
+#distribution of gardens over vegetation coverage
+ggplot(tuinen_sf, aes(x = green_cover)) +  
+  geom_histogram(aes(y = (..count..)/sum(..count..)), binwidth = 20,color="lightblue", fill="steelblue") +
+  stat_bin(aes(y=(..count..)/sum(..count..), 
+               label=paste0(round((..count..)/sum(..count..)*100,1),"%")), 
+           geom="text", size=4, binwidth = 20, vjust=-1.5) +
+  #scale_x_continuous(breaks = seq(0.2,0.8,0.1))+
+  theme_light()
+plot.nme = paste0('rs_gardens_distibution_coverage_',neighbourhood,'.png')
 plot.store <-paste0(plots.dir,plot.nme)
 ggsave(plot.store, dpi=dpi)

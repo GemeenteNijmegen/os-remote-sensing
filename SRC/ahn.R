@@ -5,11 +5,43 @@
 
 #-----------------------------------------------------------------------------------------------
 
+#nationaalgeoregister.nl as direct source (aka not package)
+ngr_source <- FALSE 
+
 #raster
+if(ngr_source==FALSE) {
+#AHN request via package
+#raster  
 ahn_raster <- ahn_area(name = "BBOX rs", bbox = c(xmin, ymin, xmax,ymax), resolution = 0.5)
 
 #points cloud
 #ahn_points <- ahn_pc(name = "BBOX pc", bbox = c(xmin, ymin, xmax,ymax), AHN = "AHN2", gefilterd = TRUE)
+} else {
+#AHN request directly via nationaalgeoregister.nl
+url <- parse_url("https://geodata.nationaalgeoregister.nl/ahn3/wcs?")
+url$query <- list(SERVICE = "WCS",
+                  VERSION = "1.0.0",
+                  REQUEST = "GetCoverage",
+                  COVERAGE = "ahn3_05m_DSM",
+                  RESPONSE_CRS = "EPSG:28992",
+                  CRS = "EPSG:28992",
+                  BBOX = bbox,
+                  FORMAT="GEOTIFF_FLOAT32",
+                  WIDTH=701.765000000014, #why?
+                  HEIGHT=604.097200000077 #why?
+                  )
+request <- build_url(url);request
+ahn_ras <- as(stars::read_stars(request), "Raster")
+names(ahn_ras) <- "BBOXrs_rAHN3_05m_DSM"
+}
+
+#relevant features panden
+panden_cols<-colnames(panden_sf)
+
+#subset panden within buurt
+panden_sf <- panden_sf[buurt_sf,] #containing
+panden_sf <- sf::st_intersection(buurt_sf, panden_sf) %>% st_make_valid() #clip with buurt
+panden_sf <- panden_sf %>% dplyr::select(one_of(panden_cols)) #relevant pand features
 
 #adjust resolution (to match aerial image)
 #ahn_raster_hr <- raster::disaggregate(ahn_raster, fact=4)

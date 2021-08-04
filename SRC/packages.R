@@ -48,6 +48,7 @@ packages <- c(
   #Environment variables
   #'usethis',
   #'tools',
+  'rlist',
   #Essentials
   'tidyverse',
   #datafraem extension
