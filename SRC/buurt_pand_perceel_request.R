@@ -13,16 +13,19 @@ if(gpkg.rdy==FALSE) {
 #not available, let's create gpkg
 
 #Buurt request
-url <- parse_url("https://geodata.nationaalgeoregister.nl/wijkenbuurten2020/wfs?")
-url$query <- list(service = "wfs",
-                  version = "2.0.0",
-                  request = "GetCapabilities",
-                  srsName  = "EPSG:28992",
-                  outputFormat='json')
-request <- build_url(url);request
+# url <- parse_url("https://geodata.nationaalgeoregister.nl/wijkenbuurten2020/wfs?")
+# url$query <- list(service = "wfs",
+#                   version = "2.0.0",
+#                   request = "GetCapabilities",
+#                   srsName  = "EPSG:28992",
+#                   outputFormat='json')
+# request <- build_url(url);request
+#
+# buurt_sf_totaal <- sf::st_read(request, layer = "wijkenbuurten2020:cbs_buurten_2020")
+# saveRDS(buurt_sf_totaal, "DATA/buurt_sf_totaal.rds")
 
-buurt_sf <- sf::st_read(request, layer = "wijkenbuurten2020:cbs_buurten_2020") %>%
-                                 subset(buurtcode == neighbourhood)
+buurt_sf <- readRDS("DATA/buurt_sf_totaal.rds")
+buurt_sf <- buurt_sf %>% filter(buurtcode == neighbourhood)
 buurt_sf <- buurt_sf[, c('buurtcode', 'buurtnaam', 'gemeentecode', 'geom')]
 
 #transform from Multisurface to Polygon
@@ -50,7 +53,7 @@ y_centroid<-cen[2]
 
 #Pand request
 #loop because of limit of 1000 results
-loops = c(0,1000,2000,3000,4000,5000)
+loops = c(0,1001,2001,3001,4001,5001)
 empty_df = list()
 for (loop in loops) {
   url <- parse_url("https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1?")
@@ -68,17 +71,25 @@ for (loop in loops) {
   print(paste0("startindex ", loop," - ",nrow(data), "panden"))
   if(nrow(data) < 1000) {panden_sf <- rbindlist(empty_df) %>% st_as_sf(); break}
 }
-rm(data)
+rm(data, empty_df)
+
+#relevant features percelen
+panden_cols<-colnames(panden_sf)
+
 #subset panden within buurt
-panden_sf <- panden_sf[buurt_sf,] #containing
+#panden_sf <- panden_sf[buurt_sf,] #containing
 panden_sf <- sf::st_intersection(buurt_sf, panden_sf) %>% st_make_valid() #clip with buurt
+panden_sf <- panden_sf %>% group_by(identificatie) %>% slice(1) #only keep unique
+panden_sf <- panden_sf %>% dplyr::select(one_of(panden_cols)) #relevant features
 
 library(rlist) ##> toevoegen aan packages!!
+
+verschilpanden <- panden_sf_py %>% dplyr::select(identificatie) %>% unique() %>% filter(identificatie %notin% panden_sf$identificatie)
+plot(verschilpanden)
 
 #-----------------------------------------------------------------------------------------------
 
 #Perceel request
-loops = c(0,1000,2000,3000,4000,5000)
 empty_df = list()
 for (loop in loops) {
   url <- parse_url("https://geodata.nationaalgeoregister.nl/kadastralekaart/wfs/v4_0?")
@@ -96,32 +107,20 @@ for (loop in loops) {
   print(paste0("startindex ", loop," - ",nrow(data), "panden"))
   if(nrow(data) < 1000) {percelen_sf <- rbindlist(empty_df) %>% st_as_sf(); break}
 }
-rm(data)
-
+rm(data, empty_df)
 
 #relevant features percelen
 percelen_cols<-colnames(percelen_sf)
 
 #subset percelen within buurt
 percelen_sf <- percelen_sf[buurt_sf,]
-percelen_sf <- sf::st_intersection(buurt_sf, percelen_sf) %>% st_collection_extract("POLYGON") %>%  st_make_valid()  %>% #clip with buurt
+percelen_sf <- sf::st_intersection(buurt_sf, percelen_sf) %>% st_collection_extract("POLYGON") %>%  st_make_valid() %>% #clip with buurt
               group_by(id) %>% slice(1)
+percelen_sf <- percelen_sf %>% dplyr::select(one_of(percelen_cols)) #relevant features
 
-percelen_sf <- dplyr::distinct(percelen_sf, id, .keep_all = TRUE) #unique percelen
-percelen_sf <- percelen_sf %>% dplyr::select(one_of(percelen_cols)) #relevant perceel features
-
-`%notin%` <- Negate(`%in%`)
-verschil <- percelen_sf %>% dplyr::select(id) %>% unique() %>%  filter(id %notin% unique(percelen_sf_py$id))
-
-#test
-test_sf <- st_erase(percelen_sf, buurt_sf) %>% dplyr::select(one_of(percelen_cols))
-
-
-## Liggen allemaal aan de rand van de buurt > verschil met clip functie in python aan randgebieden?
 #-----------------------------------------------------------------------------------------------
 
 #Verblijfsobjecten request
-loops = c(0,1000,2000,3000,4000,5000)
 empty_df = list()
 for (loop in loops) {
   url <- parse_url("https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1?")
@@ -139,7 +138,7 @@ for (loop in loops) {
   print(paste0("startindex ", loop," - ",nrow(data), "panden"))
   if(nrow(data) < 1000) {verblijfsobjecten_sf <- rbindlist(empty_df) %>% st_as_sf(); break}
 }
-rm(data)
+rm(data, empty_df, loops)
 
 #relevant features verblijfsobjecten
 verblijfsobjecten_cols <- colnames(verblijfsobjecten_sf)
@@ -150,13 +149,8 @@ verblijfsobjecten_sf <- sf::st_intersection(buurt_sf, verblijfsobjecten_sf) %>%
                       group_by(gid) %>% slice(1)#clipping
 verblijfsobjecten_sf <- verblijfsobjecten_sf %>% dplyr::select(one_of(verblijfsobjecten_cols)) #relevant vbo features
 
-
-verschilvbo <- verblijfsobject_sf_py %>% dplyr::select(identificatie) %>% unique() %>% filter(identificatie %notin% verblijfsobjecten_sf$identificatie)
-plot(verschilvbo)
-
 #-----------------------------------------------------------------------------------------------
 #tuinen within percelen with object woonfunctie
-
 
 #verblijfsobjecten with status 'in gebruik' or 'verbouwing'
 woningen_sf <- verblijfsobjecten_sf[verblijfsobjecten_sf$status %like% "Verblijfsobject in gebruik" | verblijfsobjecten_sf$status %like% "Verbouwing verblijfsobject",]
@@ -190,27 +184,30 @@ tuinen_sf <- st_erase(percelenwoonfunctie_sf,pandenwoonperceel_sf)  %>% dplyr::s
 #mapview(list(pandenwoonperceel_sf,percelenwoonfunctie_sf,erased_tracts1),alpha.regions = 0.6, alpha = 1)
 
 verschiltuinen <- tuinen_sf_py %>% dplyr::select(identificatieLokaalID) %>% unique() %>% filter(identificatieLokaalID %notin% tuinen_sf$identificatieLokaalID)
+plot(verschiltuinen)
 
-##Onderstaande Python code ook nog in R verwerken
-# #Bereken oppervlakte tuinen
-# tuinen_opp = tuinen.area
-# tuinen_opp = tuinen_opp.round(2)
-# #Voeg kolom aan tuinen DF toe
-# tuinen['opp'] = tuinen_opp
-#
-# #Selecteer tuinen groter dan 3 meter
-# tuinen = tuinen[tuinen['opp'] > 3]
-#
-# #Een tuin moet een perceelnummer bevatten anders zijn het (waarschijnlijk) delen van panden vanwege de overlay in de stap hierboven. Een onjuiste selectie
-# #TODO methode wellicht verbeteren
-# tuinen = tuinen[tuinen['perceelnummer'].notnull()]
+#calculate surface tuinen
+tuinen_sf <- tuinen_sf  %>%
+  # feature area calculation (m^2)
+  mutate(area = st_area(tuinen_sf))
 
-#Bereken oppervlakte tuinen
+#Select gardens with at least 3 m2
 tuinen_sf2 <- tuinen_sf  %>%
- # feature area calculation (m^2)
-  mutate(area = st_area(tuinen_sf)) %>%
-  #Selecteer tuinen groter dan 3 meter
-  filter(area > 3)
+  drop_units() %>%
+  filter(area > 3.00)
+
+#-----------------------------------------------------------------------------------------------
+
+#compare python vs r (records/features)
+
+
+#Python vs. R
+#panden: 699/10 - 581/10                        17% less panden in R
+#percelen: 556/23 - 547/23                      a bit less percelen in R (<2%)
+#verblijfsobjecten 1672/16 - 1672/16            identical
+#woningen 1282/16 - 1206/16                     less woningen in R > subsettings error?
+#tuinen 368/6 - 247/23                          differences are quite large but logic since woningen differ?
+
 
 #-----------------------------------------------------------------------------------------------
 #post-processing
@@ -234,20 +231,6 @@ rownames(percelen_sf) <- percelen_sf$identificatieLokaalID
 
 #add id to rownames
 rownames(panden_sf) <- panden_sf$identificatie
-
-
-#-----------------------------------------------------------------------------------------------
-
-#compare python vs r (records/features)
-
-#panden: 249/10 - 249/10
-#percelen: 212/23 - 219/23 (a bit more percelen, OK?)
-#verblijfsobjecten 167/16 - 167/19 (OK, but 3 more features in R)
-#woningen 156/16 - 156/19 (OK, but 3 more features in R)
-#tuinen3 148/15 - 147/35 (one less tuin, OK?)
-
-#percelenwoonfunctie2  ? - 147/22
-#pandenwoonfunctie2  ? - 156/10
 
 
 #-----------------------------------------------------------------------------------------------
@@ -308,8 +291,6 @@ ggsave(plot.store, dpi=dpi)
 }
 
 #-----------------------------------------------------------------------------------------------
-
-
 
 ## Clean environment
 #rm(list=ls()[! ls() %in% c("buurt_sf","panden_sf_sub", "percelen_sf_sub", "clip.pand.buurt.percelen")])
