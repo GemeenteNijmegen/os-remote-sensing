@@ -17,6 +17,7 @@ buurten.rdy<-FALSE
 
 if(buurten.rdy==FALSE) {
 #Buurt request
+<<<<<<< HEAD
  url <- parse_url("https://geodata.nationaalgeoregister.nl/wijkenbuurten2020/wfs?")
  url$query <- list(service = "wfs",
                    version = "2.0.0",
@@ -30,6 +31,20 @@ saveRDS(buurt_sf_totaal, "tempdata/buurt_sf_totaal.rds")
 }
   
 buurt_sf <- readRDS("tempdata/buurt_sf_totaal.rds")
+=======
+# url <- parse_url("https://geodata.nationaalgeoregister.nl/wijkenbuurten2020/wfs?")
+# url$query <- list(service = "wfs",
+#                   version = "2.0.0",
+#                   request = "GetCapabilities",
+#                   srsName  = "EPSG:28992",
+#                   outputFormat='json')
+# request <- build_url(url);request
+#
+# buurt_sf_totaal <- sf::st_read(request, layer = "wijkenbuurten2020:cbs_buurten_2020")
+# saveRDS(buurt_sf_totaal, "DATA/buurt_sf_totaal.rds")
+
+buurt_sf <- readRDS("DATA/buurt_sf_totaal.rds")
+>>>>>>> c33a48b4f9984c9699c26c79ca53c299488ebd2f
 buurt_sf <- buurt_sf %>% filter(buurtcode == neighbourhood)
 buurt_sf <- buurt_sf[, c('buurtcode', 'buurtnaam', 'gemeentecode', 'geom')]
 
@@ -85,11 +100,17 @@ panden_cols<-colnames(panden_sf)
 panden_sf <- sf::st_intersection(buurt_sf, panden_sf) %>% st_make_valid() #clip with buurt
 panden_sf <- panden_sf %>% group_by(identificatie) %>% slice(1) #only keep unique
 panden_sf <- panden_sf %>% dplyr::select(one_of(panden_cols)) #relevant features
+<<<<<<< HEAD
 
 #verschilpanden <- panden_sf_py %>% dplyr::select(identificatie) %>% unique() %>% 
 # filter(!(identificatie %in% panden_sf$identificatie))
 #mapview(verschilpanden)
+=======
+>>>>>>> c33a48b4f9984c9699c26c79ca53c299488ebd2f
 
+
+verschilpanden <- panden_sf_py %>% dplyr::select(identificatie) %>% unique() %>% filter(identificatie %notin% panden_sf$identificatie)
+plot(verschilpanden)
 
 #-----------------------------------------------------------------------------------------------
 
@@ -142,7 +163,11 @@ for (loop in loops) {
   print(paste0("startindex ", loop," - ",nrow(data), "panden"))
   if(nrow(data) < 1000) {verblijfsobjecten_sf <- rbindlist(empty_df) %>% st_as_sf(); break}
 }
+<<<<<<< HEAD
 rm(data, empty_df)
+=======
+rm(data, empty_df, loops)
+>>>>>>> c33a48b4f9984c9699c26c79ca53c299488ebd2f
 
 #relevant features verblijfsobjecten
 verblijfsobjecten_cols <- colnames(verblijfsobjecten_sf)
@@ -187,9 +212,17 @@ tuinen_sf <- st_erase(percelenwoonfunctie_sf,pandenwoonperceel_sf)  %>% dplyr::s
 #plot(verschiltuinen)
 
 #interactive Leaflet presentation of the layers buurt, percelen and panden
+<<<<<<< HEAD
 mapview(list(panden_sf,percelenwoonfunctie_sf,tuinen_sf),alpha.regions = 0.6, alpha = 1)
 #mapview(list(verschiltuinen,tuinen_sf_py,tuinen_sf),alpha.regions = 0.6, alpha = 1)
 #mapview(list(verschilpanden,tuinen_sf),alpha.regions = 0.6, alpha = 1)
+=======
+#mapview(list(panden_sf,percelenwoonfunctie_sf,tuinen_sf),alpha.regions = 0.6, alpha = 1)
+#mapview(list(pandenwoonperceel_sf,percelenwoonfunctie_sf,erased_tracts1),alpha.regions = 0.6, alpha = 1)
+
+verschiltuinen <- tuinen_sf_py %>% dplyr::select(identificatieLokaalID) %>% unique() %>% filter(identificatieLokaalID %notin% tuinen_sf$identificatieLokaalID)
+plot(verschiltuinen)
+>>>>>>> c33a48b4f9984c9699c26c79ca53c299488ebd2f
 
 #calculate surface tuinen
 tuinen_sf <- tuinen_sf  %>%
@@ -207,11 +240,20 @@ tuinen_sf2 <- tuinen_sf  %>%
 
 
 #Python vs. R
+<<<<<<< HEAD
 #panden: 699/10 - 698/10                        OK
 #percelen: 556/23 - 547/23                      a bit less percelen in R (<2%)
 #verblijfsobjecten 1672/16 - 1679/16            a bit more
 #woningen 1282/16 - 1206/16                     less (issue in Python?)
 #tuinen 368/6 - 247/23                          remains large difference (issue in Python?)
+=======
+#panden: 699/10 - 581/10                        17% less panden in R
+#percelen: 556/23 - 547/23                      a bit less percelen in R (<2%)
+#verblijfsobjecten 1672/16 - 1672/16            identical
+#woningen 1282/16 - 1206/16                     less woningen in R > subsettings error?
+#tuinen 368/6 - 247/23                          differences are quite large but logic since woningen differ?
+
+>>>>>>> c33a48b4f9984c9699c26c79ca53c299488ebd2f
 
 #-----------------------------------------------------------------------------------------------
 #post-processing
@@ -295,3 +337,11 @@ plot.nme = paste0('rs_panden_within_buurt_percelen_',neighbourhood,'.png')
 plot.store <-paste0(plots.dir,plot.nme)
 ggsave(plot.store, dpi=dpi)
 }
+<<<<<<< HEAD
+=======
+
+#-----------------------------------------------------------------------------------------------
+
+## Clean environment
+#rm(list=ls()[! ls() %in% c("buurt_sf","panden_sf_sub", "percelen_sf_sub", "clip.pand.buurt.percelen")])
+>>>>>>> c33a48b4f9984c9699c26c79ca53c299488ebd2f
