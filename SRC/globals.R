@@ -43,8 +43,11 @@ plots.dir <- here::here("PLOTS",'/')
 #aerial photo (local source)
 ai.dir <- here::here("AI",'/')
 
+#location data
+report.dir <- here::here("REPORT",'/')
+
 #create locations if not exist
-locations <- c(data.dir, plots.dir, ai.dir, tempdata.dir)
+locations <- c(data.dir, plots.dir, ai.dir, tempdata.dir, report.dir)
 
 lapply(locations, function(x) {
   if (!dir.exists(x)) {dir.create(x)}
@@ -59,10 +62,10 @@ f <- list.files(clear_locations, include.dirs = F, full.names = T, recursive = T
 file.remove(f)
 
 #dimension and quality plots
-graph_height <- 12
-png_height <- 600
+graph_height <- 6
+png_height <- 400
 aspect_ratio <- 1
-dpi <- 320 #retina
+dpi <- 180 #retina
 sub_title<-''
 
 #Coordinate reference systems

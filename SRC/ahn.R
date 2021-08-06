@@ -96,7 +96,7 @@ ahn_panden %>% #RasterLayer
 #Plots
 
 #buurt
-png(paste0(plots.dir,"rs_ahn_buurt_",neighbourhood,".png"), bg="white")
+png(paste0(plots.dir,"rs_ahn_buurt_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
 par(col.axis = "white", col.lab = "white", tck = 0)
 aerial_rgb <- terra::plotRGB(ai_buurt,
                               r = 1, g = 2, b = 3,
@@ -113,7 +113,7 @@ plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
 dev.off()
 
 #panden
-png(paste0(plots.dir,"rs_ahn_panden_",neighbourhood,".png"), bg="white")
+png(paste0(plots.dir,"rs_ahn_panden_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
 par(col.axis = "white", col.lab = "white", tck = 0)
 aerial_rgb <- terra::plotRGB(ai_buurt,
                               r = 1, g = 2, b = 3,
@@ -130,7 +130,7 @@ plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
 dev.off()
 
 #tuinen
-png(paste0(plots.dir,"rs_ahn_tuinen_",neighbourhood,".png"), bg="white")
+png(paste0(plots.dir,"rs_ahn_tuinen_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
 par(col.axis = "white", col.lab = "white", tck = 0)
 aerial_rgb <- terra::plotRGB(ai_buurt,
                               r = 1, g = 2, b = 3,

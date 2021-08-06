@@ -134,6 +134,11 @@ ai_buurt[[2]] %>% #RasterLayer
 #-----------------------------------------------------------------------------------------------
 #Plots
 
+#plot of aerial image bands
+png(paste0(plots.dir,"rs_cir_bands_",neighbourhood,".png"), height = 1280,width=1280,res=180,units = "px")
+plot(ai_tuinen)
+dev.off()
+
 #Relationship bands NIR and red
 png(paste0(plots.dir,"rs_nir_red_relationship_",neighbourhood,".png"), bg="white")
 pairs(ai_buurt[[2:1]], main = "Red vs NIR")
@@ -145,7 +150,7 @@ dev.off()
 #surface features like bright soil or concrete.
 
 #buurt
-png(paste0(plots.dir,"rs_rgb_",neighbourhood,".png"), bg="white")
+png(paste0(plots.dir,"rs_rgb_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
 par(col.axis = "white", col.lab = "white", tck = 0)
 aerial_rgb <- terra::plotRGB(ai_buurt,
                               r = 1, g = 2, b = 3,
@@ -160,7 +165,7 @@ plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
 dev.off()
 
 #tuinen in buurt
-png(paste0(plots.dir,"rs_rgb_",neighbourhood,"_tuinen.png"), bg="white")
+png(paste0(plots.dir,"rs_rgb_",neighbourhood,"_tuinen.png"), bg="white", height = 1280,width=1280,res=180,units = "px")
 par(col.axis = "white", col.lab = "white", tck = 0)
 aerial_rgb <- terra::plotRGB(ai_tuinen,
                               r = 1, g = 2, b = 3,
