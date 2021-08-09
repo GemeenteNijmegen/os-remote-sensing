@@ -5,7 +5,7 @@
 
 #-----------------------------------------------------------------------------------------------
 
-#is geopackage already available
+#geopackage already available?
 gpkg.rdy<-FALSE
 
 #check existence
@@ -29,6 +29,7 @@ if(buurten.rdy==FALSE) {
 
 buurt_sf_totaal <- sf::st_read(request, layer = "wijkenbuurten2020:cbs_buurten_2020")
 saveRDS(buurt_sf_totaal, "tempdata/buurt_sf_totaal.rds")
+rm(buurt_sf_totaal)
 }
   
 buurt_sf <- readRDS("tempdata/buurt_sf_totaal.rds")
@@ -141,7 +142,7 @@ for (loop in loops) {
   request <- build_url(url);request
   data <- sf::st_read(request)
   empty_df <- list.append(empty_df, data)
-  print(paste0("startindex ", loop," - ",nrow(data), "panden"))
+  print(paste0("startindex ", loop," - ",nrow(data), " verblijfsobjecten"))
   if(nrow(data) < 1000) {verblijfsobjecten_sf <- rbindlist(empty_df) %>% st_as_sf(); break}
 }
 rm(data, empty_df)
@@ -168,11 +169,7 @@ woningen_sf <- verblijfsobjecten_sf[verblijfsobjecten_sf$status %like% "Verblijf
 #verblijfsobjecten with object 'woonfunctie' or 'logiesfunctie'
 woningen_sf <- woningen_sf[woningen_sf$gebruiksdoel %like% "woonfunctie" | woningen_sf$gebruiksdoel %like% "logiesfunctie",]
 
-#Selecteer alleen de panden waarin 1 of 2 verblijfsobjecten liggen (zodat apartementen/flats er uit wordt gefilterd)
-#@esmee: het aantal verblijfsobjecten komt niet boven 1 uit door de slice bij verblijfsobjecten
-woningen_sf2 <- woningen_sf %>% group_by(identificatie) %>% mutate(aantalvbo = n()) %>%
-  #ungroup() %>% #@esmee vervolgens moet je m.i. de lijst weer herstellen, toch?
-  filter(aantalvbo < 3) %>% dplyr::select(-aantalvbo)
+
 
 #percelen with woonverblijfsobject
 percelenwoonfunctie_sf <- percelen_sf[woningen_sf,] %>% dplyr::select(one_of(percelen_cols))

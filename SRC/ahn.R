@@ -5,19 +5,22 @@
 
 #-----------------------------------------------------------------------------------------------
 
+
+#AHN3, 0.5 m resolutie Digitaal Surface Model (maaiveld + vegetatie, gebouwen etc. )
+
 #nationaalgeoregister.nl as direct source (aka not package)
 ngr_source <- FALSE 
 
 #raster
 if(ngr_source==FALSE) {
-#AHN request via package
+#request via R-package
 #raster  
 ahn_raster <- ahn_area(name = "BBOX rs", bbox = c(xmin, ymin, xmax,ymax), resolution = 0.5)
 
 #points cloud
 #ahn_points <- ahn_pc(name = "BBOX pc", bbox = c(xmin, ymin, xmax,ymax), AHN = "AHN2", gefilterd = TRUE)
 } else {
-#AHN request directly via nationaalgeoregister.nl
+#request directly via nationaalgeoregister.nl
 url <- parse_url("https://geodata.nationaalgeoregister.nl/ahn3/wcs?")
 url$query <- list(SERVICE = "WCS",
                   VERSION = "1.0.0",

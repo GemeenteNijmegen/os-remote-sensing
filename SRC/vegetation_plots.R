@@ -54,7 +54,7 @@ plot.nme = paste0('rs_rvi_',neighbourhood,'.png')
 plot.store <-paste0(plots.dir,plot.nme)
 ggsave(plot.store, dpi=dpi)
 
-# plot vegetation classes
+# plot vegetation classes (fixed)
 mplot_veg_c <- rasterVis::gplot(veg_c) +
   geom_tile(aes(fill = as.factor(value))) +
   #scale_fill_gradientn(colours = rev(terrain.colors(5)), na.value ="transparent") +
@@ -65,7 +65,7 @@ plot.nme = paste0('rs_ndvi_classes_fixed_',neighbourhood,'.png')
 plot.store <-paste0(plots.dir,plot.nme)
 ggsave(plot.store, dpi=dpi)
 
-# plot vegetation classes
+# plot vegetation classes (unsupervised)
 mplot_veg_clus <- rasterVis::gplot(veg_clus) +
   geom_tile(aes(fill = as.factor(value))) +
   #scale_fill_gradientn(colours = rev(terrain.colors(5)), na.value ="transparent") +
@@ -120,7 +120,7 @@ plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
 
-#plot rgb and classes unsupervised
+#plot rgb and classes (unsupervised)
 png(paste0(plots.dir,"rs_rgb_veg_classes_unsupervised_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
 par(col.axis = "white", col.lab = "white", tck = 0)
 raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("NDVI classes (unsupervised) ", neighbourhood))
@@ -129,7 +129,7 @@ plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
 
-#plot rgb and classes fixed
+#plot rgb and classes (fixed)
 png(paste0(plots.dir,"rs_rgb_veg_classes_fixed_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
 par(col.axis = "white", col.lab = "white", tck = 0)
 raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("NDVI classes (fixed) ", neighbourhood))
@@ -147,16 +147,16 @@ plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
 
-#bomen (3m and above)
+#vegetation (3m and above)
 png(paste0(plots.dir,"rs_rgb_veg_3m_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
 par(col.axis = "white", col.lab = "white", tck = 0)
-raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("3m+ trees ", neighbourhood))
+raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("3m+ vegetation ", neighbourhood))
 plot(veg_t3, add=TRUE, legend=FALSE)
 plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
 
-#bomen (5m and above)
+#trees (5m and above)
 png(paste0(plots.dir,"rs_rgb_veg_5m_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
 par(col.axis = "white", col.lab = "white", tck = 0)
 raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("5m+ trees ", neighbourhood))

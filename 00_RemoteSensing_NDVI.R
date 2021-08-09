@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------------------------
 
 # date created: 2021-05-11
-# date modified: 2021-08-06
+# date modified: 2021-08-09
 
 #-----------------------------------------------------------------------------------------------
 
@@ -45,8 +45,8 @@ source(here::here('SRC/globals.R'))
 #-----------------------------------------------------------------------------------------------
 
 #id neighbourhood
-#neighbourhood<-"BU08280002" #Oss
-neighbourhood<-"BU04411401" #Sint Maartensvlotbrug, Schagen
+neighbourhood<-"BU08280002" #Oss
+#neighbourhood<-"BU04411401" #Sint Maartensvlotbrug, Schagen
 
 #location geopackages
 #vector layers (polygons buurt, percelen, panden, tuinen)
@@ -65,7 +65,7 @@ start_time <- Sys.time()
 
 #-----------------------------------------------------------------------------------------------
 
-#geopackage with buurt, percelen and panden polygons
+#geopackage containing buurt, percelen, panden and tuinen polygons
 
 #prefab geopackage (from Python procedure)
 prefab_polygons <- FALSE #default (T) 
@@ -80,9 +80,8 @@ if(prefab_polygons==TRUE) {
 }
 
 #-----------------------------------------------------------------------------------------------
-#boundaries
-
 #extend and bounding box
+
 buurt_extend <- sf::st_bbox(buurt_sf$geom)
 
 xmin <- buurt_extend[1]
@@ -106,39 +105,52 @@ coord_tuinen<-as.data.frame(st_coordinates(cntrd_tuinen))
 
 #-----------------------------------------------------------------------------------------------
 
+#read TIFF or ECW image
 source(here::here('SRC/image.R'))
 
-#assign bands
+#assign bands (CIR)
 nir <- ai_tuinen[[1]]
 red <- ai_tuinen[[2]]
 
 #-----------------------------------------------------------------------------------------------
 
-# Vegetation indices
+# Vegetation indices : NDVI, EVI2 and RVI
 
 #-----------------------------------------------------------------------------------------------
 
-#calculate green indices : NDVI, EVI2 and RVI
 
 #--------------------------------------------------
 
 #Normalized difference vegetation index (NDVI)
 
 #--------------------------------------------------
-#Indicates amount of vegetation, distinguishes veg from soil, minimizes topographic effects
+
+#Indicates amount of vegetation, distinguishes vegetation from soil, minimizes topographic effects
+
+#NDVI-ranges according to Deloitte research, e.o. 
+#       -1 tot -0.1: Water
+#       -0.1 tot 0.2: Zand/Grond/Rots 
+#       0.2 tot 0.4: Gras en lage vegetatie
+#       0.4 tot 1: Intensieve, en hoge vegetatie
+
+
+# NOTE: we differ from this list, except for the boundary of vegetation/non-vegetation (.2)
+
+#NDVI-ranges in this research
+#       -Inf to 0.2: Non-vegetation
+#        0.2 to 0.3: Grasses, weed
+#        0.3 to 0.5: Low vegetation
+#        0.5 to 0.1: #intensive vegetation, trees
+
+#vegetation (fixed boundary at 0.2)
+
+
 ndvi <- raster::overlay(red, nir, fun = function(x, y) { (y-x) / (y+x) })
 names(ndvi) <- "ndvi"
 
 #unsupervised boundary detection (NDVI classes)
 source(here::here('SRC/green_classes.R'))
 
-#ranges according to Deloitte research, e.o. 
-#       -1 tot -0.1: Water
-#       -0.1 tot 0.2: Zand/Grond/Rots 
-#       0.2 tot 0.4: Gras en lage vegetatie (in-scope)
-#       0.4 tot 1: Intensieve, en hoge vegetatie (substantial green) (in-scope)
-
-#vegetation (fixed boundary at 0.2)
 #create new raster with 1 for vegetation and 0 for non-vegetation.
 #classification matrix
 reclass_binary <- c(-1, 0.2, 0,
@@ -161,12 +173,16 @@ plot(veg_contour, add=TRUE)
 plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 dev.off()
 
-#substantial green (fixed boundary at 0.4)
-#reclassifying nvdi (all values between negative infinity and 0.4 be NAs)
-veg_s <- raster::reclassify(ndvi, cbind(-Inf, 0.4, NA))
+#vegetation in classes
+veg_c <- raster::reclassify(ndvi, c(-Inf,0.2,1, #no vegetation
+                                    0.2,0.3,2, #grasses, weed
+                                    0.3,0.5,3, #low vegetation
+                                    0.5,1,4 #intensive vegetation, trees
+                                    ))
 
-#vegetation in classes (Deloitte)
-veg_c <- raster::reclassify(ndvi, c(-Inf,0.2,1,0.2,0.4,2,0.4,1,3))
+#substantial green (fixed boundary at 0.3)
+#reclassifying nvdi (all values between negative infinity and 0.3 be NAs)
+veg_s <- raster::reclassify(ndvi, cbind(-Inf, 0.3, NA))
 
 #--------------------------------------------------
 
@@ -237,8 +253,6 @@ rm(reclass_binary, reclass_binary_m)
 
 #-----------------------------------------------------------------------------------------------
 
-#BEGIN under contruction by Mark
-
 #filter ndvi raster by polygon
 #https://cran.r-project.org/web/packages/exactextractr/exactextractr.pdf
 #https://cran.r-project.org/web/packages/exactextractr/readme/README.html
@@ -277,12 +291,11 @@ reclass_binary_m <- matrix(reclass_binary,
 veg_g <- raster::reclassify(ndvi,reclass_binary_m)
 raster::crs(veg_g) <- raster::crs(percelen_sf)
 
-#trees in vegetation garden
-#3m (medium and large trees)
+#3m within class vegetation
 veg_t3 <- garden_3mplus*veg_g
 raster::crs(veg_t3) <- raster::crs(percelen_sf)
 
-#5m (large trees)
+#5m within class vegetation (trees)
 veg_t5 <- garden_5mplus*veg_g
 raster::crs(veg_t5) <- raster::crs(percelen_sf)
 

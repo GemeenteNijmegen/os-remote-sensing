@@ -52,11 +52,11 @@ rvi %>%
   write_stars(gpkg_indices,
               driver = "GPKG", options = c("RASTER_TABLE=rvi","APPEND_SUBDATASET=YES"))
 
-#trees (above 3m)
+#high vegetation (above 3m)
 veg_t3 %>%
   st_as_stars %>% # convert the RasterLayer to a stars object
   write_stars(gpkg_indices,
-              driver = "GPKG", options = c("RASTER_TABLE=trees_3mplus","APPEND_SUBDATASET=YES"))
+              driver = "GPKG", options = c("RASTER_TABLE=vegetation_3mplus","APPEND_SUBDATASET=YES"))
 
 #trees (above 5m)
 veg_t5 %>%
