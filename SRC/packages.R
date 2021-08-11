@@ -84,7 +84,11 @@ packages <- c(
   'colorspace',
   'viridis',
   #layout plots
-  'patchwork'
+  'patchwork',
+  #mapview
+  'mapview',
+  #Units for drop_units function
+  'units'
 )
 
 #install packages which are not available on the computing setup
@@ -100,7 +104,7 @@ is_rahne_available <- require("rAHNextract")
 
 if(is_rahne_available==FALSE) {
   devtools::install_github("Jellest/rAHNextract")
-}  
+}
 
 library(rAHNextract)
 
@@ -108,10 +112,10 @@ library(rAHNextract)
 sf::sf_extSoftVersion()[1:3]
 
 #Review GDAL setup
-# Assumes you have GDAL installed on your local machine.
+# Assumes you have GDAL installed on your local machine, see for example https://gdal.org/download.html
 #getOption("gdalUtils_gdalPath")
-gdal_setInstallation()
-#getOption("gdalUtils_gdalPath")
+gdalUtils::gdal_setInstallation()
+getOption("gdalUtils_gdalPath")
 # If there is more than one installation of GDAL, this is the
 # most recent installation:
 getOption("gdalUtils_gdalPath")[[1]]
