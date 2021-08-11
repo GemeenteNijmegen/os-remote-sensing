@@ -14,8 +14,9 @@ gpkg.rdy<-FALSE
 if(gpkg.rdy==FALSE) {
 #not available, let's create gpkg
 
-#read local file containing all buurten in NL  
-buurten.rdy<-FALSE
+#read local file containing all buurten in NL
+buurt_sf <- try(readRDS("tempdata/buurt_sf_totaal.rds"))
+if(exists("buurt_sf")) {buurten.rdy <- TRUE} else {buurten.rdy <- FALSE}
 
 if(buurten.rdy==FALSE) {
 #Buurt request
@@ -31,7 +32,7 @@ buurt_sf_totaal <- sf::st_read(request, layer = "wijkenbuurten2020:cbs_buurten_2
 saveRDS(buurt_sf_totaal, "tempdata/buurt_sf_totaal.rds")
 rm(buurt_sf_totaal)
 }
-  
+
 buurt_sf <- readRDS("tempdata/buurt_sf_totaal.rds")
 buurt_sf <- buurt_sf %>% filter(buurtcode == neighbourhood)
 buurt_sf <- buurt_sf[, c('buurtcode', 'buurtnaam', 'gemeentecode', 'geom')]
@@ -88,10 +89,6 @@ panden_cols<-colnames(panden_sf)
 panden_sf <- sf::st_intersection(buurt_sf, panden_sf) %>% st_make_valid() #clip with buurt
 panden_sf <- panden_sf %>% group_by(identificatie) %>% slice(1) #only keep unique
 panden_sf <- panden_sf %>% dplyr::select(one_of(panden_cols)) #relevant features
-
-#verschilpanden <- panden_sf_py %>% dplyr::select(identificatie) %>% unique() %>% 
-# filter(!(identificatie %in% panden_sf$identificatie))
-#mapview(verschilpanden)
 
 
 #-----------------------------------------------------------------------------------------------
@@ -160,7 +157,7 @@ verblijfsobjecten_sf <- verblijfsobjecten_sf %>% dplyr::select(one_of(verblijfso
 #tuinen within percelen with object woonfunctie
 
 #verblijfsobjecten with status 'in gebruik' or 'verbouwing'
-woningen_sf <- verblijfsobjecten_sf[verblijfsobjecten_sf$status %like% "Verblijfsobject in gebruik" 
+woningen_sf <- verblijfsobjecten_sf[verblijfsobjecten_sf$status %like% "Verblijfsobject in gebruik"
                                     | verblijfsobjecten_sf$status %like% "Verbouwing verblijfsobject"
                                     #toegevoegen?
                                     #| verblijfsobjecten_sf$status %like% "Verblijfsobject gevormd"
@@ -182,13 +179,8 @@ pandenwoonperceel_sf<-panden_sf[percelenwoonfunctie_sf,]
 st_erase = function(x, y) st_difference(x, st_union(y))
 tuinen_sf <- st_erase(percelenwoonfunctie_sf,pandenwoonperceel_sf)  %>% dplyr::select(one_of(percelen_cols))
 
-#verschiltuinen <- tuinen_sf_py %>% dplyr::select(identificatieLokaalID) %>% unique() %>% filter(!(identificatieLokaalID %in% tuinen_sf$identificatieLokaalID))
-#plot(verschiltuinen)
-
 #interactive Leaflet presentation of the layers buurt, percelen and panden
-mapview(list(panden_sf,percelenwoonfunctie_sf,tuinen_sf),alpha.regions = 0.6, alpha = 1)
-#mapview(list(verschiltuinen,tuinen_sf_py,tuinen_sf),alpha.regions = 0.6, alpha = 1)
-#mapview(list(verschilpanden,tuinen_sf),alpha.regions = 0.6, alpha = 1)
+#mapview::mapview(list(panden_sf),alpha.regions = 0.6, alpha = 1)
 
 #calculate surface tuinen
 tuinen_sf <- tuinen_sf  %>%
@@ -197,20 +189,9 @@ tuinen_sf <- tuinen_sf  %>%
 
 #Select gardens with at least 3 m2
 tuinen_sf2 <- tuinen_sf  %>%
-  drop_units() %>%
+  units::drop_units() %>%
   filter(area > 3.00)
 
-#-----------------------------------------------------------------------------------------------
-
-#compare python vs r (records/features)
-
-
-#Python vs. R
-#panden: 699/10 - 698/10                        OK
-#percelen: 556/23 - 547/23                      a bit less percelen in R (<2%)
-#verblijfsobjecten 1672/16 - 1679/16            a bit more
-#woningen 1282/16 - 1206/16                     less (issue in Python?)
-#tuinen 368/6 - 247/23                          remains large difference (issue in Python?)
 
 #-----------------------------------------------------------------------------------------------
 #post-processing
