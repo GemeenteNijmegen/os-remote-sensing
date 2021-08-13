@@ -38,14 +38,6 @@ ahn_ras <- as(stars::read_stars(request), "Raster")
 names(ahn_ras) <- "BBOXrs_rAHN3_05m_DSM"
 }
 
-#relevant features panden
-panden_cols<-colnames(panden_sf)
-
-#subset panden within buurt
-panden_sf <- panden_sf[buurt_sf,] #containing
-panden_sf <- sf::st_intersection(buurt_sf, panden_sf) %>% st_make_valid() #clip with buurt
-panden_sf <- panden_sf %>% dplyr::select(one_of(panden_cols)) #relevant pand features
-
 #adjust resolution (to match aerial image)
 #ahn_raster_hr <- raster::disaggregate(ahn_raster, fact=4)
 ahn_raster_hr <- terra::disaggregate(ahn_raster, fact=4)
@@ -55,12 +47,11 @@ ahn_raster_hr <- terra::disaggregate(ahn_raster, fact=4)
 ahn_raster_hr_rs <- terra::resample(ahn_raster_hr,ndvi, method = 'ngb') # or raster::projectRaster
 
 #mask rasters
-#ahn_buurt <- raster::mask(ahn_raster_hr_rs, buurt_sf)
 ahn_buurt <- terra::mask(ahn_raster_hr_rs, buurt_sf)
-#ahn_tuinen <- raster::mask(ahn_raster_hr_rs, tuinen_sf)
 ahn_tuinen <- terra::mask(ahn_raster_hr_rs, tuinen_sf)
-#ahn_panden <- raster::mask(ahn_raster_hr_rs, panden_sf)
-ahn_panden <- terra::mask(ahn_raster_hr_rs, panden_sf)
+
+panden_polygons <- panden_sf %>% st_collection_extract("POLYGON") %>% st_make_valid() 
+ahn_panden <- terra::mask(ahn_raster_hr_rs, panden_polygons)
 
 rm(ahn_raster, ahn_raster_ahn,ahn_raster_hr, ahn_raster_hr_rs)
 
@@ -99,7 +90,7 @@ ahn_panden %>% #RasterLayer
 #Plots
 
 #buurt
-png(paste0(plots.dir,"rs_ahn_buurt_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
+png(paste0(plots.loc,"rs_ahn_buurt_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
 par(col.axis = "white", col.lab = "white", tck = 0)
 aerial_rgb <- terra::plotRGB(ai_buurt,
                               r = 1, g = 2, b = 3,
@@ -115,25 +106,8 @@ aerial_rgb
 plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
 dev.off()
 
-#panden
-png(paste0(plots.dir,"rs_ahn_panden_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
-par(col.axis = "white", col.lab = "white", tck = 0)
-aerial_rgb <- terra::plotRGB(ai_buurt,
-                              r = 1, g = 2, b = 3,
-                              #stretch the values to increase the contrast of the image
-                              stretch = "lin",
-                              alpha=0,#hide (0), show(255)
-                              axes = TRUE,
-                              main = paste0("AHN panden ", neighbourhood))
-plot(ahn_panden, add=TRUE, legend=FALSE)
-plot(percelen_sf$geom, add=TRUE, legend=FALSE)
-box(col = "white")
-aerial_rgb
-plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
-dev.off()
-
 #tuinen
-png(paste0(plots.dir,"rs_ahn_tuinen_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
+png(paste0(plots.loc,"rs_ahn_tuinen_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
 par(col.axis = "white", col.lab = "white", tck = 0)
 aerial_rgb <- terra::plotRGB(ai_buurt,
                               r = 1, g = 2, b = 3,
@@ -148,3 +122,5 @@ box(col = "white")
 aerial_rgb
 plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
 dev.off()
+
+rm(ahn_tuinen, ai_buurt)

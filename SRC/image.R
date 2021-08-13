@@ -14,7 +14,7 @@ valid_gdal
 #local ECW
 input <- paste0(ai.dir,"amsterdam.ecw")
 #local TIFF (output)
-output <- paste0(data.dir,neighbourhood,".tif")
+output <- paste0(data.loc,neighbourhood,".tif")
 
 #read TIFF (FALSE=ECW, TRUE=TIFF)
 tiff.as.source<-TRUE
@@ -27,11 +27,14 @@ tiff.rdy
 #-----------------------------------------------------------------------------------------------
 
 if(tiff.as.source==TRUE & tiff.rdy==FALSE) {
+  
+  message("extract aerial photo in TIF-format from VNG Stack")
+  
   #remote TIFF (input)
   path_tif <- paste0("https://datasciencevng.nl/remote.php/webdav/Data/cir2020perbuurt/",neighbourhood,".tif")
   
   tif <- R.utils::downloadFile(url      = path_tif,
-                               path     = data.dir,
+                               path     = data.loc,
                                username = webdav_login, 
                                password = webdav_password, 
                                verbose  = FALSE)
@@ -41,6 +44,9 @@ if(tiff.as.source==TRUE & tiff.rdy==FALSE) {
 
 #ECW
 if(tiff.as.source==FALSE & tiff.rdy==FALSE) {
+  
+  message("extract aerial photo in ECW-format from AI directory")
+  
   gdalUtils::gdal_translate(input, output, overwrite=T)
 }
 
@@ -64,9 +70,6 @@ if(tiff.as.source==TRUE) {
 
 #structure
 str(ai)
-
-#projection
-raster::crs(ai) <- "EPSG:4326"
 
 #layers
 nlayers(ai)
@@ -103,6 +106,8 @@ rm(ai, ai_crop)
 #remove existing raster geopackage
 unlink(gpkg_raster)
 
+message("store CIR layers as rasters in geopackage")
+
 #create (fresh) multi-raster GeoPackage
 #NIR
 names(ai_buurt[[1]]) <-"nir"
@@ -135,12 +140,12 @@ ai_buurt[[2]] %>% #RasterLayer
 #Plots
 
 #plot of aerial image bands
-png(paste0(plots.dir,"rs_cir_bands_",neighbourhood,".png"), height = 1280,width=1280,res=180,units = "px")
+png(paste0(plots.loc,"rs_cir_bands_",neighbourhood,".png"), height = 1280,width=1280,res=180,units = "px")
 plot(ai_tuinen)
 dev.off()
 
 #Relationship bands NIR and red
-png(paste0(plots.dir,"rs_nir_red_relationship_",neighbourhood,".png"), bg="white")
+png(paste0(plots.loc,"rs_nir_red_relationship_",neighbourhood,".png"), bg="white")
 pairs(ai_buurt[[2:1]], main = "Red vs NIR")
 dev.off()
 
@@ -150,14 +155,14 @@ dev.off()
 #surface features like bright soil or concrete.
 
 #buurt
-png(paste0(plots.dir,"rs_rgb_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
-par(col.axis = "white", col.lab = "white", tck = 0)
+png(paste0(plots.loc,"rs_rgb_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
+par(col.axis = "white", col.lab = "white", tck = 0,mar = c(1,1,1,1))
 aerial_rgb <- terra::plotRGB(ai_buurt,
                               r = 1, g = 2, b = 3,
                               #stretch the values to increase the contrast of the image
                               stretch = "lin",
                               axes = TRUE,
-                              main = paste0("composite image stack RGB neighbourhood ", neighbourhood))
+                              main = paste0("RGB stack neighbourhood ", neighbourhood))
 plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 aerial_rgb
@@ -165,16 +170,18 @@ plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
 dev.off()
 
 #tuinen in buurt
-png(paste0(plots.dir,"rs_rgb_",neighbourhood,"_tuinen.png"), bg="white", height = 1280,width=1280,res=180,units = "px")
-par(col.axis = "white", col.lab = "white", tck = 0)
+png(paste0(plots.loc,"rs_rgb_",neighbourhood,"_tuinen.png"), bg="white", height = 1280,width=1280,res=180,units = "px")
+par(col.axis = "white", col.lab = "white", tck = 0,mar = c(1,1,1,1))
 aerial_rgb <- terra::plotRGB(ai_tuinen,
                               r = 1, g = 2, b = 3,
                               #stretch the values to increase the contrast of the image
                               stretch = "lin",
                               axes = TRUE,
-                              main = paste0("composite image stack RGB gardens ", neighbourhood))
+                              main = paste0("RGB stack gardens ", neighbourhood))
 plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 aerial_rgb
 plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
 dev.off()
+
+gc()

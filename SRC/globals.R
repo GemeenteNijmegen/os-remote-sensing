@@ -5,6 +5,8 @@
 
 #-----------------------------------------------------------------------------------------------
 
+message("set globals and contsants")
+
 #seed
 set.seed(90210)
 
@@ -17,7 +19,11 @@ Sys.getlocale()
 options(encoding = "UTF-8")
 # use getOption("encoding") to see if things were changed
 
+#turn off R’s automatic conversion of strings into factors
 options(stringsAsFactors = FALSE)
+
+#prevent exponential / scientific notation.
+options(scipen = 999) 
 
 #turn off warnings
 if(debug_mode==FALSE) {
@@ -29,32 +35,40 @@ if(debug_mode==FALSE) {
 #turn of dplyr's summarise notifications
 options(dplyr.summarise.inform = FALSE)
 
+#R root
+r_root<-here::here()
+#Python root
+py_root<-here::here("Processing")
+
 #directories
 #create directories on-the-fly if not exist
 
 #location data
-data.dir <- here::here("DATA",'/')
+data.dir <- here::here("DATA")
+data.loc <- here::here("DATA",neighbourhood,'/')
 
 tempdata.dir <- here::here("tempdata",'/')
 
 #location plots
-plots.dir <- here::here("PLOTS",'/')
+plots.dir <- here::here("PLOTS")
+plots.loc <- here::here("PLOTS",neighbourhood,'/')
 
 #aerial photo (local source)
 ai.dir <- here::here("AI",'/')
 
 #location data
-report.dir <- here::here("REPORT",'/')
+report.dir <- here::here("REPORT")
+report.loc <- here::here("REPORT",neighbourhood,'/')
 
 #create locations if not exist
-locations <- c(data.dir, plots.dir, ai.dir, tempdata.dir, report.dir)
+locations <- c(data.dir, data.loc, plots.dir, plots.loc, ai.dir, tempdata.dir, report.dir, report.loc)
 
 lapply(locations, function(x) {
   if (!dir.exists(x)) {dir.create(x)}
 })
 
 #clear graphs and data folder
-clear_locations <- c(plots.dir, data.dir)
+clear_locations <- c(plots.loc, data.loc)
 
 # get all files in the directories, recursively
 f <- list.files(clear_locations, include.dirs = F, full.names = T, recursive = T)
@@ -65,7 +79,7 @@ file.remove(f)
 graph_height <- 6
 png_height <- 400
 aspect_ratio <- 1
-dpi <- 180 #retina
+dpi <- 180 #retina(320)
 sub_title<-''
 
 #Coordinate reference systems

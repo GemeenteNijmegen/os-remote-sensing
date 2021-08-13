@@ -8,8 +8,8 @@
 ndvi_subset <- ndvi
 class(ndvi_subset)
 
-# ndvi scores greater than 0.25455043 are considered high quality vegi. 
-ndvi_subset@data@values[ndvi_subset@data@values <= 0.25455043] <- NA
+#ndvi scores greater than 0.2 are considered vegetation 
+ndvi_subset@data@values[ndvi_subset@data@values <= 0.2] <- NA
 
 # convert the raster to vector/matrix ('getValues' converts the RasterLAyer to array) )
 ndvi_array <- getValues(ndvi_subset)
@@ -18,7 +18,6 @@ ndvi_array <- getValues(ndvi_subset)
 i <- which(!is.na(ndvi_array))
 ndvi_valid_array <- ndvi_array[i]
 
-## this is where the magic happens
 # number of clusters
 k <- 5
 km <- kmeans(ndvi_valid_array, centers = k, iter.max = 200,
@@ -51,7 +50,6 @@ ndvi_cluster <- Rmisc::summarySE(tmp, measurevar = "ndvi", groupvars = c("gi"))
 ndvi_cluster$ndvi <- round(ndvi_cluster$ndvi, digits = 2)
 ndvi_cluster <- ndvi_cluster[complete.cases(ndvi_cluster), ]
 
-
 plot.title = paste0('NDVI cluster boundaries')
 ggplot(ndvi_cluster, aes(x = gi, y = ndvi)) + 
   geom_bar(position=position_dodge(), stat="identity", fill="steelblue") +
@@ -63,7 +61,7 @@ ggplot(ndvi_cluster, aes(x = gi, y = ndvi)) +
   ylab("NDVI") +
   theme_light() 
   plot.nme = paste0('NDVI_cluster_boundaries_unsupervised.png')
-plot.store <-paste0(plots.dir,plot.nme)
+plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=dpi)
 
 # create list with upper-bounds per cluster
@@ -79,4 +77,4 @@ veg_clus <- raster::reclassify(ndvi, c(-Inf, rng_list[[1]], 1,
                                    rng_list[[3]], rng_list[[4]], 4,
                                    rng_list[[4]], Inf, 5))
 
-rm(tmp, gi_km)
+rm(tmp, gi_km, ndvi_subset)

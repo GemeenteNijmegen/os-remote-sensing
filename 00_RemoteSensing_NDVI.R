@@ -1,12 +1,24 @@
 
 #-----------------------------------------------------------------------------------------------
 
-# Remote Sensing: Green urban spaces
+# Remote Sensing: Green private urban spaces in neighbourhoods
 
 #-----------------------------------------------------------------------------------------------
 
 # date created: 2021-05-11
-# date modified: 2021-08-09
+# date modified: 2021-08-13
+
+#-----------------------------------------------------------------------------------------------
+
+#id neighbourhood
+neighbourhood <- "BU08280002" #Oss
+#name municipality
+municipality <- "Oss"
+
+#neighbourhood <- "BU04411401" #Sint Maartensvlotbrug, Schagen
+#municipality <- "Schagen"
+
+message("start procedure for ", neighbourhood)
 
 #-----------------------------------------------------------------------------------------------
 
@@ -35,7 +47,11 @@ source(here::here('SRC/globals.R'))
 #-----------------------------------------------------------------------------------------------
 
 #Python environment
-#under construction
+#needed when opting for re-creating the polygon geopackage(s) via the Python procedure ('Processing' dir)
+#within Rstudio
+
+#read instructions in 'SRC/python.R' first
+
 #source(here('SRC/python.R'))
 
 #-----------------------------------------------------------------------------------------------
@@ -44,17 +60,13 @@ source(here::here('SRC/globals.R'))
 
 #-----------------------------------------------------------------------------------------------
 
-#id neighbourhood
-neighbourhood<-"BU08280002" #Oss
-#neighbourhood<-"BU04411401" #Sint Maartensvlotbrug, Schagen
-
 #location geopackages
 #vector layers (polygons buurt, percelen, panden, tuinen)
-gpkg_vector <- paste0(data.dir,neighbourhood,"_vector.gpkg")
+gpkg_vector <- paste0(data.loc,neighbourhood,"_vector.gpkg")
 #raster data: aerial photo, NH3
-gpkg_raster <- paste0(data.dir,neighbourhood,"_raster.gpkg")
+gpkg_raster <- paste0(data.loc,neighbourhood,"_raster.gpkg")
 #raster data: vegetation indices
-gpkg_indices <- paste0(data.dir,neighbourhood,"_green_indices.gpkg")
+gpkg_indices <- paste0(data.loc,neighbourhood,"_green_indices.gpkg")
 
 #pipeline timer
 start_time <- Sys.time()
@@ -65,7 +77,7 @@ start_time <- Sys.time()
 
 #-----------------------------------------------------------------------------------------------
 
-#geopackage containing buurt, percelen, panden and tuinen polygons
+#geopackage containing gemeente, buurt, percelen, panden and tuinen polygons
 
 #prefab geopackage (from Python procedure)
 prefab_polygons <- FALSE #default (T) 
@@ -75,7 +87,6 @@ if(prefab_polygons==TRUE) {
  source(here::here('SRC/vector_gpkg_request.R'))       
 } else {
 #create geopackage
- #under construction  
  source(here::here('SRC/buurt_pand_perceel_request.R')) 
 }
 
@@ -118,6 +129,7 @@ red <- ai_tuinen[[2]]
 
 #-----------------------------------------------------------------------------------------------
 
+message("calculate vegetation indices")
 
 #--------------------------------------------------
 
@@ -140,10 +152,9 @@ red <- ai_tuinen[[2]]
 #       -Inf to 0.2: Non-vegetation
 #        0.2 to 0.3: Grasses, weed
 #        0.3 to 0.5: Low vegetation
-#        0.5 to 0.1: #intensive vegetation, trees
+#        0.5 to 1: #intensive vegetation, trees
 
 #vegetation (fixed boundary at 0.2)
-
 
 ndvi <- raster::overlay(red, nir, fun = function(x, y) { (y-x) / (y+x) })
 names(ndvi) <- "ndvi"
@@ -165,9 +176,13 @@ veg_g <- raster::reclassify(ndvi,reclass_binary_m)
 
 #contour lines vegetation
 veg_contour <- raster::rasterToContour(veg_g)
-#TODO transform to polygon
+#transform to polygon
+veg_polygon <- veg_contour %>% st_as_sf() %>% st_polygonize()
+veg_polygon$oppervlakte <- st_area(veg_polygon$geometry) 
 
-png(paste0(plots.dir,"rs_ndvi_raw_",neighbourhood,".png"), height = 1280,width=1280,res=180,units = "px")
+sf::st_write(veg_polygon, dsn=gpkg_vector, layer='vegetation_contour',layer_options = "OVERWRITE=YES",append=FALSE)
+
+png(paste0(plots.loc,"rs_ndvi_raw_vegetation_contours_",neighbourhood,".png"), height = 1280,width=1280,res=180,units = "px")
 plot(ndvi)
 plot(veg_contour, add=TRUE)
 plot(percelen_sf$geom, add=TRUE, legend=FALSE)
@@ -203,6 +218,9 @@ names(evi2) <- "evi2"
 #Reduces the effects of atmosphere and topography
 rvi <- raster::overlay(red, nir, fun = function(x, y) { (y) / (x) })
 names(rvi) <- "rvi"
+
+#garbage collecting
+rm(nir,red)
 
 #-----------------------------------------------------------------------------------------------
 
@@ -244,8 +262,7 @@ reclass_binary_m <- matrix(reclass_binary,
 
 garden_5mplus <- raster::reclassify(ahn_buurt,reclass_binary_m)
 
-rm(reclass_binary, reclass_binary_m)
-
+rm(reclass_binary, reclass_binary_m, ahn_buurt, ahn_panden)
 
 #-----------------------------------------------------------------------------------------------
 
@@ -264,7 +281,7 @@ rm(reclass_binary, reclass_binary_m)
 raster::crs(ndvi) <- raster::crs(percelen_sf)
 
 #Distribution of raster cell NDVI values
-png(paste0(plots.dir,"rs_raster_cell_ndvi",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio*2, height=png_height)
+png(paste0(plots.loc,"rs_raster_cell_ndvi",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio*2, height=png_height)
 hist(ndvi,
      main = paste0("Distribution of raster cell NDVI values ",neighbourhood),
      xlab = "ndvi", ylab = "cells",
@@ -305,25 +322,41 @@ raster::crs(veg_t5) <- raster::crs(percelen_sf)
 
 #-----------------------------------------------------------------------------------------------
 
+message("store green indices in geopackage")
+
 #store green indices in geopackage
 source(here::here('SRC/vegetation_gpkg.R'))
 
+vegetation_rasterbrick <- FALSE
+
+if(vegetation_rasterbrick==TRUE) {
 #read geopackage, create RasterBrick 
 green_indices <-
-        read_stars(paste0(data.dir,neighbourhood,"_green_indices.gpkg")
+        read_stars(paste0(data.loc,neighbourhood,"_green_indices.gpkg")
                    #subsetting
                    #,sub = "ndvi"
                    ,quiet = TRUE
         ) %>%
         as("Raster")
 green_indices
-
+}
 
 #-----------------------------------------------------------------------------------------------
 
 #vegetation coverage
 
 #-----------------------------------------------------------------------------------------------
+
+
+
+#-----------------------------------------------------------------------------------------------
+
+#tuinen
+
+#-----------------------------------------------------------------------------------------------
+
+
+message("calculate green coverage tuinen")
 
 # Number of cells covered by the polygon (raster values are ignored)
 cells_cnt <- exact_extract(ndvi, tuinen_sf, function(values, coverage_fraction)
@@ -342,7 +375,7 @@ ndvi_avg<-exactextractr::exact_extract(ndvi,tuinen_sf,
 tuinen_sf$ndvi_avg<-round(ndvi_avg,1)
 
 
-#mean ndvi for vegetataion per polygon element (green in tuin)
+#mean ndvi for vegetation per polygon element (green in tuin)
 ndvi_green_avg<-exactextractr::exact_extract(ndvi_above_threshold,tuinen_sf,
                                        #the mean cell value, weighted by the fraction of each cell
                                        #that is covered by the polygon
@@ -379,7 +412,6 @@ tree_cover_5m<-exactextractr::exact_extract(veg_t5,tuinen_sf,
                                          force_df =FALSE)
 
 tuinen_sf$tree_cover_5m<-round(tree_cover_5m*100,1)
-
 
 #------------------------------------
 
@@ -435,9 +467,66 @@ buurt_garden_stats <- tuinen_sf %>%
                   ndvi_green_avg = round(mean(ndvi_green_avg,na.rm = TRUE),1) 
                   ) 
  
+
+
 buurt_garden_stats <- cbind(buurt_sf,buurt_garden_stats)
 
-write.csv(buurt_garden_stats,file=paste(report.dir,"Buurt_statistieken_",neighbourhood,".csv"))
+write.csv(buurt_garden_stats,file=paste(report.loc,"Buurt_tuinen_statistieken_",neighbourhood,".csv"))
+
+#-----------------------------------------------------------------------------------------------
+
+#panden
+
+#-----------------------------------------------------------------------------------------------
+
+message("calculate green coverage panden met woonfunctie")
+
+#vegetation cover per polygon element (tuin)
+ndvi_cover_panden<-exactextractr::exact_extract(veg_g,panden_polygons,
+                                         #the mean cell value, weighted by the fraction of each cell
+                                         #that is covered by the polygon
+                                         fun ='mean',
+                                         force_df =FALSE)
+
+panden_polygons$green_cover<-round(ndvi_cover_panden*100,1)
+
+panden_polygons$oppervlakte_pand_unit = st_area(panden_polygons)
+
+panden_polygons$oppervlakte_pand = as.numeric(panden_polygons$oppervlakte_pand_unit)
+
+#surface culculation (m2)
+panden_polygons <- panden_polygons %>%
+        mutate(
+                #oppervlakte vegetatie 
+                green_surface = round((oppervlakte_pand*(green_cover/100)),1),
+
+                #oppervlak potentieel vegetatie
+                green_potential = oppervlakte_pand-green_surface,
+                #buurtcode meenemen
+                buurt_selection = neighbourhood
+        )   
+
+buurt_roofgarden_stats <- panden_polygons %>%
+        group_by(buurt_selection)  %>%
+        summarise(
+                #tuin oppervlak
+                roofgarden_surface_sum = sum(oppervlakte_pand, na.rm = TRUE), 
+                #aandeel vegetatie in tuin
+                green_cover_avg = round(mean(green_cover, na.rm = TRUE),1),
+                
+                #oppervlak vegetatie
+                green_surface_sum = sum(green_surface, na.rm = TRUE),
+                #oppervlak potentieel vegetatie
+                green_potential_sum = sum(green_potential, na.rm = TRUE)
+               
+        ) 
+
+
+
+
+buurt_roofgarden_stats <- cbind(buurt_sf,buurt_roofgarden_stats)
+
+write.csv(buurt_roofgarden_stats,file=paste(report.loc,"Buurt_daken_statistieken_",neighbourhood,".csv"))
 
 #-----------------------------------------------------------------------------------------------
 
@@ -447,6 +536,15 @@ write.csv(buurt_garden_stats,file=paste(report.dir,"Buurt_statistieken_",neighbo
 
 source(here::here('SRC/vegetation_plots.R'))
 
+#-----------------------------------------------------------------------------------------------
+
+#green classes metrics 
+
+#-----------------------------------------------------------------------------------------------
+#under construction
+
+#source(here::here('SRC/green_classes_metrics.R'))
+
 
 #-----------------------------------------------------------------------------------------------
 
@@ -454,8 +552,12 @@ source(here::here('SRC/vegetation_plots.R'))
 
 #-----------------------------------------------------------------------------------------------
 
+message("exiting procedure for neighbourhood ", neighbourhood)
+
 end_time <- Sys.time()
 end_time - start_time
 
 rlang::last_error()
 rlang::last_trace()
+
+

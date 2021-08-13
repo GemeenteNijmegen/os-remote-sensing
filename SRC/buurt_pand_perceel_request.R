@@ -1,7 +1,7 @@
 
 #-----------------------------------------------------------------------------------------------
 
-# Buurt pand perceel selectie
+# Buurt, pand and perceel polygons
 
 #-----------------------------------------------------------------------------------------------
 
@@ -14,11 +14,53 @@ gpkg.rdy<-FALSE
 if(gpkg.rdy==FALSE) {
 #not available, let's create gpkg
 
-#read local file containing all buurten in NL
-buurt_sf <- try(readRDS("tempdata/buurt_sf_totaal.rds"))
-if(exists("buurt_sf")) {buurten.rdy <- TRUE} else {buurten.rdy <- FALSE}
+#-----------------------------------------------------------------------------------------------  
 
+#Municipality
+
+#-----------------------------------------------------------------------------------------------  
+  
+#read local file containing all gemeenten in NL  
+  
+  gemeenten.rdy<-FALSE
+  gemeenten.rdy<-file.exists("tempdata/gemeenten_nl_sf.rds")
+  
+  if(gemeenten.rdy==FALSE) { 
+  message("extract NL-gemeente polygon from nationaalgeoregister.nl")  
+  url <- parse_url("https://geodata.nationaalgeoregister.nl/bestuurlijkegrenzen/wfs?")
+  url$query <- list(service = "wfs",
+                    version = "1.1.0",
+                    request = "GetFeature",
+                    typename = "bestuurlijkegrenzen:gemeenten", #bestuurlijkegrenzen:provincies
+                    srsName  = "EPSG:28992",
+                    outputFormat='json')
+  
+  request <- build_url(url);request
+  
+  gemeenten_nl_sf <- sf::st_read(request)
+  saveRDS(gemeenten_nl_sf, "tempdata/gemeenten_nl_sf.rds")
+  rm(gemeenten_nl_sf)
+  }
+  
+  gemeente_sf <- readRDS("tempdata/gemeenten_nl_sf.rds")
+  gemeente_sf <- gemeente_sf %>% filter(gemeentenaam == municipality)
+
+  #transform from Multisurface to Polygon
+  gemeente_sf <- st_cast(gemeente_sf, "GEOMETRYCOLLECTION") %>% st_collection_extract("POLYGON")
+  
+#-----------------------------------------------------------------------------------------------  
+
+#Buurt
+  
+#-----------------------------------------------------------------------------------------------    
+  
+#read local file containing all buurten in NL  
+buurten.rdy<-FALSE
+buurten.rdy<-file.exists("tempdata/buurten_nl_sf.rds")
+  
 if(buurten.rdy==FALSE) {
+  
+ message("extract NL-buurten polygon from nationaalgeoregister.nl ")
 #Buurt request
  url <- parse_url("https://geodata.nationaalgeoregister.nl/wijkenbuurten2020/wfs?")
  url$query <- list(service = "wfs",
@@ -28,12 +70,12 @@ if(buurten.rdy==FALSE) {
                    outputFormat='json')
  request <- build_url(url);request
 
-buurt_sf_totaal <- sf::st_read(request, layer = "wijkenbuurten2020:cbs_buurten_2020")
-saveRDS(buurt_sf_totaal, "tempdata/buurt_sf_totaal.rds")
-rm(buurt_sf_totaal)
+buurten_nl_sf <- sf::st_read(request, layer = "wijkenbuurten2020:cbs_buurten_2020")
+saveRDS(buurten_nl_sf, "tempdata/buurten_nl_sf.rds")
+rm(buurten_nl_sf)
 }
-
-buurt_sf <- readRDS("tempdata/buurt_sf_totaal.rds")
+  
+buurt_sf <- readRDS("tempdata/buurten_nl_sf.rds")
 buurt_sf <- buurt_sf %>% filter(buurtcode == neighbourhood)
 buurt_sf <- buurt_sf[, c('buurtcode', 'buurtnaam', 'gemeentecode', 'geom')]
 
@@ -59,7 +101,12 @@ y_centroid<-cen[2]
 
 #-----------------------------------------------------------------------------------------------
 
-#Pand request
+#Pand
+
+#-----------------------------------------------------------------------------------------------  
+
+message("extract panden polygons from nationaalgeoregister.nl ", neighbourhood)
+
 #loop because of limit of 1000 results
 loops = c(0,1001,2001,3001,4001,5001)
 empty_df = list()
@@ -85,15 +132,27 @@ rm(data, empty_df)
 panden_cols<-colnames(panden_sf)
 
 #subset panden within buurt
-#panden_sf <- panden_sf[buurt_sf,] #containing
-panden_sf <- sf::st_intersection(buurt_sf, panden_sf) %>% st_make_valid() #clip with buurt
-panden_sf <- panden_sf %>% group_by(identificatie) %>% slice(1) #only keep unique
-panden_sf <- panden_sf %>% dplyr::select(one_of(panden_cols)) #relevant features
+panden_sf <- sf::st_intersection(buurt_sf, panden_sf) %>% #clip with buurt
+  sf::st_make_valid() %>% #repair
+  sf::st_collection_extract("POLYGON") %>% #polygons 
+  group_by(identificatie) %>% #unique 
+  slice(1) %>%
+  dplyr::select(one_of(panden_cols)) #relevant features
 
+rownames(panden_sf) <- panden_sf$identificatie
+
+#verschilpanden <- panden_sf_py %>% dplyr::select(identificatie) %>% unique() %>% 
+# filter(!(identificatie %in% panden_sf$identificatie))
+#mapview(verschilpanden)
 
 #-----------------------------------------------------------------------------------------------
 
-#Perceel request
+#Perceel
+
+#-----------------------------------------------------------------------------------------------  
+
+message("extract percelen polygons from nationaalgeoregister.nl " , neighbourhood)
+
 empty_df = list()
 for (loop in loops) {
   url <- parse_url("https://geodata.nationaalgeoregister.nl/kadastralekaart/wfs/v4_0?")
@@ -118,13 +177,24 @@ percelen_cols<-colnames(percelen_sf)
 
 #subset percelen within buurt
 percelen_sf <- percelen_sf[buurt_sf,]
-percelen_sf <- sf::st_intersection(buurt_sf, percelen_sf) %>% st_collection_extract("POLYGON") %>%  st_make_valid() %>% #clip with buurt
-              group_by(id) %>% slice(1)
-percelen_sf <- percelen_sf %>% dplyr::select(one_of(percelen_cols)) #relevant features
+percelen_sf <- sf::st_intersection(buurt_sf, percelen_sf) %>% #clip with buurt
+              sf::st_make_valid() %>% #repair
+              sf::st_collection_extract("POLYGON") %>% #polygons 
+              group_by(id) %>% #unique
+              slice(1) %>%
+              dplyr::select(one_of(percelen_cols)) #relevant features
+
+#add id to rownames
+rownames(percelen_sf) <- percelen_sf$identificatieLokaalID
 
 #-----------------------------------------------------------------------------------------------
 
-#Verblijfsobjecten request
+#Verblijfsobjecten
+
+#-----------------------------------------------------------------------------------------------  
+
+message("extract verblijfsobjecten from nationaalgeoregister.nl ", neighbourhood)
+
 empty_df = list()
 for (loop in loops) {
   url <- parse_url("https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1?")
@@ -154,10 +224,17 @@ verblijfsobjecten_sf <- sf::st_intersection(buurt_sf, verblijfsobjecten_sf) %>%
 verblijfsobjecten_sf <- verblijfsobjecten_sf %>% dplyr::select(one_of(verblijfsobjecten_cols)) #relevant vbo features
 
 #-----------------------------------------------------------------------------------------------
+
+#Tuinen
+
+#-----------------------------------------------------------------------------------------------  
+
+message("build tuinen " , neighbourhood)
+
 #tuinen within percelen with object woonfunctie
 
 #verblijfsobjecten with status 'in gebruik' or 'verbouwing'
-woningen_sf <- verblijfsobjecten_sf[verblijfsobjecten_sf$status %like% "Verblijfsobject in gebruik"
+woningen_sf <- verblijfsobjecten_sf[verblijfsobjecten_sf$status %like% "Verblijfsobject in gebruik" 
                                     | verblijfsobjecten_sf$status %like% "Verbouwing verblijfsobject"
                                     #toegevoegen?
                                     #| verblijfsobjecten_sf$status %like% "Verblijfsobject gevormd"
@@ -165,8 +242,6 @@ woningen_sf <- verblijfsobjecten_sf[verblijfsobjecten_sf$status %like% "Verblijf
 
 #verblijfsobjecten with object 'woonfunctie' or 'logiesfunctie'
 woningen_sf <- woningen_sf[woningen_sf$gebruiksdoel %like% "woonfunctie" | woningen_sf$gebruiksdoel %like% "logiesfunctie",]
-
-
 
 #percelen with woonverblijfsobject
 percelenwoonfunctie_sf <- percelen_sf[woningen_sf,] %>% dplyr::select(one_of(percelen_cols))
@@ -177,47 +252,24 @@ pandenwoonperceel_sf<-panden_sf[percelenwoonfunctie_sf,]
 
 #tuin = perceelwoonfunctie-pandenwoonperceel
 st_erase = function(x, y) st_difference(x, st_union(y))
-tuinen_sf <- st_erase(percelenwoonfunctie_sf,pandenwoonperceel_sf)  %>% dplyr::select(one_of(percelen_cols))
+
+tuinen_sf <- st_erase(percelenwoonfunctie_sf,pandenwoonperceel_sf) %>%
+  sf::st_make_valid() %>% #repair
+  sf::st_collection_extract("POLYGON") %>% #polygons 
+  dplyr::select(one_of(percelen_cols))
+
+#verschiltuinen <- tuinen_sf_py %>% dplyr::select(identificatieLokaalID) %>% unique() %>% filter(!(identificatieLokaalID %in% tuinen_sf$identificatieLokaalID))
+#plot(verschiltuinen)
 
 #interactive Leaflet presentation of the layers buurt, percelen and panden
-#mapview::mapview(list(panden_sf),alpha.regions = 0.6, alpha = 1)
-
-#calculate surface tuinen
-tuinen_sf <- tuinen_sf  %>%
-  # feature area calculation (m^2)
-  mutate(area = st_area(tuinen_sf))
-
-#Select gardens with at least 3 m2
-tuinen_sf2 <- tuinen_sf  %>%
-  units::drop_units() %>%
-  filter(area > 3.00)
-
+#mapview(list(panden_sf,percelenwoonfunctie_sf,tuinen_sf),alpha.regions = 0.6, alpha = 1)
+#mapview(list(verschiltuinen,tuinen_sf_py,tuinen_sf),alpha.regions = 0.6, alpha = 1)
+#mapview(list(verschilpanden,tuinen_sf),alpha.regions = 0.6, alpha = 1)
 
 #-----------------------------------------------------------------------------------------------
-#post-processing
 
-#percelen
-#filter-out invalid features, calculate surface area
-#percelen_sf <- percelen_sf  %>%
-  #make sure shapes are valid (after clipping)
-  #st_make_valid()  #%>%
-  #feature area calculation (m^2)
-  #mutate(area = st_area(percelen_sf))
+message("store layers in geopackage")
 
-#add id to rownames
-rownames(percelen_sf) <- percelen_sf$identificatieLokaalID
-
-#panden
-#filter-out invalid features, calculate surface area
-#panden_sf <- panden_sf  %>%
-  #make sure shapes are valid (after clipping)
-  #st_make_valid()
-
-#add id to rownames
-rownames(panden_sf) <- panden_sf$identificatie
-
-
-#-----------------------------------------------------------------------------------------------
 #create vector geopackage (GPKG)
 sf::st_write(buurt_sf, dsn=gpkg_vector, layer='buurt',layer_options = "OVERWRITE=YES",append=FALSE)
 sf::st_write(panden_sf, dsn=gpkg_vector, layer='panden',layer_options = "OVERWRITE=YES",append=FALSE)
@@ -230,6 +282,9 @@ sf::st_write(percelenwoonfunctie_sf, dsn=gpkg_vector, layer='percelenwoonfunctie
 sf::st_layers(gpkg_vector)
 
 } else {
+
+message("read layers from prefab geopackage")
+  
 #read existing geopackage, individual layers
 buurt_sf <- sf::st_read(gpkg_vector, layer= "buurt", geometry_column="geom")
 panden_sf <- sf::st_read(gpkg_vector, layer= "panden",geometry_column="geom")
@@ -241,37 +296,8 @@ tuinen_sf <- sf::st_read(gpkg_vector, layer= "tuinen", geometry_column="geom")
 
 #-----------------------------------------------------------------------------------------------
 
-png(paste0(plots.dir,"rs_tuinen_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
+png(paste0(plots.loc,"rs_tuinen_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
 plot(st_geometry(tuinen_sf))
 dev.off()
 
-plots_vs <- FALSE
-
-if(plots_vs==TRUE) {
-#plot(buurt_sf$geom)
-#plot(st_geometry(panden_sf), add=TRUE)
-
-#Overlapping area (clipping)
-#haal alle panden weg die niet in de buurt vallen
-clip.pand.buurt = sf::st_intersection(buurt_sf, panden_sf)
-
-#st_crs(clip.pand.buurt)
-
-ggplot(clip.pand.buurt) +
-  geom_sf(aes(fill=identificatie)) +
-  theme_minimal() +
-  scale_fill_viridis(discrete=TRUE, option="E")
-plot.nme = paste0('rs_panden_within_buurt_',neighbourhood,'.png')
-plot.store <-paste0(plots.dir,plot.nme)
-ggsave(plot.store, height = graph_height, dpi=dpi, limitsize = FALSE)
-
-#haal alle percelen weg die niet in de buurt en panden vallen
-clip.pand.buurt.percelen = sf::st_intersection(clip.pand.buurt, percelen_sf)
-
-ggplot(clip.pand.buurt.percelen) +
-  geom_sf(aes()) +
-  theme_minimal()
-plot.nme = paste0('rs_panden_within_buurt_percelen_',neighbourhood,'.png')
-plot.store <-paste0(plots.dir,plot.nme)
-ggsave(plot.store, dpi=dpi)
-}
+rm(percelenwoonfunctie_sf,pandenwoonperceel_sf)

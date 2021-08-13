@@ -15,6 +15,8 @@ gc(verbose = FALSE, full = TRUE)
 getOption("Ncpus", 1L)
 options(Ncpus = 8)
 
+message("deploy packages")
+
 if(proj_env == TRUE) {
   #  #containerized packages (in case you encounter issue with the current version of packages within your computing set-up)
   if (!require("renv")) install.packages("renv")
@@ -25,6 +27,8 @@ if(proj_env == TRUE) {
   library("renv")
   renv::init()
 }
+
+#-----------------------------------------------------------------------------------------------
 
 #shutup RGDAL
 options("rgdal_show_exportToProj4_warnings"="none")
@@ -71,6 +75,8 @@ packages <- c(
   'gdalUtils',
   #Interface to Geometry Engine
   'rgeos',
+  #bindings to liblwgeom functions for sf
+  'lwgeom',
   #Fast Extraction from Raster Datasets using Polygons
   'exactextractr',
   #plotting
@@ -84,11 +90,7 @@ packages <- c(
   'colorspace',
   'viridis',
   #layout plots
-  'patchwork',
-  #mapview
-  'mapview',
-  #Units for drop_units function
-  'units'
+  'patchwork'
 )
 
 #install packages which are not available on the computing setup
@@ -104,24 +106,28 @@ is_rahne_available <- require("rAHNextract")
 
 if(is_rahne_available==FALSE) {
   devtools::install_github("Jellest/rAHNextract")
-}
+}  
 
 library(rAHNextract)
 
-#external dependencies versions of the libraries linked to sf
-sf::sf_extSoftVersion()[1:3]
+#-----------------------------------------------------------------------------------------------
 
 #Review GDAL setup
-# Assumes you have GDAL installed on your local machine, see for example https://gdal.org/download.html
+#assumes you have GDAL installed on your local machine.
 #getOption("gdalUtils_gdalPath")
-gdalUtils::gdal_setInstallation()
+gdal_setInstallation()
 getOption("gdalUtils_gdalPath")
-# If there is more than one installation of GDAL, this is the
-# most recent installation:
+
+#if there is more than one installation of GDAL, this is the
+#most recent installation:
 getOption("gdalUtils_gdalPath")[[1]]
 
-# The version number:
+#version number:
 getOption("gdalUtils_gdalPath")[[1]]$version
+
+#external dependencies versions of the libraries linked to sf
+sf::sf_extSoftVersion()[1:3]
+sf::sf_extSoftVersion()["lwgeom"]
 
 #review packages loaded
 sessionInfo() %>% capture.output(file="session_info.txt")
