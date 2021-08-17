@@ -1,12 +1,12 @@
 
 #-----------------------------------------------------------------------------------------------
 
-# Remote Sensing: Green private urban spaces in neighbourhoods
+# Remote Sensing: Green private urban spaces
 
 #-----------------------------------------------------------------------------------------------
 
 # date created: 2021-05-11
-# date modified: 2021-08-13
+# date modified: 2021-08-17
 
 #-----------------------------------------------------------------------------------------------
 
@@ -50,7 +50,7 @@ source(here::here('SRC/globals.R'))
 #needed when opting for re-creating the polygon geopackage(s) via the Python procedure ('Processing' dir)
 #within Rstudio
 
-#read instructions in 'SRC/python.R' first
+#read instructions in 'SRC/python.R' first!
 
 #source(here('SRC/python.R'))
 
@@ -154,7 +154,7 @@ message("calculate vegetation indices")
 #        0.3 to 0.5: Low vegetation
 #        0.5 to 1: #intensive vegetation, trees
 
-#vegetation (fixed boundary at 0.2)
+
 
 ndvi <- raster::overlay(red, nir, fun = function(x, y) { (y-x) / (y+x) })
 names(ndvi) <- "ndvi"
@@ -163,6 +163,7 @@ names(ndvi) <- "ndvi"
 source(here::here('SRC/green_classes.R'))
 
 #create new raster with 1 for vegetation and 0 for non-vegetation.
+#vegetation fixed boundary at NDVI value 0.2
 #classification matrix
 reclass_binary <- c(-1, 0.2, 0,
                     0.2, 1, 1)
@@ -182,7 +183,7 @@ veg_polygon$oppervlakte <- st_area(veg_polygon$geometry)
 
 sf::st_write(veg_polygon, dsn=gpkg_vector, layer='vegetation_contour',layer_options = "OVERWRITE=YES",append=FALSE)
 
-png(paste0(plots.loc,"rs_ndvi_raw_vegetation_contours_",neighbourhood,".png"), height = 1280,width=1280,res=180,units = "px")
+png(paste0(plots.loc,"rs_ndvi_raw_vegetation_contours_",neighbourhood,".png"), height = 1280, width = 1280, res = 180, units = "px")
 plot(ndvi)
 plot(veg_contour, add=TRUE)
 plot(percelen_sf$geom, add=TRUE, legend=FALSE)
@@ -482,20 +483,20 @@ write.csv(buurt_garden_stats,file=paste(report.loc,"Buurt_tuinen_statistieken_",
 message("calculate green coverage panden met woonfunctie")
 
 #vegetation cover per polygon element (tuin)
-ndvi_cover_panden<-exactextractr::exact_extract(veg_g,panden_polygons,
+ndvi_cover_panden<-exactextractr::exact_extract(veg_g,panden_sf,
                                          #the mean cell value, weighted by the fraction of each cell
                                          #that is covered by the polygon
                                          fun ='mean',
                                          force_df =FALSE)
 
-panden_polygons$green_cover<-round(ndvi_cover_panden*100,1)
+panden_sf$green_cover<-round(ndvi_cover_panden*100,1)
 
-panden_polygons$oppervlakte_pand_unit = st_area(panden_polygons)
+panden_sf$oppervlakte_pand_unit = st_area(panden_sf)
 
-panden_polygons$oppervlakte_pand = as.numeric(panden_polygons$oppervlakte_pand_unit)
+panden_sf$oppervlakte_pand = as.numeric(panden_sf$oppervlakte_pand_unit)
 
 #surface culculation (m2)
-panden_polygons <- panden_polygons %>%
+panden_sf <- panden_sf %>%
         mutate(
                 #oppervlakte vegetatie 
                 green_surface = round((oppervlakte_pand*(green_cover/100)),1),
@@ -506,7 +507,7 @@ panden_polygons <- panden_polygons %>%
                 buurt_selection = neighbourhood
         )   
 
-buurt_roofgarden_stats <- panden_polygons %>%
+buurt_roofgarden_stats <- panden_sf %>%
         group_by(buurt_selection)  %>%
         summarise(
                 #tuin oppervlak
@@ -544,7 +545,6 @@ source(here::here('SRC/vegetation_plots.R'))
 #under construction
 
 #source(here::here('SRC/green_classes_metrics.R'))
-
 
 #-----------------------------------------------------------------------------------------------
 

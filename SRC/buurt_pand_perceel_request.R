@@ -124,7 +124,7 @@ for (loop in loops) {
   data <- sf::st_read(request)
   empty_df <- list.append(empty_df, data)
   print(paste0("startindex ", loop," - ",nrow(data), " panden"))
-  if(nrow(data) < 1000) {panden_sf <- rbindlist(empty_df) %>% st_as_sf(); break}
+  if(nrow(data) < 1000) {panden_sf <- rbindlist(empty_df, use.names=TRUE) %>% st_as_sf(); break}
 }
 rm(data, empty_df)
 
@@ -168,7 +168,7 @@ for (loop in loops) {
   data <- sf::st_read(request)
   empty_df <- list.append(empty_df, data)
   print(paste0("startindex ", loop," - ",nrow(data), " percelen"))
-  if(nrow(data) < 1000) {percelen_sf <- rbindlist(empty_df) %>% st_as_sf(); break}
+  if(nrow(data) < 1000) {percelen_sf <- rbindlist(empty_df, use.names=TRUE) %>% st_as_sf(); break}
 }
 rm(data, empty_df)
 
@@ -210,7 +210,7 @@ for (loop in loops) {
   data <- sf::st_read(request)
   empty_df <- list.append(empty_df, data)
   print(paste0("startindex ", loop," - ",nrow(data), " verblijfsobjecten"))
-  if(nrow(data) < 1000) {verblijfsobjecten_sf <- rbindlist(empty_df) %>% st_as_sf(); break}
+  if(nrow(data) < 1000) {verblijfsobjecten_sf <- rbindlist(empty_df, use.names=TRUE) %>% st_as_sf(); break}
 }
 rm(data, empty_df)
 
@@ -282,7 +282,6 @@ sf::st_write(percelenwoonfunctie_sf, dsn=gpkg_vector, layer='percelenwoonfunctie
 sf::st_layers(gpkg_vector)
 
 } else {
-
 message("read layers from prefab geopackage")
   
 #read existing geopackage, individual layers

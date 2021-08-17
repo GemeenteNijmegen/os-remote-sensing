@@ -5,7 +5,7 @@
 
 #-----------------------------------------------------------------------------------------------
 
-message("set globals and contsants")
+message("set globals and constants")
 
 #seed
 set.seed(90210)
@@ -36,9 +36,9 @@ if(debug_mode==FALSE) {
 options(dplyr.summarise.inform = FALSE)
 
 #R root
-r_root<-here::here()
+r_root <- here::here()
 #Python root
-py_root<-here::here("Processing")
+py_root <- here::here("Processing")
 
 #directories
 #create directories on-the-fly if not exist
@@ -97,5 +97,5 @@ webdav_login <- "remotesensing"
 webdav_password <- "VNGRS2021!"
 
 #Maximum number of cells to read into memory.
-#The default value of maxmemory is 5e+09 (4.66GB)
-rasterOptions(maxmemory = 7e+09)
+#default value of maxmemory is 5e+09 (4.66GB)
+rasterOptions(maxmemory = 6e+09)

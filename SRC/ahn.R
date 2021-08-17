@@ -5,7 +5,6 @@
 
 #-----------------------------------------------------------------------------------------------
 
-
 #AHN3, 0.5 m resolutie Digitaal Surface Model (maaiveld + vegetatie, gebouwen etc. )
 
 #nationaalgeoregister.nl as direct source (aka not package)
@@ -15,17 +14,31 @@ ngr_source <- FALSE
 if(ngr_source==FALSE) {
 #request via R-package
 #raster  
-ahn_raster <- ahn_area(name = "BBOX rs", bbox = c(xmin, ymin, xmax,ymax), resolution = 0.5)
+dem <- "DSM" 
+ahn_dsm_raster <- rAHNextract::ahn_area(name = "BBOX rs", bbox = c(xmin, ymin, xmax, ymax), 
+                                    AHN = "AHN3",
+                                    dem = dem,
+                                    resolution = 0.5)
+
+dem <- "DTM" #  
+ahn_dtm_raster <- rAHNextract::ahn_area(name = "BBOX rs", bbox = c(xmin, ymin, xmax, ymax), 
+                                        AHN = "AHN3",
+                                        dem = dem,
+                                        resolution = 0.5)
+
+#digital surface model minus digital terrain model to obtain objects in flat terrain
+ahn_raster<-ahn_dsm_raster-ahn_dtm_raster
 
 #points cloud
 #ahn_points <- ahn_pc(name = "BBOX pc", bbox = c(xmin, ymin, xmax,ymax), AHN = "AHN2", gefilterd = TRUE)
 } else {
 #request directly via nationaalgeoregister.nl
+#TODO : DSM minus DTM  
 url <- parse_url("https://geodata.nationaalgeoregister.nl/ahn3/wcs?")
 url$query <- list(SERVICE = "WCS",
                   VERSION = "1.0.0",
                   REQUEST = "GetCoverage",
-                  COVERAGE = "ahn3_05m_DSM",
+                  COVERAGE = "ahn3_05m_DSM", #ahn3_05m_DTM
                   RESPONSE_CRS = "EPSG:28992",
                   CRS = "EPSG:28992",
                   BBOX = bbox,
@@ -34,13 +47,15 @@ url$query <- list(SERVICE = "WCS",
                   HEIGHT=604.097200000077 #why?
                   )
 request <- build_url(url);request
-ahn_ras <- as(stars::read_stars(request), "Raster")
-names(ahn_ras) <- "BBOXrs_rAHN3_05m_DSM"
+ahn_raster <- as(stars::read_stars(request), "Raster")
+names(ahn_raster) <- "BBOXrs_rAHN3_05m_DSM"
 }
 
 #adjust resolution (to match aerial image)
 #ahn_raster_hr <- raster::disaggregate(ahn_raster, fact=4)
 ahn_raster_hr <- terra::disaggregate(ahn_raster, fact=4)
+
+ahn_raster_hr<-ahn_raster
 
 #resample to match dimension, resolution and extent with nearest neighbor as method (we do not want to change values as with bilinear method)
 #ahn_raster_hr_rs <- raster::resample(ahn_raster_hr,ndvi, method = 'ngb') # or raster::projectRaster
@@ -50,8 +65,7 @@ ahn_raster_hr_rs <- terra::resample(ahn_raster_hr,ndvi, method = 'ngb') # or ras
 ahn_buurt <- terra::mask(ahn_raster_hr_rs, buurt_sf)
 ahn_tuinen <- terra::mask(ahn_raster_hr_rs, tuinen_sf)
 
-panden_polygons <- panden_sf %>% st_collection_extract("POLYGON") %>% st_make_valid() 
-ahn_panden <- terra::mask(ahn_raster_hr_rs, panden_polygons)
+ahn_panden <- terra::mask(ahn_raster_hr_rs, panden_sf)
 
 rm(ahn_raster, ahn_raster_ahn,ahn_raster_hr, ahn_raster_hr_rs)
 
@@ -116,11 +130,15 @@ aerial_rgb <- terra::plotRGB(ai_buurt,
                               alpha=0,#hide (0), show(255)
                               axes = TRUE,
                               main = paste0("AHN tuinen ", neighbourhood))
-plot(ahn_tuinen, add=TRUE, legend=FALSE)
+plot(ahn_tuinen, add=TRUE, legend=FALSE
+     #,col=colorRampPalette(c("red", "white", "blue"))(255)
+     )
 plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 aerial_rgb
 plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
 dev.off()
+
+
 
 rm(ahn_tuinen, ai_buurt)
