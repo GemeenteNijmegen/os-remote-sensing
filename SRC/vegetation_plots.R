@@ -269,6 +269,27 @@ plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=dpi)
 
 
+#stoned coverage of gardens
+ggplot(data = tuinen_sf) +
+  geom_sf(aes(fill = stone_cover)) +
+  scale_fill_viridis_c(option = "inferno", direction = 1,name = "stone cover proportion") +
+  geom_point(size = 0.4, aes(x = coord_tuinen$X,y = coord_tuinen$Y), colour="white", shape = 15) +
+  geom_text(
+    aes(
+      label = tuinen_sf$stone_cover,
+      x = coord_tuinen$X,
+      y = coord_tuinen$Y
+    ),
+    colour = "black",
+    size = 2.2,hjust = 0, nudge_x = 0.07
+  ) +
+  xlab("Longitude") + ylab("Latitude") +
+  theme_minimal()
+plot.nme = paste0('stoned_coverage_garden.png')
+plot.store <-paste0(plots.loc,plot.nme)
+ggsave(plot.store, dpi=320)
+
+
 #green coverage of panden
 
 #centroid panden

@@ -10,9 +10,9 @@
 
 #-----------------------------------------------------------------------------------------------
 
-#id neighbourhood
+#neighbourhood
 neighbourhood <- "BU08280002" #Oss
-#name municipality
+#municipality
 municipality <- "Oss"
 
 #neighbourhood <- "BU04411401" #Sint Maartensvlotbrug, Schagen
@@ -125,7 +125,7 @@ message("calculate vegetation indices")
 
 #--------------------------------------------------
 
-#Indicates amount of vegetation, distinguishes vegetation from soil, minimizes topographic effects
+#NDVI indicates amount of vegetation, distinguishes vegetation from soil, minimizes topographic effects
 
 #NDVI-ranges according to Deloitte research, e.o.
 #       -1 tot -0.1: Water
@@ -133,16 +133,16 @@ message("calculate vegetation indices")
 #       0.2 tot 0.4: Gras en lage vegetatie
 #       0.4 tot 1: Intensieve, en hoge vegetatie
 
-
 # NOTE: we differ from this list, except for the boundary of vegetation/non-vegetation (.2)
 
-#NDVI-ranges in this research
+#NDVI-ranges vegetation in this research
 #       -Inf to 0.2: Non-vegetation
 #        0.2 to 0.3: Grasses, weed
 #        0.3 to 0.5: Low vegetation
 #        0.5 to 1: #intensive vegetation, trees
 
-
+#NDVI-range verstening
+#       -0.1 tot 0.2: Stone, sand
 
 ndvi <- raster::overlay(red, nir, fun = function(x, y) { (y-x) / (y+x) })
 names(ndvi) <- "ndvi"
@@ -153,8 +153,8 @@ source(here::here('SRC/green_classes.R'))
 #create new raster with 1 for vegetation and 0 for non-vegetation.
 #vegetation fixed boundary at NDVI value 0.2
 #classification matrix
-reclass_binary <- c(-1, 0.2, 0,
-                    0.2, 1, 1)
+reclass_binary <- c(-1, 0.2, 0, #non-vegetation
+                    0.2, 1, 1) #vegetation
 
 #reshape the object into a matrix with columns and rows
 reclass_binary_m <- matrix(reclass_binary,
@@ -181,7 +181,7 @@ dev.off()
 veg_c <- raster::reclassify(ndvi, c(-Inf,0.2,1, #no vegetation
                                     0.2,0.3,2, #grasses, weed
                                     0.3,0.5,3, #low vegetation
-                                    0.5,1,4 #intensive vegetation, trees
+                                    0.5,1,4 #dense (and healthy) vegetation, trees
                                     ))
 
 #substantial green (fixed boundary at 0.3)
@@ -189,14 +189,11 @@ veg_c <- raster::reclassify(ndvi, c(-Inf,0.2,1, #no vegetation
 veg_s <- raster::reclassify(ndvi, cbind(-Inf, 0.3, NA))
 
 #grey / stone
-#       -0.1 tot 0.2: Zand/Grond/Rots
-stone <- raster::reclassify(ndvi, c(-Inf,-0.1,0, #water
+#NDVI -0.1 to 0.2: Zand/Grond/Rots
+stone_d <- raster::reclassify(ndvi, c(-Inf,-0.1,0, #water
                                     -0.1,0.2,1, #stone and sand
-                                    0.2,1,0, #vegetation
+                                    0.2,1,0 #vegetation
 ))
-
-
-
 
 #--------------------------------------------------
 
@@ -347,13 +344,11 @@ green_indices
 #-----------------------------------------------------------------------------------------------
 
 
-
 #-----------------------------------------------------------------------------------------------
 
 #tuinen
 
 #-----------------------------------------------------------------------------------------------
-
 
 message("calculate green coverage tuinen")
 
@@ -373,7 +368,6 @@ ndvi_avg<-exactextractr::exact_extract(ndvi,tuinen_sf,
 
 tuinen_sf$ndvi_avg<-round(ndvi_avg,1)
 
-
 #mean ndvi for vegetation per polygon element (green in tuin)
 ndvi_green_avg<-exactextractr::exact_extract(ndvi_above_threshold,tuinen_sf,
                                        #the mean cell value, weighted by the fraction of each cell
@@ -382,7 +376,6 @@ ndvi_green_avg<-exactextractr::exact_extract(ndvi_above_threshold,tuinen_sf,
                                        force_df =FALSE)
 
 tuinen_sf$ndvi_green_avg<-round(ndvi_green_avg,2)
-
 
 #vegetation cover per polygon element (tuin)
 ndvi_cover<-exactextractr::exact_extract(veg_g,tuinen_sf,
@@ -393,17 +386,16 @@ ndvi_cover<-exactextractr::exact_extract(veg_g,tuinen_sf,
 
 tuinen_sf$green_cover<-round(ndvi_cover*100,1)
 
-
-#3m+ tree cover per polygon element (tuin)
-tree_cover_3m<-exactextractr::exact_extract(veg_t3,tuinen_sf,
+#medium to high vegetation (3m+) cover per polygon element (tuin)
+veg_cover_3m<-exactextractr::exact_extract(veg_t3,tuinen_sf,
                                             #the mean cell value, weighted by the fraction of each cell
                                             #that is covered by the polygon
                                             fun ='mean',
                                             force_df =FALSE)
 
-tuinen_sf$tree_cover_3m<-round(tree_cover_3m*100,1)
+tuinen_sf$veg_cover_3m<-round(veg_cover_3m*100,1)
 
-#5m+ tree cover per polygon element (tuin)
+#tree (5m+) cover per polygon element (tuin)
 tree_cover_5m<-exactextractr::exact_extract(veg_t5,tuinen_sf,
                                          #the mean cell value, weighted by the fraction of each cell
                                          #that is covered by the polygon
@@ -411,6 +403,15 @@ tree_cover_5m<-exactextractr::exact_extract(veg_t5,tuinen_sf,
                                          force_df =FALSE)
 
 tuinen_sf$tree_cover_5m<-round(tree_cover_5m*100,1)
+
+#stone cover per polygon element (tuin)
+stone_cover<-exactextractr::exact_extract(stone_d,tuinen_sf,
+                                         #the mean cell value, weighted by the fraction of each cell
+                                         #that is covered by the polygon
+                                         fun ='mean',
+                                         force_df =FALSE)
+
+tuinen_sf$stone_cover<-round(stone_cover*100,1)
 
 #------------------------------------
 
@@ -427,12 +428,16 @@ tuinen_sf <- tuinen_sf %>%
                   green_surface = round((oppervlakte_tuin*(green_cover/100)),1),
                   #oppervlak bomen (5m and above)
                   tree_surface_5m = round((oppervlakte_tuin*(tree_cover_5m/100)),1),
-                  #oppervlak bomen (3m and above)
-                  tree_surface_3m = round((oppervlakte_tuin*(tree_cover_3m/100)),1),
-                  #aandeel bomen in vegetatie (3m and above)
-                  treeingreen_cover = round(tree_surface_3m/green_surface*100,1),
+                  #oppervlak middelhoge en hoge vegetatie (3m and above)
+                  veg_surface_3m = round((oppervlakte_tuin*(veg_cover_3m/100)),1),
+                  #oppervlak middelhoge en hoge vegetatie (3m and above)
+                  tree_surface_5m = round((oppervlakte_tuin*(tree_cover_5m/100)),1),
+                  #oppervlak bomen (5m and above)
+                  treeingreen_cover = round(tree_surface_5m/green_surface*100,1),
                   #oppervlak potentieel vegetatie
                   green_potential = oppervlakte_tuin-green_surface,
+                  #oppervlakte versteend
+                  stone_surface = round((oppervlakte_tuin*(stone_cover/100)),1),
                   #buurtcode meenemen
                   buurt_selection = neighbourhood
                   )
@@ -448,25 +453,27 @@ buurt_garden_stats <- tuinen_sf %>%
                   garden_surface_sum = sum(oppervlakte_tuin, na.rm = TRUE),
                   #aandeel vegetatie in tuin
                   green_cover_avg = round(mean(green_cover, na.rm = TRUE),1),
-                  #aandeel bomen in tuin (3m and above)
-                  tree_cover_3m_avg = round(mean(tree_cover_3m, na.rm = TRUE),1),
+                  #aandeel middelhoge en hoge vegetatie in tuin (3m and above)
+                  veg_cover_3m_avg = round(mean(veg_cover_3m, na.rm = TRUE),1),
                   #aandeel bomen in tuin (5m and above)
                   tree_cover_5m_avg = round(mean(tree_cover_5m, na.rm = TRUE),1),
                   #oppervlak vegetatie
                   green_surface_sum = sum(green_surface, na.rm = TRUE),
-                  #oppervlak bomen (3m and above)
-                  tree_surface_sum = sum(tree_surface_3m, na.rm = TRUE),
+                  #oppervlak middelhoge en hoge vegetatie (3m and above)
+                  veg3m_surface_sum = sum(veg_surface_3m, na.rm = TRUE),
+                  #oppervlak bomen (5m and above)
+                  tree_surface_sum = sum(tree_surface_5m, na.rm = TRUE),
                   #aandeel bomen in vegetatie
                   treeingreen_cover_avg = round(mean(treeingreen_cover,na.rm = TRUE),1),
                   #oppervlak potentieel vegetatie
                   green_potential_sum = sum(green_potential, na.rm = TRUE),
+                  #aandeel versteend in tuin
+                  stone_cover_avg = round(mean(stone_cover, na.rm = TRUE),1),
                   #gemiddelde NDVI waarde tuin
                   ndvi_avg = round(mean(ndvi_avg,na.rm = TRUE),1),
                   #gemiddelde NDVI waarde vegetatie
                   ndvi_green_avg = round(mean(ndvi_green_avg,na.rm = TRUE),1)
                   )
-
-
 
 buurt_garden_stats <- cbind(buurt_sf,buurt_garden_stats)
 
@@ -488,9 +495,7 @@ ndvi_cover_panden<-exactextractr::exact_extract(veg_g,panden_sf,
                                          force_df =FALSE)
 
 panden_sf$green_cover<-round(ndvi_cover_panden*100,1)
-
 panden_sf$oppervlakte_pand_unit = st_area(panden_sf)
-
 panden_sf$oppervlakte_pand = as.numeric(panden_sf$oppervlakte_pand_unit)
 
 #surface culculation (m2)
@@ -498,7 +503,6 @@ panden_sf <- panden_sf %>%
         mutate(
                 #oppervlakte vegetatie
                 green_surface = round((oppervlakte_pand*(green_cover/100)),1),
-
                 #oppervlak potentieel vegetatie
                 green_potential = oppervlakte_pand-green_surface,
                 #buurtcode meenemen
@@ -506,22 +510,17 @@ panden_sf <- panden_sf %>%
         )
 
 buurt_roofgarden_stats <- panden_sf %>%
-        group_by(buurt_selection)  %>%
+        group_by(buurt_selection) %>%
         summarise(
                 #tuin oppervlak
                 roofgarden_surface_sum = sum(oppervlakte_pand, na.rm = TRUE),
                 #aandeel vegetatie in tuin
                 green_cover_avg = round(mean(green_cover, na.rm = TRUE),1),
-
                 #oppervlak vegetatie
                 green_surface_sum = sum(green_surface, na.rm = TRUE),
                 #oppervlak potentieel vegetatie
                 green_potential_sum = sum(green_potential, na.rm = TRUE)
-
         )
-
-
-
 
 buurt_roofgarden_stats <- cbind(buurt_sf,buurt_roofgarden_stats)
 
@@ -557,5 +556,3 @@ end_time - start_time
 
 rlang::last_error()
 rlang::last_trace()
-
-

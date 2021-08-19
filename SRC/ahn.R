@@ -5,8 +5,7 @@
 
 #-----------------------------------------------------------------------------------------------
 
-#AHN3, 0.5 m resolution based on Digitaal Surface Model (DSM) and
-#digital terrain model (DTM)
+#AHN3, 0.5 m resolution based on Digital Surface Model (DSM) and Digital Terrain Model (DTM)
 
 #nationaalgeoregister.nl as direct source (aka not package)
 ngr_source <- FALSE #FALSE (default), is faster
@@ -14,18 +13,16 @@ ngr_source <- FALSE #FALSE (default), is faster
 #raster
 if(ngr_source==FALSE) {
 #request via R-package
-#surface raster
-dem <- "DSM"
+#surface raster (DSM)
 ahn_dsm_raster <- rAHNextract::ahn_area(name = "BBOX rs", bbox = c(xmin, ymin, xmax, ymax),
                                     AHN = "AHN3",
-                                    dem = dem,
+                                    dem = "DSM",
                                     resolution = 0.5)
 
-#maaiveld raster
-dem <- "DTM" #
+#maaiveld raster (DTM)
 ahn_dtm_raster <- rAHNextract::ahn_area(name = "BBOX rs", bbox = c(xmin, ymin, xmax, ymax),
                                         AHN = "AHN3",
-                                        dem = dem,
+                                        dem = "DTM",
                                         resolution = 0.5)
 
 #points cloud
@@ -33,7 +30,7 @@ ahn_dtm_raster <- rAHNextract::ahn_area(name = "BBOX rs", bbox = c(xmin, ymin, x
 } else {
 #request directly via nationaalgeoregister.nl
 
-#surface raster
+#surface raster (DSM)
 url <- parse_url("https://geodata.nationaalgeoregister.nl/ahn3/wcs?")
 url$query <- list(SERVICE = "WCS",
                   VERSION = "1.0.0",
@@ -50,7 +47,7 @@ request <- build_url(url);request
 ahn_dsm_raster <- as(stars::read_stars(request), "Raster")
 names(ahn_dsm_raster) <- "BBOXrs_rAHN3_05m_DSM"
 
-#maaiveld raster
+#maaiveld raster (DTM)
 url <- parse_url("https://geodata.nationaalgeoregister.nl/ahn3/wcs?")
 url$query <- list(SERVICE = "WCS",
                   VERSION = "1.0.0",
