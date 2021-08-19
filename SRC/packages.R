@@ -30,7 +30,7 @@ if(proj_env == TRUE) {
 
 #-----------------------------------------------------------------------------------------------
 
-#shutup RGDAL
+#shut-up RGDAL
 options("rgdal_show_exportToProj4_warnings"="none")
 
 #prevents an auxiliary file being written next to *.gpkg
@@ -63,7 +63,7 @@ packages <- c(
   'sf',
   #Geographic Data Analysis and Modeling
   'raster',
-  #replacement for raster (TODO rewrite raster functions to terra)
+  #replacement for raster (TODO rewrite remaining raster functions to terra)
   'terra',
   #Spatiotemporal Arrays, Raster and Vector Data Cubes
   'stars',
@@ -106,7 +106,7 @@ is_rahne_available <- require("rAHNextract")
 
 if(is_rahne_available==FALSE) {
   devtools::install_github("Jellest/rAHNextract")
-}  
+}
 
 library(rAHNextract)
 
@@ -127,6 +127,7 @@ getOption("gdalUtils_gdalPath")[[1]]$version
 
 #external dependencies versions of the libraries linked to sf
 sf::sf_extSoftVersion()[1:3]
+#lwgeom version
 sf::sf_extSoftVersion()["lwgeom"]
 
 #review packages loaded

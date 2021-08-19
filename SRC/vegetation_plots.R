@@ -14,7 +14,7 @@ print(mplot_p1)
 dev.off()
 
 #lattice-style levelplot NDVI
-png(paste0(plots.loc,"rs_ndvi_levelplot_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
+png(paste0(plots.loc,"rs_ndvi_levelplot_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
 mplot_p2<-rasterVis::levelplot(ndvi)
 #+ latticeExtra::layer(sp.polygons(percelen_sf, col="white", lwd=0.2))
 print(mplot_p2)
@@ -30,7 +30,7 @@ mplot_ndvi <- rasterVis::gplot(ndvi) +
   #geom_sf(aes(st_sf(st_geometry(tuinen_sf)))) +
   theme_minimal() +
   coord_fixed() +
-labs(fill = "NDVI") 
+labs(fill = "NDVI")
 plot.nme = paste0('rs_ndvi_',neighbourhood,'.png')
 plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=dpi)
@@ -101,7 +101,7 @@ rm(list=setdiff(ls(pattern = "^mplot_"), lsf.str()))
 # white background
 
 #plot rgb and ndvi
-png(paste0(plots.loc,"rs_rgb_ndvi_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
+png(paste0(plots.loc,"rs_rgb_ndvi_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
 par(col.axis = "white", col.lab = "white", tck = 0,mar = c(1,1,1,1))
 terra::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("NDVI ", neighbourhood))
 plot(ndvi, add=TRUE, legend=FALSE)
@@ -109,9 +109,8 @@ plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
 
-
 #plot rgb and vegetation
-png(paste0(plots.loc,"rs_rgb_vegetation_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
+png(paste0(plots.loc,"rs_rgb_vegetation_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
 par(col.axis = "white", col.lab = "white", tck = 0,mar = c(1,1,1,1))
 raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("vegetation ", neighbourhood))
 plot(veg_g, add=TRUE, legend=FALSE)
@@ -120,7 +119,7 @@ box(col = "white")
 dev.off()
 
 #plot rgb and substantial green
-png(paste0(plots.loc,"rs_rgb_veg_substantial_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
+png(paste0(plots.loc,"rs_rgb_veg_substantial_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
 par(col.axis = "white", col.lab = "white", tck = 0,mar = c(1,1,1,1))
 raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("subtantial vegetation ", neighbourhood))
 plot(veg_s, add=TRUE, legend=FALSE)
@@ -129,7 +128,7 @@ box(col = "white")
 dev.off()
 
 #plot rgb and classes (unsupervised)
-png(paste0(plots.loc,"rs_rgb_veg_classes_unsupervised_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
+png(paste0(plots.loc,"rs_rgb_veg_classes_unsupervised_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
 par(col.axis = "white", col.lab = "white", tck = 0,mar = c(1,1,1,1))
 raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("NDVI classes (unsupervised) ", neighbourhood))
 plot(veg_clus, add=TRUE, legend=FALSE)
@@ -138,7 +137,7 @@ box(col = "white")
 dev.off()
 
 #plot rgb and classes (fixed)
-png(paste0(plots.loc,"rs_rgb_veg_classes_fixed_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
+png(paste0(plots.loc,"rs_rgb_veg_classes_fixed_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
 par(col.axis = "white", col.lab = "white", tck = 0,mar = c(1,1,1,1))
 raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("NDVI classes (fixed) ", neighbourhood))
 plot(veg_c, add=TRUE, legend=FALSE)
@@ -147,7 +146,7 @@ box(col = "white")
 dev.off()
 
 #plot RVI
-png(paste0(plots.loc,"rs_rvi_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
+png(paste0(plots.loc,"rs_rvi_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
 par(col.axis = "white", col.lab = "white", tck = 0,mar = c(1,1,1,1))
 raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("RVI ", neighbourhood))
 plot(rvi, add=TRUE, legend=FALSE)
@@ -156,9 +155,9 @@ box(col = "white")
 dev.off()
 
 #vegetation (3m and above)
-png(paste0(plots.loc,"rs_rgb_veg_3m_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
+png(paste0(plots.loc,"rs_rgb_veg_3m_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
 par(col.axis = "white", col.lab = "white", tck = 0,mar = c(1,1,1,1))
-raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',alpha=0,#hide (0), show(255)
+raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin", colNA='transparent', alpha=0,#hide (0), show(255)
                 main=paste0("3m+ vegetation ", neighbourhood))
 plot(veg_t3, add=TRUE, legend=FALSE)
 plot(percelen_sf$geom, add=TRUE, legend=FALSE)
@@ -166,9 +165,9 @@ box(col = "white")
 dev.off()
 
 #trees (5m and above)
-png(paste0(plots.loc,"rs_rgb_veg_5m_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
+png(paste0(plots.loc,"rs_rgb_veg_5m_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
 par(col.axis = "white", col.lab = "white", tck = 0,mar = c(1,1,1,1))
-raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',alpha=0,#hide (0), show(255)
+raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin", colNA='transparent', alpha=0,#hide (0), show(255)
                 main=paste0("5m+ trees ", neighbourhood))
 plot(veg_t5, add=TRUE, legend=FALSE)
 plot(percelen_sf$geom, add=TRUE, legend=FALSE)
@@ -191,7 +190,7 @@ ggplot(data = tuinen_sf) +
     size = 1.9,hjust = 0, nudge_x = 0.07
   ) +
   xlab("Longitude") + ylab("Latitude") +
-  theme_minimal() 
+  theme_minimal()
 plot.nme = paste0('NDVI_mean_garden.png')
 plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=320)
@@ -211,7 +210,7 @@ ggplot(data = tuinen_sf) +
     size = 1.9,hjust = 0, nudge_x = 0.07
   ) +
   xlab("Longitude") + ylab("Latitude") +
-  theme_minimal() 
+  theme_minimal()
 plot.nme = paste0('NDVI_mean_vegetation_garden.png')
 plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=320)
@@ -226,10 +225,10 @@ hist(tuinen_sf$ndvi_avg,
 dev.off()
 
 #distribution of gardens over NDVI
-ggplot(tuinen_sf, aes(x = ndvi_avg)) +  
+ggplot(tuinen_sf, aes(x = ndvi_avg)) +
   geom_histogram(aes(y = (..count..)/sum(..count..)), binwidth = 0.02,color="lightblue", fill="steelblue") +
-  stat_bin(aes(y=(..count..)/sum(..count..), 
-               label=paste0(round((..count..)/sum(..count..)*100,1),"%")), 
+  stat_bin(aes(y=(..count..)/sum(..count..),
+               label=paste0(round((..count..)/sum(..count..)*100,1),"%")),
            geom="text", size=4, binwidth = 0.08, vjust=-1.5) +
   #scale_x_continuous(breaks = seq(0.2,0.8,0.1))+
   theme_light()
@@ -258,13 +257,13 @@ plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=320)
 
 #distribution of gardens over vegetation coverage
-ggplot(tuinen_sf, aes(x = green_cover)) +  
+ggplot(tuinen_sf, aes(x = green_cover)) +
   geom_histogram(aes(y = (..count..)/sum(..count..)), binwidth = 20,color="lightblue", fill="steelblue") +
-  stat_bin(aes(y=(..count..)/sum(..count..), 
-               label=paste0(round((..count..)/sum(..count..)*100,1),"%")), 
+  stat_bin(aes(y=(..count..)/sum(..count..),
+               label=paste0(round((..count..)/sum(..count..)*100,1),"%")),
            geom="text", size=4, binwidth = 20, vjust=-1.5) +
   #scale_x_continuous(breaks = seq(0.2,0.8,0.1))+
-  theme_light() 
+  theme_light()
 plot.nme = paste0('rs_gardens_distibution_coverage_',neighbourhood,'.png')
 plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=dpi)
@@ -273,18 +272,18 @@ ggsave(plot.store, dpi=dpi)
 #green coverage of panden
 
 #centroid panden
-cntrd_panden <- st_centroid(st_geometry(panden_polygons))
+cntrd_panden <- st_centroid(st_geometry(panden_sf))
 
 #extract coordinates
 coord_panden<-as.data.frame(st_coordinates(cntrd_panden))
 
-ggplot(data = panden_polygons) +
+ggplot(data = panden_sf) +
   geom_sf(aes(fill = ndvi_cover_panden)) +
   scale_fill_viridis_c(option = "viridis", direction = 1,name = "green cover proportion") +
   geom_point(size = 0.4, aes(x = coord_panden$X,y = coord_panden$Y), colour="white", shape = 15) +
   geom_text(
     aes(
-      label = panden_polygons$green_cover,
+      label = panden_sf$green_cover,
       x = coord_panden$X,
       y = coord_panden$Y
     ),

@@ -1,44 +1,44 @@
 
 #-----------------------------------------------------------------------------------------------
 
-#Current Dutch Elevation (Actueel Hoogtebestand Nederland, AHN) 
+#Current Dutch Elevation (Actueel Hoogtebestand Nederland, AHN)
 
 #-----------------------------------------------------------------------------------------------
 
-#AHN3, 0.5 m resolutie Digitaal Surface Model (maaiveld + vegetatie, gebouwen etc. )
+#AHN3, 0.5 m resolution based on Digitaal Surface Model (DSM) and
+#digital terrain model (DTM)
 
 #nationaalgeoregister.nl as direct source (aka not package)
-ngr_source <- FALSE 
+ngr_source <- FALSE #FALSE (default), is faster
 
 #raster
 if(ngr_source==FALSE) {
 #request via R-package
-#raster  
-dem <- "DSM" 
-ahn_dsm_raster <- rAHNextract::ahn_area(name = "BBOX rs", bbox = c(xmin, ymin, xmax, ymax), 
+#surface raster
+dem <- "DSM"
+ahn_dsm_raster <- rAHNextract::ahn_area(name = "BBOX rs", bbox = c(xmin, ymin, xmax, ymax),
                                     AHN = "AHN3",
                                     dem = dem,
                                     resolution = 0.5)
 
-dem <- "DTM" #  
-ahn_dtm_raster <- rAHNextract::ahn_area(name = "BBOX rs", bbox = c(xmin, ymin, xmax, ymax), 
+#maaiveld raster
+dem <- "DTM" #
+ahn_dtm_raster <- rAHNextract::ahn_area(name = "BBOX rs", bbox = c(xmin, ymin, xmax, ymax),
                                         AHN = "AHN3",
                                         dem = dem,
                                         resolution = 0.5)
-
-#digital surface model minus digital terrain model to obtain objects in flat terrain
-ahn_raster<-ahn_dsm_raster-ahn_dtm_raster
 
 #points cloud
 #ahn_points <- ahn_pc(name = "BBOX pc", bbox = c(xmin, ymin, xmax,ymax), AHN = "AHN2", gefilterd = TRUE)
 } else {
 #request directly via nationaalgeoregister.nl
-#TODO : DSM minus DTM  
+
+#surface raster
 url <- parse_url("https://geodata.nationaalgeoregister.nl/ahn3/wcs?")
 url$query <- list(SERVICE = "WCS",
                   VERSION = "1.0.0",
                   REQUEST = "GetCoverage",
-                  COVERAGE = "ahn3_05m_DSM", #ahn3_05m_DTM
+                  COVERAGE = "ahn3_05m_DSM",
                   RESPONSE_CRS = "EPSG:28992",
                   CRS = "EPSG:28992",
                   BBOX = bbox,
@@ -47,9 +47,31 @@ url$query <- list(SERVICE = "WCS",
                   HEIGHT=604.097200000077 #why?
                   )
 request <- build_url(url);request
-ahn_raster <- as(stars::read_stars(request), "Raster")
-names(ahn_raster) <- "BBOXrs_rAHN3_05m_DSM"
+ahn_dsm_raster <- as(stars::read_stars(request), "Raster")
+names(ahn_dsm_raster) <- "BBOXrs_rAHN3_05m_DSM"
+
+#maaiveld raster
+url <- parse_url("https://geodata.nationaalgeoregister.nl/ahn3/wcs?")
+url$query <- list(SERVICE = "WCS",
+                  VERSION = "1.0.0",
+                  REQUEST = "GetCoverage",
+                  COVERAGE = "ahn3_05m_DTM",
+                  RESPONSE_CRS = "EPSG:28992",
+                  CRS = "EPSG:28992",
+                  BBOX = bbox,
+                  FORMAT="GEOTIFF_FLOAT32",
+                  WIDTH=701.765000000014, #why?
+                  HEIGHT=604.097200000077 #why?
+)
+request <- build_url(url);request
+ahn_dtm_raster <- as(stars::read_stars(request), "Raster")
+names(ahn_dtm_raster) <- "BBOXrs_rAHN3_05m_DTM"
 }
+
+#digital surface model minus digital terrain model to obtain height of objects
+ahn_raster<-ahn_dsm_raster-ahn_dtm_raster
+
+rm(ahn_dsm_raster,ahn_dtm_raster)
 
 #adjust resolution (to match aerial image)
 #ahn_raster_hr <- raster::disaggregate(ahn_raster, fact=4)
@@ -64,7 +86,6 @@ ahn_raster_hr_rs <- terra::resample(ahn_raster_hr,ndvi, method = 'ngb') # or ras
 #mask rasters
 ahn_buurt <- terra::mask(ahn_raster_hr_rs, buurt_sf)
 ahn_tuinen <- terra::mask(ahn_raster_hr_rs, tuinen_sf)
-
 ahn_panden <- terra::mask(ahn_raster_hr_rs, panden_sf)
 
 rm(ahn_raster, ahn_raster_ahn,ahn_raster_hr, ahn_raster_hr_rs)
@@ -104,7 +125,7 @@ ahn_panden %>% #RasterLayer
 #Plots
 
 #buurt
-png(paste0(plots.loc,"rs_ahn_buurt_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
+png(paste0(plots.loc,"rs_ahn_buurt_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180, units="px")
 par(col.axis = "white", col.lab = "white", tck = 0)
 aerial_rgb <- terra::plotRGB(ai_buurt,
                               r = 1, g = 2, b = 3,
@@ -121,7 +142,7 @@ plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
 dev.off()
 
 #tuinen
-png(paste0(plots.loc,"rs_ahn_tuinen_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
+png(paste0(plots.loc,"rs_ahn_tuinen_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180, units="px")
 par(col.axis = "white", col.lab = "white", tck = 0)
 aerial_rgb <- terra::plotRGB(ai_buurt,
                               r = 1, g = 2, b = 3,
@@ -138,7 +159,6 @@ box(col = "white")
 aerial_rgb
 plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
 dev.off()
-
 
 
 rm(ahn_tuinen, ai_buurt)
