@@ -23,14 +23,14 @@ options(encoding = "UTF-8")
 options(stringsAsFactors = FALSE)
 
 #prevent exponential / scientific notation.
-options(scipen = 999) 
+options(scipen = 999)
 
 #turn off warnings
 if(debug_mode==FALSE) {
   options(warn = -1)
 } else {
-  options(warn = 0)  
-} 
+  options(warn = 0)
+}
 
 #turn of dplyr's summarise notifications
 options(dplyr.summarise.inform = FALSE)
@@ -74,6 +74,14 @@ clear_locations <- c(plots.loc, data.loc)
 f <- list.files(clear_locations, include.dirs = F, full.names = T, recursive = T)
 # remove the files
 file.remove(f)
+
+#location geopackages
+#vector layers (polygons buurt, percelen, panden, tuinen)
+gpkg_vector <- paste0(data.loc,neighbourhood,"_vector.gpkg")
+#raster data: aerial photo, NH3
+gpkg_raster <- paste0(data.loc,neighbourhood,"_raster.gpkg")
+#raster data: vegetation indices
+gpkg_indices <- paste0(data.loc,neighbourhood,"_green_indices.gpkg")
 
 #dimension and quality plots
 graph_height <- 6

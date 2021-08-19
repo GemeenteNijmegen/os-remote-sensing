@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------------------------
 
 # date created: 2021-05-11
-# date modified: 2021-08-17
+# date modified: 2021-08-19
 
 #-----------------------------------------------------------------------------------------------
 
@@ -56,18 +56,6 @@ source(here::here('SRC/globals.R'))
 
 #-----------------------------------------------------------------------------------------------
 
-# Settings
-
-#-----------------------------------------------------------------------------------------------
-
-#location geopackages
-#vector layers (polygons buurt, percelen, panden, tuinen)
-gpkg_vector <- paste0(data.loc,neighbourhood,"_vector.gpkg")
-#raster data: aerial photo, NH3
-gpkg_raster <- paste0(data.loc,neighbourhood,"_raster.gpkg")
-#raster data: vegetation indices
-gpkg_indices <- paste0(data.loc,neighbourhood,"_green_indices.gpkg")
-
 #pipeline timer
 start_time <- Sys.time()
 
@@ -80,14 +68,14 @@ start_time <- Sys.time()
 #geopackage containing gemeente, buurt, percelen, panden and tuinen polygons
 
 #prefab geopackage (from Python procedure)
-prefab_polygons <- FALSE #default (T) 
+prefab_polygons <- FALSE #default (T)
 
 if(prefab_polygons==TRUE) {
-#download prefab geopackage from VNG Stack        
- source(here::here('SRC/vector_gpkg_request.R'))       
+#download prefab geopackage from VNG Stack
+ source(here::here('SRC/vector_gpkg_request.R'))
 } else {
 #create geopackage
- source(here::here('SRC/buurt_pand_perceel_request.R')) 
+ source(here::here('SRC/buurt_pand_perceel_request.R'))
 }
 
 #-----------------------------------------------------------------------------------------------
@@ -112,7 +100,7 @@ coord_tuinen<-as.data.frame(st_coordinates(cntrd_tuinen))
 
 #-----------------------------------------------------------------------------------------------
 
-# Aerial image 
+# Aerial image
 
 #-----------------------------------------------------------------------------------------------
 
@@ -139,9 +127,9 @@ message("calculate vegetation indices")
 
 #Indicates amount of vegetation, distinguishes vegetation from soil, minimizes topographic effects
 
-#NDVI-ranges according to Deloitte research, e.o. 
+#NDVI-ranges according to Deloitte research, e.o.
 #       -1 tot -0.1: Water
-#       -0.1 tot 0.2: Zand/Grond/Rots 
+#       -0.1 tot 0.2: Zand/Grond/Rots
 #       0.2 tot 0.4: Gras en lage vegetatie
 #       0.4 tot 1: Intensieve, en hoge vegetatie
 
@@ -179,7 +167,7 @@ veg_g <- raster::reclassify(ndvi,reclass_binary_m)
 veg_contour <- raster::rasterToContour(veg_g)
 #transform to polygon
 veg_polygon <- veg_contour %>% st_as_sf() %>% st_polygonize()
-veg_polygon$oppervlakte <- st_area(veg_polygon$geometry) 
+veg_polygon$oppervlakte <- st_area(veg_polygon$geometry)
 
 sf::st_write(veg_polygon, dsn=gpkg_vector, layer='vegetation_contour',layer_options = "OVERWRITE=YES",append=FALSE)
 
@@ -199,6 +187,16 @@ veg_c <- raster::reclassify(ndvi, c(-Inf,0.2,1, #no vegetation
 #substantial green (fixed boundary at 0.3)
 #reclassifying nvdi (all values between negative infinity and 0.3 be NAs)
 veg_s <- raster::reclassify(ndvi, cbind(-Inf, 0.3, NA))
+
+#grey / stone
+#       -0.1 tot 0.2: Zand/Grond/Rots
+stone <- raster::reclassify(ndvi, c(-Inf,-0.1,0, #water
+                                    -0.1,0.2,1, #stone and sand
+                                    0.2,1,0, #vegetation
+))
+
+
+
 
 #--------------------------------------------------
 
@@ -267,7 +265,7 @@ rm(reclass_binary, reclass_binary_m, ahn_buurt, ahn_panden)
 
 #-----------------------------------------------------------------------------------------------
 
-# Polygon filtering, green coverage and mean NDVI calculations 
+# Polygon filtering, green coverage and mean NDVI calculations
 
 #-----------------------------------------------------------------------------------------------
 
@@ -275,8 +273,8 @@ rm(reclass_binary, reclass_binary_m, ahn_buurt, ahn_panden)
 #https://cran.r-project.org/web/packages/exactextractr/exactextractr.pdf
 #https://cran.r-project.org/web/packages/exactextractr/readme/README.html
 
-#Results from exactextractr are more accurate than other methods because raster pixels that are partially 
-#covered by polygons are considered. The significance of partial coverage increases for polygons that are 
+#Results from exactextractr are more accurate than other methods because raster pixels that are partially
+#covered by polygons are considered. The significance of partial coverage increases for polygons that are
 #small or irregularly shaped.
 
 raster::crs(ndvi) <- raster::crs(percelen_sf)
@@ -331,7 +329,7 @@ source(here::here('SRC/vegetation_gpkg.R'))
 vegetation_rasterbrick <- FALSE
 
 if(vegetation_rasterbrick==TRUE) {
-#read geopackage, create RasterBrick 
+#read geopackage, create RasterBrick
 green_indices <-
         read_stars(paste0(data.loc,neighbourhood,"_green_indices.gpkg")
                    #subsetting
@@ -396,7 +394,7 @@ ndvi_cover<-exactextractr::exact_extract(veg_g,tuinen_sf,
 tuinen_sf$green_cover<-round(ndvi_cover*100,1)
 
 
-#3m+ tree cover per polygon element (tuin) 
+#3m+ tree cover per polygon element (tuin)
 tree_cover_3m<-exactextractr::exact_extract(veg_t3,tuinen_sf,
                                             #the mean cell value, weighted by the fraction of each cell
                                             #that is covered by the polygon
@@ -405,7 +403,7 @@ tree_cover_3m<-exactextractr::exact_extract(veg_t3,tuinen_sf,
 
 tuinen_sf$tree_cover_3m<-round(tree_cover_3m*100,1)
 
-#5m+ tree cover per polygon element (tuin) 
+#5m+ tree cover per polygon element (tuin)
 tree_cover_5m<-exactextractr::exact_extract(veg_t5,tuinen_sf,
                                          #the mean cell value, weighted by the fraction of each cell
                                          #that is covered by the polygon
@@ -425,7 +423,7 @@ tuinen_sf$oppervlakte_tuin <- as.numeric(tuinen_sf$oppervlakte_tuin_unit)
 #surface culculation (m2)
 tuinen_sf <- tuinen_sf %>%
            mutate(
-                  #oppervlakte vegetatie 
+                  #oppervlakte vegetatie
                   green_surface = round((oppervlakte_tuin*(green_cover/100)),1),
                   #oppervlak bomen (5m and above)
                   tree_surface_5m = round((oppervlakte_tuin*(tree_cover_5m/100)),1),
@@ -437,17 +435,17 @@ tuinen_sf <- tuinen_sf %>%
                   green_potential = oppervlakte_tuin-green_surface,
                   #buurtcode meenemen
                   buurt_selection = neighbourhood
-                  )        
- 
+                  )
+
 #gardens with 5m and above, but no vegetation cover (todo: tackle in polygon section!) : infinite to Na
 #is.na(tuinen_sf$treeingreen_cover) <- sapply(tuinen_sf$treeingreen_cover, is.infinite)
-       
+
 #compute buurt statistics
 buurt_garden_stats <- tuinen_sf %>%
         group_by(buurt_selection)  %>%
         summarise(
                   #tuin oppervlak
-                  garden_surface_sum = sum(oppervlakte_tuin, na.rm = TRUE), 
+                  garden_surface_sum = sum(oppervlakte_tuin, na.rm = TRUE),
                   #aandeel vegetatie in tuin
                   green_cover_avg = round(mean(green_cover, na.rm = TRUE),1),
                   #aandeel bomen in tuin (3m and above)
@@ -465,9 +463,9 @@ buurt_garden_stats <- tuinen_sf %>%
                   #gemiddelde NDVI waarde tuin
                   ndvi_avg = round(mean(ndvi_avg,na.rm = TRUE),1),
                   #gemiddelde NDVI waarde vegetatie
-                  ndvi_green_avg = round(mean(ndvi_green_avg,na.rm = TRUE),1) 
-                  ) 
- 
+                  ndvi_green_avg = round(mean(ndvi_green_avg,na.rm = TRUE),1)
+                  )
+
 
 
 buurt_garden_stats <- cbind(buurt_sf,buurt_garden_stats)
@@ -498,29 +496,29 @@ panden_sf$oppervlakte_pand = as.numeric(panden_sf$oppervlakte_pand_unit)
 #surface culculation (m2)
 panden_sf <- panden_sf %>%
         mutate(
-                #oppervlakte vegetatie 
+                #oppervlakte vegetatie
                 green_surface = round((oppervlakte_pand*(green_cover/100)),1),
 
                 #oppervlak potentieel vegetatie
                 green_potential = oppervlakte_pand-green_surface,
                 #buurtcode meenemen
                 buurt_selection = neighbourhood
-        )   
+        )
 
 buurt_roofgarden_stats <- panden_sf %>%
         group_by(buurt_selection)  %>%
         summarise(
                 #tuin oppervlak
-                roofgarden_surface_sum = sum(oppervlakte_pand, na.rm = TRUE), 
+                roofgarden_surface_sum = sum(oppervlakte_pand, na.rm = TRUE),
                 #aandeel vegetatie in tuin
                 green_cover_avg = round(mean(green_cover, na.rm = TRUE),1),
-                
+
                 #oppervlak vegetatie
                 green_surface_sum = sum(green_surface, na.rm = TRUE),
                 #oppervlak potentieel vegetatie
                 green_potential_sum = sum(green_potential, na.rm = TRUE)
-               
-        ) 
+
+        )
 
 
 
@@ -539,7 +537,7 @@ source(here::here('SRC/vegetation_plots.R'))
 
 #-----------------------------------------------------------------------------------------------
 
-#green classes metrics 
+#green classes metrics
 
 #-----------------------------------------------------------------------------------------------
 #under construction
