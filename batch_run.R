@@ -35,13 +35,15 @@ source(here::here('SRC/globals.R'))
 #please declare (multiple) buurtcodes in:
 BU_codes <- read.csv(here::here('Processing/BU_CODE_sample.csv'))
 
-BU_codes <- as.data.frame(BU_codes)
+# for testing purposes only
+BU_codes <- BU_codes[1:3,, drop = FALSE]
 
 for (i in 1:nrow(BU_codes)) {
-
-neighbourhood <- BU_codes$buurtcode[i]
-
-source(here::here('00_RemoteSensing_NDVI.R'))
-
+  gc()
+  #cat("iteration =", i, "\n")
+  neighbourhood <- BU_codes$BU_CODE[i]
+  source(here::here('00_RemoteSensing_NDVI.R'))
+  rm(list=setdiff(ls(), "BU_codes"))
 }
+
   
