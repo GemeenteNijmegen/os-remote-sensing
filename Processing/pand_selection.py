@@ -7,14 +7,17 @@ from owslib.wfs import WebFeatureService
 # Load variables
 from start import gpkg_vector
 
-## Start script
-# Read buurt
+## Start pand selection script
+# Read buurt-polygon
 gdf_buurt = gpd.read_file(gpkg_vector, driver='GPKG', layer='buurt')
 
+# Define startindex for WFS-request. A maximum of 1000 features return from WFS-request. To receive all features in a buurt the startindex for each request is new.
 loops = [0,1000,2000,3000,4000,5000]
 
+# Create empty dataframe
 empty_df = []  # empty list which will hold your dataframes
 
+# Multiple WFS-requests
 for loop in loops:
     bbox_geom = gdf_buurt.bounds
     lowerCorner = bbox_geom['minx'].astype(str) + ' ' + bbox_geom['miny'].astype(str)
@@ -34,17 +37,14 @@ for loop in loops:
     gdf_pandenbuurt = gpd.read_file(q)
     empty_df.append(gdf_pandenbuurt)
 
+# Merge all WFS-rquest in one df
 gdf_allpandenbuurt = pd.concat(empty_df, ignore_index=True)
 
+# Set projection
 gdf_allpandenbuurt = gdf_allpandenbuurt.set_crs("EPSG:28992")
+
+# Clip panden with buurt
 gdf_allpandenbuurt = gpd.clip(gdf_allpandenbuurt, gdf_buurt)
 
+# Write panden-polygon to gpkg
 gdf_allpandenbuurt.to_file(gpkg_vector, driver='GPKG', layer='panden')
-
-#gdf_pandenbuurt.to_file("../tempdata/"+buurtcode+"_panden.geojson", driver='GeoJSON')
-#gdf_pandenbuurt.to_file("../tempdata/" + buurtcode+"_panden.shp")
-
-#GDPpandenbuurt.plot()
-#GDPpandenbuurt.head()
-#print(GDPpandenbuurt.columns)
-#print(GDPpandenbuurt)
