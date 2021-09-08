@@ -1,15 +1,12 @@
-#Load required Python libraries
+# Load required Python libraries
 import geopandas as gpd
 from requests import Request
 from owslib.wfs import WebFeatureService
 
-### Set variables
-# Overtoomse Veld Noord - BU03638600
-# Overtoomse Veld Zuid - BU03638601
+# Load variables
+from start import buurtcode, gpkg_vector
 
-buurtcode = "BU03638600"
-#buurtcode = "BU03638601"
-
+## Start buurt selection script
 # URL for WFS backend
 url_WFSwijkenbuurt = "https://geodata.nationaalgeoregister.nl/wijkenbuurten2020/wfs?"
 
@@ -28,21 +25,14 @@ q = Request('GET', url_WFSwijkenbuurt, params=params).prepare().url
 # Read data from URL
 gdf_buurten = gpd.read_file(q)
 
-# select columns
+# Select columns
 gdf_buurten = gdf_buurten.loc[:, ['buurtcode', 'buurtnaam', 'gemeentecode', 'geometry']]
 
-# select buurt
+# Filter buurt from csv with buurtcodes
 gdf_buurtselection = gdf_buurten[gdf_buurten.buurtcode == buurtcode]
 
+# Set projection
 gdf_buurtselection = gdf_buurtselection.set_crs("EPSG:28992")
-gdf_buurtselection.to_file("../tempdata/" + buurtcode + ".geojson", driver='GeoJSON')
-gdf_buurtselection.to_file("J:/DatalAP/Innovatie/VNG_Remote_Sensing/GroeneDaken/Werk/tempdata/" + buurtcode+".shp")
 
-#gdf_buurtselection.plot()
-#gdf_buurtselection.head()
-#print(GDPbuurten)
-#print(GDPbuurten.columns)
-#GDPbuurten.plot()
-#GDPbuurten.head()
-
-
+# Write buurt-polygon to geopackage (gpkg)
+gdf_buurtselection.to_file(gpkg_vector, driver='GPKG', layer='buurt')
