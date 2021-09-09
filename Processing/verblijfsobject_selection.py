@@ -55,5 +55,12 @@ gdf_vobuurtwoonfunctie = gdf_allvobuurt[gdf_allvobuurt['status'].str.contains('V
 # Filter all verblijfsobjecten which contain the function 'woonfunctie' and 'logiesfunctie'
 gdf_vobuurtwoonfunctie = gdf_allvobuurt[gdf_allvobuurt['gebruiksdoel'].str.contains('woonfunctie|logiesfunctie')]
 
+
+gdf_vobuurtwoonfunctie
+
 # Write woningen to gpkg
-gdf_vobuurtwoonfunctie.to_file(gpkg_vector, driver='GPKG', layer='woningen')
+if len(gdf_vobuurtwoonfunctie.columns) == 0:
+    print("Geen woningen in deze buurt")
+    quit()
+else:
+    gdf_vobuurtwoonfunctie.to_file(gpkg_vector, driver='GPKG', layer='woningen')
