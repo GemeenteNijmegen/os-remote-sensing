@@ -5,13 +5,13 @@
 
 #-----------------------------------------------------------------------------------------------
 
-#geopackage already available?
-gpkg.rdy<-FALSE
+#vector geopackage already available?
+vec.gpkg.rdy<-FALSE
 
 #check existence
-#gpkg.rdy<-file.exists(gpkg_vector)
+vec.gpkg.rdy<-file.exists(gpkg_vector)
 
-if(gpkg.rdy==FALSE) {
+if(vec.gpkg.rdy==FALSE) {
 #not available, let's create gpkg
 
 #-----------------------------------------------------------------------------------------------
@@ -23,7 +23,7 @@ if(gpkg.rdy==FALSE) {
 #read local file containing all gemeenten in NL
 
   gemeenten.rdy<-FALSE
-  gemeenten.rdy<-file.exists("R/tempdata/gemeenten_nl_sf.rds")
+  gemeenten.rdy<-file.exists("DATA/gemeenten_nl_sf.rds")
 
   if(gemeenten.rdy==FALSE) {
   message("extract NL-gemeente polygon from nationaalgeoregister.nl")
@@ -38,11 +38,11 @@ if(gpkg.rdy==FALSE) {
   request <- build_url(url);request
 
   gemeenten_nl_sf <- sf::st_read(request)
-  saveRDS(gemeenten_nl_sf, "R/tempdata/gemeenten_nl_sf.rds")
+  saveRDS(gemeenten_nl_sf, "DATA/gemeenten_nl_sf.rds")
   rm(gemeenten_nl_sf)
   }
 
-  gemeente_sf <- readRDS("R/tempdata/gemeenten_nl_sf.rds")
+  gemeente_sf <- readRDS("DATA/gemeenten_nl_sf.rds")
   gemeente_sf <- gemeente_sf %>% filter(gemeentenaam == municipality)
 
   #transform from Multisurface to Polygon
@@ -56,7 +56,7 @@ if(gpkg.rdy==FALSE) {
 
 #read local file containing all buurten in NL
 buurten.rdy<-FALSE
-buurten.rdy<-file.exists("R/tempdata/buurten_nl_sf.rds")
+buurten.rdy<-file.exists("DATA/buurten_nl_sf.rds")
 
 if(buurten.rdy==FALSE) {
 
@@ -71,11 +71,11 @@ if(buurten.rdy==FALSE) {
  request <- build_url(url);request
 
 buurten_nl_sf <- sf::st_read(request, layer = "wijkenbuurten2020:cbs_buurten_2020")
-saveRDS(buurten_nl_sf, "R/tempdata/buurten_nl_sf.rds")
+saveRDS(buurten_nl_sf, "DATA/buurten_nl_sf.rds")
 rm(buurten_nl_sf)
 }
 
-buurt_sf <- readRDS("R/tempdata/buurten_nl_sf.rds")
+buurt_sf <- readRDS("DATA/buurten_nl_sf.rds")
 buurt_sf <- buurt_sf %>% filter(buurtcode == neighbourhood)
 buurt_sf <- buurt_sf[, c('buurtcode', 'buurtnaam', 'gemeentecode', 'geom')]
 
@@ -233,8 +233,6 @@ message("build tuinen " , neighbourhood)
 #verblijfsobjecten with status 'in gebruik' or 'verbouwing'
 woningen_sf <- verblijfsobjecten_sf[verblijfsobjecten_sf$status %like% "Verblijfsobject in gebruik"
                                     | verblijfsobjecten_sf$status %like% "Verbouwing verblijfsobject"
-                                    #toegevoegen?
-                                    #| verblijfsobjecten_sf$status %like% "Verblijfsobject gevormd"
                                     ,]
 
 #verblijfsobjecten with object 'woonfunctie' or 'logiesfunctie'
@@ -242,7 +240,6 @@ woningen_sf <- woningen_sf[woningen_sf$gebruiksdoel %like% "woonfunctie" | wonin
 
 #percelen with woonverblijfsobject
 percelenwoonfunctie_sf <- percelen_sf[woningen_sf,] %>% dplyr::select(one_of(percelen_cols))
-#percelenwoonfunctie_sf <- sf::st_intersection(buurt_sf, percelenwoonfunctie_sf) #clipping
 
 #panden on woonperceel
 pandenwoonperceel_sf<-panden_sf[percelenwoonfunctie_sf,]
@@ -253,7 +250,9 @@ st_erase = function(x, y) st_difference(x, st_union(y))
 tuinen_sf <- st_erase(percelenwoonfunctie_sf,pandenwoonperceel_sf) %>%
   sf::st_make_valid() %>% #repair
   sf::st_collection_extract("POLYGON") %>% #polygons
-  dplyr::select(one_of(percelen_cols))
+  filter(!is.na(perceelnummer)) %>% #garden with perceelnummer
+  dplyr::select(one_of(percelen_cols))  #relevant columns
+
 
 #interactive Leaflet presentation of the layers buurt, percelen and panden
 #mapview(list(panden_sf,percelenwoonfunctie_sf,tuinen_sf),alpha.regions = 0.6, alpha = 1)
@@ -276,7 +275,7 @@ sf::st_write(percelenwoonfunctie_sf, dsn=gpkg_vector, layer='percelenwoonfunctie
 sf::st_layers(gpkg_vector)
 
 } else {
-message("read layers from prefab geopackage")
+message("read layers from existing geopackage")
 
 #read existing geopackage, individual layers
 buurt_sf <- sf::st_read(gpkg_vector, layer= "buurt", geometry_column="geom")

@@ -86,6 +86,8 @@ packages <- c(
   'mapview',
   #unsupervised segmentation
   'cluster',
+  # Airborne LiDAR Data Manipulation and Visualization for Forestry Applications
+  'lidR',
   #color schemes
   'colorspace',
   'viridis',
@@ -103,6 +105,9 @@ lapply(packages,library,character.only = TRUE
        ,quietly = TRUE
 )
 
+#-----------------------------------------------------------------------------------------------
+
+#elevation points or areas of the Netherlands from the Actueel Hoogtebestand Nederland (AHN)
 is_rahne_available<-FALSE
 is_rahne_available <- require("rAHNextract")
 
@@ -120,11 +125,10 @@ library(rAHNextract)
 gdal_setInstallation()
 getOption("gdalUtils_gdalPath")
 
-#if there is more than one installation of GDAL, this is the
-#most recent installation:
+#most recent GDAL installation
 getOption("gdalUtils_gdalPath")[[1]]
 
-#version number:
+#GDAL version number
 getOption("gdalUtils_gdalPath")[[1]]$version
 
 #external dependencies versions of the libraries linked to sf

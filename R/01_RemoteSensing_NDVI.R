@@ -10,7 +10,7 @@
 
 #-----------------------------------------------------------------------------------------------
 
-run_batch<-FALSE #for testing (F), for production (T), initialization from 'batch_run.R'
+run_batch<-FALSE #for testing (F), for production disable this line and initialize from '00_init_batch_run.R'
 
 if(run_batch==FALSE) {
 
@@ -28,7 +28,8 @@ message("start procedure for ", neighbourhood)
 
 #make sure your computing setup contains:
 #QGIS
-#and external dependencies Rtools, GEOS, GDAL, PROJ.4
+#and dependencies GEOS, GDAL, PROJ.4
+#Rtools
 
 #Run in project environment (to avoid R-package conflicts)
 proj_env <- FALSE #default (F)
@@ -37,10 +38,10 @@ proj_env <- FALSE #default (F)
 debug_mode <- FALSE #default (F)
 
 #setup and packages
-source('R/SRC/packages.R')
+source('SRC/packages.R')
 
 #globals
-source(here::here('R/SRC/globals.R'))
+source(here::here('SRC/globals.R'))
 
 #-----------------------------------------------------------------------------------------------
 
@@ -49,12 +50,13 @@ source(here::here('R/SRC/globals.R'))
 #-----------------------------------------------------------------------------------------------
 
 #Python environment
-#needed when opting for re-creating the polygon geopackage(s) via the Python procedure ('Processing' dir)
+#needed when opting for re-creating the polygon geopackage(s) via the Python procedure
 #within Rstudio
 
-#read instructions in 'R/SRC/python.R' first!
+#read instructions in 'SRC/python.R' first, and make adjustments according to your Python set-up
+#where needed!
 
-#source(here('R/SRC/python.R'))
+#source(here('SRC/python.R'))
 
 #-----------------------------------------------------------------------------------------------
 
@@ -69,16 +71,8 @@ start_time <- Sys.time()
 
 #geopackage containing gemeente, buurt, percelen, panden and tuinen polygons
 
-#prefab geopackage (from Python procedure)
-prefab_polygons <- FALSE #default (F)
-
-if(prefab_polygons==TRUE) {
-#download prefab geopackage from VNG Stack
- source(here::here('R/SRC/vector_gpkg_request.R'))
-} else {
-#create geopackage
- source(here::here('R/SRC/buurt_pand_perceel_request.R'))
-}
+#create geopackage vector data
+source(here::here('SRC/buurt_pand_perceel_request.R'))
 
 #-----------------------------------------------------------------------------------------------
 #extend and bounding box
@@ -106,8 +100,8 @@ coord_tuinen<-as.data.frame(st_coordinates(cntrd_tuinen))
 
 #-----------------------------------------------------------------------------------------------
 
-#read TIFF or ECW image
-source(here::here('R/SRC/image.R'))
+#read TIF or ECW image
+source(here::here('SRC/image.R'))
 
 #assign bands (CIR)
 nir <- ai_tuinen[[1]]
@@ -128,20 +122,22 @@ message("calculate vegetation indices")
 #--------------------------------------------------
 
 #NDVI indicates amount of vegetation, distinguishes vegetation from soil, minimizes topographic effects
+#NDVI is chlorophyll sensitive, emphasizing the green color of a healthy plant.
+#NDVI is slightly distorted by factors including shadowing, air moisture, and variations in the soil
 
 #NDVI-ranges according to Deloitte research, e.o.
-#       -1 tot -0.1: Water
-#       -0.1 tot 0.2: Zand/Grond/Rots
-#       0.2 tot 0.4: Gras en lage vegetatie
-#       0.4 tot 1: Intensieve, en hoge vegetatie
+#       -1 tot -0.1: water
+#       -0.1 tot 0.2: stone, sand/earth
+#       0.2 tot 0.4: gras and low vegetation
+#       0.4 tot 1: intensive vegetation, high vegetation
 
 # NOTE: we differ from this list, except for the boundary of vegetation/non-vegetation (.2)
 
 #NDVI-ranges vegetation in this research
 #       -Inf to 0.2: non-vegetation
 #        0.2 to 0.3: grasses, weed
-#        0.3 to 0.5: low vegetation
-#        0.5 to 1: #intensive vegetation, trees
+#        0.3 to 0.5: low vegetation (substantial vegetation)
+#        0.5 to 1: intensive vegetation, high vegetation, trees
 
 #NDVI-range verstening
 #       -0.1 tot 0.2: Stone, sand/earth
@@ -150,7 +146,7 @@ ndvi <- raster::overlay(red, nir, fun = function(x, y) { (y-x) / (y+x) })
 names(ndvi) <- "ndvi"
 
 #unsupervised boundary detection (NDVI classes)
-source(here::here('R/SRC/green_classes.R'))
+source(here::here('SRC/green_classes.R'))
 
 #create new raster with 1 for vegetation and 0 for non-vegetation.
 #vegetation fixed boundary at NDVI value 0.2
@@ -203,6 +199,8 @@ stone_d <- raster::reclassify(ndvi, c(-Inf,-0.1,0, #water
 
 #--------------------------------------------------
 
+#EVI2 has several advantages over NDVI including the ability to resolve differences
+#for vegetation with different background soil reflectance
 evi2 <- raster::overlay(red, nir, fun = function(x, y) { 2.5*((y-x) / (y+2.4*x+1)) })
 names(evi2) <- "evi2"
 
@@ -212,7 +210,6 @@ names(evi2) <- "evi2"
 
 #--------------------------------------------------
 
-#Indicates amount of vegetation
 #Reduces the effects of atmosphere and topography
 rvi <- raster::overlay(red, nir, fun = function(x, y) { (y) / (x) })
 names(rvi) <- "rvi"
@@ -226,7 +223,7 @@ rm(nir,red)
 
 #-----------------------------------------------------------------------------------------------
 
-source(here::here('R/SRC/ahn.R'))
+source(here::here('SRC/ahn.R'))
 
 #-----------------------------------------------------------------------------------------------
 
@@ -317,7 +314,7 @@ raster::crs(veg_t5) <- raster::crs(percelen_sf)
 message("store green indices in geopackage")
 
 #store green indices in geopackage
-source(here::here('R/SRC/vegetation_gpkg.R'))
+source(here::here('SRC/vegetation_gpkg.R'))
 
 vegetation_rasterbrick <- FALSE
 
@@ -529,14 +526,14 @@ write.csv(buurt_roofgarden_stats,file=paste(report.loc,"Buurt_daken_statistieken
 
 #-----------------------------------------------------------------------------------------------
 
-source(here::here('R/SRC/vegetation_plots.R'))
+source(here::here('SRC/vegetation_plots.R'))
 
 #-----------------------------------------------------------------------------------------------
 
 #green classes metrics
 
 #-----------------------------------------------------------------------------------------------
-#under construction
+##UNDER CONSTRUCTION
 
 #source(here::here('SRC/green_classes_metrics.R'))
 

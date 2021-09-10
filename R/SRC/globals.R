@@ -37,6 +37,10 @@ options(dplyr.summarise.inform = FALSE)
 
 #R root
 r_root <- here::here()
+
+#set working directory
+#setwd(r_root)
+
 #Python root
 py_root <- here::here("Processing")
 
@@ -44,34 +48,33 @@ py_root <- here::here("Processing")
 #create directories on-the-fly if not exist
 
 #location data
-data.dir <- here::here("R", "DATA",'/')
-data.loc <- here::here("R","DATA",neighbourhood,'/')
-
-tempdata.dir <- here::here("R","tempdata",'/')
+data.dir <- here::here("DATA",'/')
+data.loc <- here::here("DATA",neighbourhood,'/')
 
 #location plots
-plots.dir <- here::here("R","PLOTS",'/')
-plots.loc <- here::here("R","PLOTS",neighbourhood,'/')
+plots.dir <- here::here("PLOTS",'/')
+plots.loc <- here::here("PLOTS",neighbourhood,'/')
 
 #aerial photo (local source)
-ai.dir <- here::here("R","AI",'/')
+ai.dir <- here::here("AI",'/')
 
 #location data
-report.dir <- here::here("R","REPORT",'/')
-report.loc <- here::here("R","REPORT",neighbourhood,'/')
+report.dir <- here::here("REPORT",'/')
+report.loc <- here::here("REPORT",neighbourhood,'/')
 
 #create locations if not exist
-locations <- c(data.dir, data.loc, plots.dir, plots.loc, ai.dir, tempdata.dir, report.dir, report.loc)
+locations <- c(data.dir, data.loc, plots.dir, plots.loc, ai.dir, report.dir, report.loc)
 
 lapply(locations, function(x) {
   if (!dir.exists(x)) {dir.create(x)}
 })
 
-#clear graphs and data folder
-clear_locations <- c(plots.loc, data.loc)
+#clear plots directory
+clear_locations <- c(plots.loc)
 
 # get all files in the directories, recursively
 f <- list.files(clear_locations, include.dirs = F, full.names = T, recursive = T)
+
 # remove the files
 file.remove(f)
 

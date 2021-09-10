@@ -7,12 +7,14 @@
 
 #AHN3, 0.5 m resolution based on Digital Surface Model (DSM) and Digital Terrain Model (DTM)
 
-#nationaalgeoregister.nl as direct source (aka not package)
+#nationaalgeoregister.nl as direct source (aka not being package rAHNextract)
 ngr_source <- FALSE #FALSE (default), is faster
+ahn_points <- FALSE #FALSE (default), TRUE for canopy height based on points cloud #under construction
 
 #raster
 if(ngr_source==FALSE) {
 #request via R-package
+
 #surface raster (DSM)
 ahn_dsm_raster <- rAHNextract::ahn_area(name = "BBOX rs", bbox = c(xmin, ymin, xmax, ymax),
                                     AHN = "AHN3",
@@ -25,8 +27,15 @@ ahn_dtm_raster <- rAHNextract::ahn_area(name = "BBOX rs", bbox = c(xmin, ymin, x
                                         dem = "DTM",
                                         resolution = 0.5)
 
+
+if(ahn_points==TRUE) {
 #points cloud
-#ahn_points <- ahn_pc(name = "BBOX pc", bbox = c(xmin, ymin, xmax,ymax), AHN = "AHN2", gefilterd = TRUE)
+#UNDER CONSTRUCTION
+#warning: drains hardware resources!!
+
+source(here::here('SRC/canopy.R'))
+}
+
 } else {
 #request directly via nationaalgeoregister.nl
 
@@ -70,14 +79,12 @@ ahn_raster<-ahn_dsm_raster-ahn_dtm_raster
 
 rm(ahn_dsm_raster,ahn_dtm_raster)
 
-#adjust resolution (to match aerial image)
-#ahn_raster_hr <- raster::disaggregate(ahn_raster, fact=4)
+#adjust resolution (0.5) (to match aerial image) (0.25)
 ahn_raster_hr <- terra::disaggregate(ahn_raster, fact=4)
 
 ahn_raster_hr<-ahn_raster
 
 #resample to match dimension, resolution and extent with nearest neighbor as method (we do not want to change values as with bilinear method)
-#ahn_raster_hr_rs <- raster::resample(ahn_raster_hr,ndvi, method = 'ngb') # or raster::projectRaster
 ahn_raster_hr_rs <- terra::resample(ahn_raster_hr,ndvi, method = 'ngb') # or raster::projectRaster
 
 #mask rasters
@@ -85,11 +92,8 @@ ahn_buurt <- terra::mask(ahn_raster_hr_rs, buurt_sf)
 ahn_tuinen <- terra::mask(ahn_raster_hr_rs, tuinen_sf)
 ahn_panden <- terra::mask(ahn_raster_hr_rs, panden_sf)
 
-rm(ahn_raster, ahn_raster_ahn,ahn_raster_hr, ahn_raster_hr_rs)
+rm(ahn_raster,ahn_raster_hr, ahn_raster_hr_rs)
 
-plot(ahn_buurt, xlab = "X", ylab = "Y", main = "AHN Elevation buurt (m)")
-#plot(ahn_tuinen, xlab = "X", ylab = "Y", main = "AHN Elevation tuinen (m)")
-#plot(ahn_panden, xlab = "X", ylab = "Y", main = "AHN Elevation panden (m)")
 
 #-----------------------------------------------------------------------------------------------
 #Update geopackage
@@ -120,6 +124,10 @@ ahn_panden %>% #RasterLayer
 
 #-----------------------------------------------------------------------------------------------
 #Plots
+
+#plot(ahn_buurt, xlab = "X", ylab = "Y", main = "AHN Elevation buurt (m)")
+#plot(ahn_tuinen, xlab = "X", ylab = "Y", main = "AHN Elevation tuinen (m)")
+#plot(ahn_panden, xlab = "X", ylab = "Y", main = "AHN Elevation panden (m)")
 
 #buurt
 png(paste0(plots.loc,"rs_ahn_buurt_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180, units="px")

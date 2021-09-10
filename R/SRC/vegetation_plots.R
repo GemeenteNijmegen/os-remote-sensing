@@ -268,7 +268,6 @@ plot.nme = paste0('rs_gardens_distibution_coverage_',neighbourhood,'.png')
 plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=dpi)
 
-
 #stoned coverage of gardens
 ggplot(data = tuinen_sf) +
   geom_sf(aes(fill = stone_cover)) +
@@ -313,6 +312,19 @@ ggplot(data = panden_sf) +
   ) +
   xlab("Longitude") + ylab("Latitude") +
   theme_minimal()
-plot.nme = paste0('green_coverage_panden.png')
+plot.nme = paste0('green_coverage_woningen.png')
 plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=320)
+
+
+#distribution of gardens over vegetation coverage
+ggplot(panden_sf, aes(x = green_cover)) +
+  geom_histogram(aes(y = (..count..)/sum(..count..)), binwidth = 20,color="lightblue", fill="steelblue") +
+  stat_bin(aes(y=(..count..)/sum(..count..),
+               label=paste0(round((..count..)/sum(..count..)*100,1),"%")),
+           geom="text", size=4, binwidth = 20, vjust=-1.5) +
+  #scale_x_continuous(breaks = seq(0.2,0.8,0.1))+
+  theme_light()
+plot.nme = paste0('rs_woningen_distibution_coverage_',neighbourhood,'.png')
+plot.store <-paste0(plots.loc,plot.nme)
+ggsave(plot.store, dpi=dpi)
