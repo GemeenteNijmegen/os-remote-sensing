@@ -1,7 +1,7 @@
 # Remote Sensing: Green private urban spaces
 
 This repository contains the code for detecting vegetation in private gardens within dutch neighbourhoods.
-Vegetation detection is based on aerial photos and the NDVI metric. 
+Vegetation detection is based on Color-infrared (CIR) aerial photography and the NDVI vegetation metric. 
 
 The objective of this repository is to provide a base for developing custom made remote sensing applications for vegetation detection in the urban environment. 
 This s0-called Minimal Viable Product is an 100-day experiment of the Experise group Data Science Dutch Municipalities and acts as a showcase. 
@@ -16,13 +16,13 @@ and red light (which vegetation absorbs). It is an indication of the amount of v
 NDVI is chlorophyll sensitive, emphasizing the green color of a healthy plant.
 
 NDVI-ranges vegetation in this research
-       -Inf to 0.2: non-vegetation
-        0.2 to 0.3: grasses, weed
-        0.3 to 0.5: low vegetation (substantial vegetation)
-        0.5 to 1: #intensive vegetation, high vegetation, trees
+       -Inf to 0.2: non-vegetation; 
+        0.2 to 0.3: grasses, weed; 
+        0.3 to 0.5: low vegetation (substantial vegetation); 
+        0.5 to 1: #intensive vegetation, high vegetation, trees.
 
 NDVI-range 'verstening'
-       -0.1 tot 0.2: stone, sand/earth
+       -0.1 tot 0.2: stone, sand/earth.
 
 ## Open Data
 The procedure extracts insights based on open data:
