@@ -15,7 +15,7 @@ run_batch<-FALSE #for testing (F), for production disable this line and initiali
 if(run_batch==FALSE) {
 
 neighbourhood <- "BU04411401" #Sint Maartensvlotbrug, Schagen
-municipality <- "Schagen"
+municipality <- "Schagen" #name according to CBS
 }
 
 message("start procedure for ", neighbourhood)
@@ -481,7 +481,17 @@ write.csv(buurt_garden_stats,file=paste(report.loc,"Buurt_tuinen_statistieken_",
 
 message("calculate green coverage panden met woonfunctie")
 
-#vegetation cover per polygon element (tuin)
+#Mean value (NDVI) of cells that intersect the polygon, weighted by the percent of the cell that is covered.
+#mean ndvi per polygon element (panden)
+ndvi_green_avg_panden<-exactextractr::exact_extract(ndvi_above_threshold,panden_sf,
+                                              #the mean cell value, weighted by the fraction of each cell
+                                              #that is covered by the polygon
+                                              fun ='mean',
+                                              force_df =FALSE)
+
+panden_sf$ndvi_green_avg<-round(ndvi_green_avg_panden,3)
+
+#vegetation cover per polygon element (pand)
 ndvi_cover_panden<-exactextractr::exact_extract(veg_g,panden_sf,
                                          #the mean cell value, weighted by the fraction of each cell
                                          #that is covered by the polygon
@@ -489,6 +499,7 @@ ndvi_cover_panden<-exactextractr::exact_extract(veg_g,panden_sf,
                                          force_df =FALSE)
 
 panden_sf$green_cover<-round(ndvi_cover_panden*100,1)
+
 panden_sf$oppervlakte_pand_unit = st_area(panden_sf)
 panden_sf$oppervlakte_pand = as.numeric(panden_sf$oppervlakte_pand_unit)
 
@@ -500,7 +511,9 @@ panden_sf <- panden_sf %>%
                 #oppervlak potentieel vegetatie
                 green_potential = oppervlakte_pand-green_surface,
                 #buurtcode meenemen
-                buurt_selection = neighbourhood
+                buurt_selection = neighbourhood,
+                #gemiddelde NDVI
+                ndvi_green_avg = round(mean(ndvi_green_avg_panden,na.rm = TRUE),3)
         )
 
 buurt_roofgarden_stats <- panden_sf %>%
@@ -513,7 +526,9 @@ buurt_roofgarden_stats <- panden_sf %>%
                 #oppervlak vegetatie
                 green_surface_sum = sum(green_surface, na.rm = TRUE),
                 #oppervlak potentieel vegetatie
-                green_potential_sum = sum(green_potential, na.rm = TRUE)
+                green_potential_sum = sum(green_potential, na.rm = TRUE),
+                #gemiddelde NDVI
+                ndvi_green_avg = round(mean(ndvi_green_avg,na.rm = TRUE),1)
         )
 
 buurt_roofgarden_stats <- cbind(buurt_sf,buurt_roofgarden_stats)

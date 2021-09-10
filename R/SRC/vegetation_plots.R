@@ -220,7 +220,7 @@ png(paste0(plots.loc,"rs_garden_ndvi_",neighbourhood,".png"), bg="white", width=
 hist(tuinen_sf$ndvi_avg,
      breaks=8,
      main = paste0("Distribution of gardens over NDVI ",neighbourhood),
-     xlab = "mean ndvi", ylab = "freq",
+     xlab = "ndvi", ylab = "freq",
      col = "steelblue")
 dev.off()
 
@@ -317,7 +317,7 @@ plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=320)
 
 
-#distribution of gardens over vegetation coverage
+#distribution of woningen over vegetation coverage
 ggplot(panden_sf, aes(x = green_cover)) +
   geom_histogram(aes(y = (..count..)/sum(..count..)), binwidth = 20,color="lightblue", fill="steelblue") +
   stat_bin(aes(y=(..count..)/sum(..count..),
@@ -328,3 +328,4 @@ ggplot(panden_sf, aes(x = green_cover)) +
 plot.nme = paste0('rs_woningen_distibution_coverage_',neighbourhood,'.png')
 plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=dpi)
+

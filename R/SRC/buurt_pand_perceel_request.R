@@ -16,7 +16,7 @@ if(vec.gpkg.rdy==FALSE) {
 
 #-----------------------------------------------------------------------------------------------
 
-#Municipality
+#Gemeente
 
 #-----------------------------------------------------------------------------------------------
 
@@ -261,7 +261,7 @@ tuinen_sf <- st_erase(percelenwoonfunctie_sf,pandenwoonperceel_sf) %>%
 
 #-----------------------------------------------------------------------------------------------
 
-message("store layers in geopackage")
+message("store layers in geopackage ",neighbourhood,"_vector.gpkg")
 
 #create vector geopackage (GPKG)
 sf::st_write(buurt_sf, dsn=gpkg_vector, layer='buurt',layer_options = "OVERWRITE=YES",append=FALSE)
@@ -272,10 +272,11 @@ sf::st_write(woningen_sf, dsn=gpkg_vector, layer='woningen',layer_options = "OVE
 sf::st_write(tuinen_sf, dsn=gpkg_vector, layer='tuinen',layer_options = "OVERWRITE=YES",append=FALSE)
 sf::st_write(percelenwoonfunctie_sf, dsn=gpkg_vector, layer='percelenwoonfunctie',layer_options = "OVERWRITE=YES",append=FALSE)
 
+#review layers
 sf::st_layers(gpkg_vector)
 
 } else {
-message("read layers from existing geopackage")
+message("read layers from existing geopackage ",neighbourhood,"_vector.gpkg")
 
 #read existing geopackage, individual layers
 buurt_sf <- sf::st_read(gpkg_vector, layer= "buurt", geometry_column="geom")
