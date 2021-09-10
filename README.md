@@ -4,15 +4,16 @@ This repository contains the code for detecting vegetation in private gardens wi
 Vegetation detection is based on Color-infrared (CIR) aerial photography and the NDVI vegetation metric. 
 
 The objective of this repository is to provide a base for developing custom made remote sensing applications for vegetation detection in the urban environment. 
-This s0-called Minimal Viable Product is an 100-day experiment of the Experise group Data Science Dutch Municipalities and acts as a showcase. 
-Currently the application is a pre-release versions (alpha).
+This so-called Minimal Viable Product is an 100-day experiment of the Experise group Data Science Dutch Municipalities and acts as a showcase. 
 
-You may test it and use it under the condition that you provide the project with feedback, improvements or extensions. See licence below. 
+Currently the application is a pre-release version (alpha).
+
+You may test it and use it under the condition that you provide the project with feedback, improvements or extensions. See Creative Commons licence below. 
 
 ## Normalized Difference Vegetation Index (NDVI)
 
 Normalized Difference Vegetation Index (NDVI) quantifies vegetation by measuring the difference between near-infrared (which vegetation strongly reflects) 
-and red light (which vegetation absorbs). It is an indication of the amount of vegetation, and distinguishes vegetation from soil, minimizes topographic effects
+and red light (which vegetation absorbs). It distinguishes vegetation from soil, minimizes topographic effects
 NDVI is chlorophyll sensitive, emphasizing the green color of a healthy plant.
 
 NDVI-ranges vegetation in this research
@@ -63,13 +64,14 @@ The procedure is available in both Python and R programming language.
 ## Instructions
 
 Both the Python and R procedure result in geopackage (gpkg) files with multiples layers which
-can be visualized in QGIS or similat commercial GIS-software. 
+can be visualized in QGIS or similar commercial GIS-software. 
 
 R: Define the neighbourhood code(s) in the neighbourhood.xlsx file. 
 You may either use your own aerial photo or extract the region
 from the main (119GB) aerail photo of the Netherlands. You may 
 use ecw or tif as file-format. Please verify and adjust settings in 
-R>image.R. 
+'00_init_batch_run.R'
+ 
 Run the procedure via '00_init_batch_run.R'
 
 Python:

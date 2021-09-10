@@ -6,11 +6,9 @@
 #-----------------------------------------------------------------------------------------------
 
 # date created: 2021-05-11
-# date modified: 2021-09-09
+# date modified: 2021-09-10
 
 #-----------------------------------------------------------------------------------------------
-
-run_batch<-FALSE #for testing (F), for production disable this line and initialize from '00_init_batch_run.R'
 
 if(run_batch==FALSE) {
 
@@ -94,17 +92,21 @@ cntrd_tuinen <- st_centroid(st_geometry(tuinen_sf))
 #extract coordinates tuinen
 coord_tuinen<-as.data.frame(st_coordinates(cntrd_tuinen))
 
-#-----------------------------------------------------------------------------------------------
-
-# Aerial image
 
 #-----------------------------------------------------------------------------------------------
 
-#read TIF or ECW image
+# Color-infrared (CIR) aerial photography (TIF or ECW format)
+
+#-----------------------------------------------------------------------------------------------
+
 source(here::here('SRC/image.R'))
 
 #assign bands (CIR)
+
+#near-infrared (which vegetation strongly reflects)
 nir <- ai_tuinen[[1]]
+
+#red light (which vegetation absorbs)
 red <- ai_tuinen[[2]]
 
 #-----------------------------------------------------------------------------------------------

@@ -27,6 +27,20 @@ run_batch<-TRUE
 
 #-----------------------------------------------------------------------------------------------
 
+# Color-infrared (CIR) aerial photography (TIF or ECW format)
+
+#-----------------------------------------------------------------------------------------------
+
+#read TIFF (TRUE=TIFF, FALSE=ECW)
+#please change accordingly
+tiff.as.source<-TRUE
+
+#name of input file (ECW or TIF) (make available in AI-directory)
+#please change accordingly
+input <- paste0(ai.dir,"amsterdam.tif")
+
+#-----------------------------------------------------------------------------------------------
+
 # Buurtcodes
 
 #-----------------------------------------------------------------------------------------------

@@ -1,18 +1,12 @@
 
 #-----------------------------------------------------------------------------------------------
 
-# Aerial image (from ECW or TIFF)
+# Color-infrared (CIR) aerial photography (TIF or ECW format)
 
 #-----------------------------------------------------------------------------------------------
 
-#GDAL available?
-#if not please review SRC > 'packages.R'
-valid_gdal <- !is.null(getOption("gdalUtils_gdalPath"))
-valid_gdal
-
-#aerial image
-#name of input file (ECW) (if available in AI-directory)
-input <- paste0(ai.dir,"amsterdam.ecw")
+#name of output file (TIF)
+output <- paste0(data.loc,neighbourhood,".tif")
 
 #-------------------------------------------------------
 #this location provides ecw for The Netherlands https://datasciencevng.nl/s/ztnYabpulASJakHR
@@ -23,16 +17,28 @@ input <- paste0(ai.dir,"amsterdam.ecw")
 #input <- paste0(ai.dir,"2020_LR_CIR_totaalmozaiek_v2_clip.ecw")
 #-------------------------------------------------------
 
-#name of output file (TIF)
-output <- paste0(data.loc,neighbourhood,".tif")
+#local TIF exists?
 
-#read TIFF (FALSE=ECW, TRUE=TIFF)
-tiff.as.source<-TRUE
-
-#local TIFF exists?
+#from previous run (as output file)
 tiff.rdy<-FALSE
 tiff.rdy<-file.exists(output)
 tiff.rdy
+
+#tif as a source (as input file)
+if(tiff.rdy==FALSE & tiff.as.source==TRUE) {
+
+input.tif <- list.files(ai.dir, pattern = "\\.tif$", full.names = TRUE)
+if(length(input.tif) != 0) {
+
+message("extract aerial photo in TIF-format from AI directory")
+#move to output folder
+file.copy(from = input.tif,
+          to   = output)
+
+tiff.rdy<-file.exists(output)
+}
+
+}
 
 #-----------------------------------------------------------------------------------------------
 

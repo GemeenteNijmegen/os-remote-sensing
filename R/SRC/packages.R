@@ -123,7 +123,10 @@ library(rAHNextract)
 #assumes you have GDAL installed on your local machine.
 #getOption("gdalUtils_gdalPath")
 gdal_setInstallation()
-getOption("gdalUtils_gdalPath")
+
+#GDAL available?
+valid_gdal <- !is.null(getOption("gdalUtils_gdalPath"))
+valid_gdal
 
 #most recent GDAL installation
 getOption("gdalUtils_gdalPath")[[1]]
