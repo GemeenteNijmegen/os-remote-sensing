@@ -5,6 +5,7 @@
 
 #-----------------------------------------------------------------------------------------------
 
+#external dependencies Rtools, GEOS, GDAL, PROJ.4
 
 #-----------------------------------------------------------------------------------------------
 
@@ -18,12 +19,10 @@ proj_env <- FALSE #default (F)
 #debug mode
 debug_mode <- FALSE #default (F)
 
-#external dependencies Rtools, GEOS, GDAL, PROJ.4
-
-#setup and packages
+#spackages
 source('SRC/packages.R')
 
-run_batch<-TRUE
+run_batch <- TRUE
 
 #-----------------------------------------------------------------------------------------------
 
@@ -33,11 +32,11 @@ run_batch<-TRUE
 
 #read TIFF (TRUE=TIFF, FALSE=ECW)
 #please change accordingly
-tiff.as.source<-TRUE
+tiff.as.source <- TRUE
 
 #name of input file (ECW or TIF) (make available in AI-directory)
 #please change accordingly
-input <- paste0(ai.dir,"amsterdam.tif")
+input <- paste0('AI/amsterdam.tif')
 
 #-----------------------------------------------------------------------------------------------
 
@@ -46,7 +45,7 @@ input <- paste0(ai.dir,"amsterdam.tif")
 #-----------------------------------------------------------------------------------------------
 
 #please declare (multiple) buurtcode(s) in:
-BU_codes <- read.xlsx(here::here('neighbourhoods.xlsx'))
+BU_codes <- read.xlsx('neighbourhoods.xlsx')
 
 for (i in 1:nrow(BU_codes)) {
 
@@ -62,6 +61,3 @@ for (i in 1:nrow(BU_codes)) {
   #rm(list=setdiff(ls(), "BU_codes"))
 
 }
-
-
-

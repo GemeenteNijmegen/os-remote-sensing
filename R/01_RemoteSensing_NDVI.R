@@ -6,40 +6,11 @@
 #-----------------------------------------------------------------------------------------------
 
 # date created: 2021-05-11
-# date modified: 2021-09-10
+# date modified: 2021-09-13
 
 #-----------------------------------------------------------------------------------------------
-
-if(run_batch==FALSE) {
-
-neighbourhood <- "BU04411401" #Sint Maartensvlotbrug, Schagen
-municipality <- "Schagen" #name according to CBS
-}
 
 message("start procedure for ", neighbourhood)
-
-#-----------------------------------------------------------------------------------------------
-
-# Setup environment
-
-#-----------------------------------------------------------------------------------------------
-
-#make sure your computing setup contains:
-#QGIS
-#and dependencies GEOS, GDAL, PROJ.4
-#Rtools
-
-#Run in project environment (to avoid R-package conflicts)
-proj_env <- FALSE #default (F)
-
-#debug mode
-debug_mode <- FALSE #default (F)
-
-#setup and packages
-source('SRC/packages.R')
-
-#globals
-source(here::here('SRC/globals.R'))
 
 #-----------------------------------------------------------------------------------------------
 
