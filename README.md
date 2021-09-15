@@ -67,14 +67,20 @@ Both the Python and R procedure result in geopackage (gpkg) files with multiples
 can be visualized in QGIS or similar commercial GIS-software. 
 
 R: Define the neighbourhood code(s) in the neighbourhood.xlsx file. 
-You may either use your own aerial photo or extract the region
+You may either use your own aerial photo (must included infrared-band) or extract the region
 from the main (119GB) aerail photo of the Netherlands. You may 
 use ecw or tif as file-format. Please verify and adjust settings in 
 '00_init_batch_run.R'
  
 Run the procedure via '00_init_batch_run.R'
 
-Python:
+Python: Define the neighbourhood code(s) in the neighbourhood.csv file.
+You may either use your own aerial photo (must included infrared-band) or extract the region
+from the main (119GB) aerail photo of the Netherlands. You may
+use ecw as file-format. Please verify and adjust settings in
+'start.py'
+
+Run the procedure via 'start.py'
 
 ## Requirements
 Hardware : CPU I7, RAM 16GB (or similar)
