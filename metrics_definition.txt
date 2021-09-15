@@ -1,0 +1,48 @@
+NDVI-ranges vegetation in this research
+       -1 to 0.2: non-vegetation; 
+        0.2 to 0.3: grasses, weed; 
+        0.3 to 0.5: low to medium vegetation (substantial vegetation); 
+        0.5 to 1: intensive vegetation, high vegetation, trees.
+
+NDVI-range 'verstening'
+       -0.1 tot 0.2: stone, sand/earth.
+
+garden_surface_sum (tuinen)	
+totaal areaal tuin (m2)
+
+green_cover_avg	(tuinen,panden)
+aandeel van het totaal areaal bedekt met vegetatie (%)
+
+veg_cover_3m_avg (tuinen)		
+aandeel van het totaal areaal bedekt met vegetatie 3m of hoger (%)
+
+tree_cover_5m_avg (tuinen)		
+aandeel van het totaal areaal bedekt met vegetatie 5m of hoger (%)
+
+green_surface_sum (tuinen)		
+totaal areaal vegetatie (m2)
+
+veg3m_surface_sum (tuinen)		
+totaal areaal vegetatie bedekt met vegetatie 3m of hoger (m2)
+
+tree_surface_sum (tuinen)		
+totaal areaal vegetatie bedekt met vegetatie 5m of hoger (m2)
+
+treeingreen_cover_avg (tuinen)		
+aandeel vegetatie 5m of hoger van het totaal areaal vegetatie (%)
+
+green_potential_sum (tuinen,panden)
+totaal areaal niet bedenkt met vegetatie (m2)	
+
+stone_cover_avg (tuinen)	
+aandeel van het totaal areaal met zand of steen	
+
+ndvi_avg (tuinen)		
+gemiddelde NDVI waarde totaal areaal
+
+ndvi_green_avg (tuinen,panden)
+gemiddelde NDVI waarde vegetatie areaal
+
+roofgarden_surface_sum (panden)
+totaal areaal pand(en) (m2)
+

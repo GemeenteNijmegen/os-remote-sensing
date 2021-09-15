@@ -1,8 +1,9 @@
 
 ---
-title: "Remote sensing: groen in private buitenruimte"
+title: 'Remote sensing: groen in private buitenruimte'
 output:
-  pdf_document
+  html_document:
+    df_print: paged
 ---
 
 
@@ -18,7 +19,7 @@ shhh <- suppressPackageStartupMessages
 # lapply(packages_needed, library, character.only=TRUE)
 # rm(installed, packages_needed)
 
-#neighbourhood <- "BU08280002"
+neighbourhood <- "BU08280002"
 # set directories
 #path <- paste0(here::here(),"/REPORT/", neighbourhood)
 
@@ -107,14 +108,6 @@ graph.find <- list.files(path = here::here("PLOTS", neighbourhood),
 knitr::include_graphics(graph.find)
 ```
 
-## rs_ndvi_density_distribution:
-```{r pl10, echo=FALSE, fig.cap=" ", out.width = '100%'}
-
-graph.find <- list.files(path = here::here("PLOTS", neighbourhood), 
-                         pattern = paste0("rs_ndvi_density_distribution_", neighbourhood, ".png"), full.names = TRUE)
-
-knitr::include_graphics(graph.find)
-```
 
 ## rs_ndvi_levelplot:
 ```{r pl11, echo=FALSE, fig.cap=" ", out.width = '100%'}
@@ -278,7 +271,7 @@ knitr::include_graphics(graph.find)
 
 
 ## rs_woningen_distibution_coverage:
-```{r pl30, echo=FALSE, fig.cap=" ", out.width = '100%'}
+```{r pl33, echo=FALSE, fig.cap=" ", out.width = '100%'}
 graph.find <- list.files(path = here::here("PLOTS", neighbourhood), 
                          pattern = paste0("rs_woningen_distibution_coverage_", neighbourhood, ".png"), 
                          full.names = TRUE)

@@ -17,9 +17,9 @@ and red light (which vegetation absorbs). It distinguishes vegetation from soil,
 NDVI is chlorophyll sensitive, emphasizing the green color of a healthy plant.
 
 NDVI-ranges vegetation in this research
-       -Inf to 0.2: non-vegetation; 
+       -1 to 0.2: non-vegetation; 
         0.2 to 0.3: grasses, weed; 
-        0.3 to 0.5: low vegetation (substantial vegetation); 
+        0.3 to 0.5: low to medium vegetation (substantial vegetation); 
         0.5 to 1: #intensive vegetation, high vegetation, trees.
 
 NDVI-range 'verstening'
@@ -64,7 +64,7 @@ The procedure is available in both Python and R programming language.
 ## Instructions
 
 Both the Python and R procedure result in geopackage (gpkg) files with multiples layers which
-can be visualized in QGIS or similar commercial GIS-software. 
+can be visualized in QGIS or similar (commercial) GIS-software. 
 
 R: Define the neighbourhood code(s) in the neighbourhood.xlsx file. 
 You may either use your own aerial photo (must included infrared-band) or extract the region
@@ -73,6 +73,8 @@ use ecw or tif as file-format. Please verify and adjust settings in
 '00_init_batch_run.R'
  
 Run the procedure via '00_init_batch_run.R'
+
+If you like to run the Python procedure from Rstudio, read the instructions in SRC>python.R
 
 Python: Define the neighbourhood code(s) in the neighbourhood.csv file.
 You may either use your own aerial photo (must included infrared-band) or extract the region

@@ -6,26 +6,11 @@
 #-----------------------------------------------------------------------------------------------
 
 # date created: 2021-05-11
-# date modified: 2021-09-13
+# date modified: 2021-09-15
 
 #-----------------------------------------------------------------------------------------------
 
 message("start procedure for ", neighbourhood)
-
-#-----------------------------------------------------------------------------------------------
-
-# Python
-
-#-----------------------------------------------------------------------------------------------
-
-#Python environment
-#needed when opting for re-creating the polygon geopackage(s) via the Python procedure
-#within Rstudio
-
-#read instructions in 'SRC/python.R' first, and make adjustments according to your Python set-up
-#where needed!
-
-#source(here('SRC/python.R'))
 
 #-----------------------------------------------------------------------------------------------
 
@@ -44,29 +29,8 @@ start_time <- Sys.time()
 source(here::here('SRC/buurt_pand_perceel_request.R'))
 
 #-----------------------------------------------------------------------------------------------
-#extend and bounding box
 
-buurt_extend <- sf::st_bbox(buurt_sf$geom)
-
-xmin <- buurt_extend[1]
-xmax <- buurt_extend[3]
-ymin <- buurt_extend[2]
-ymax <- buurt_extend[4]
-bbox <- paste(xmin, ymin, xmax, ymax, sep=",")
-
-#centroid perceel
-cntrd_perceel <- st_centroid(st_geometry(percelen_sf))
-
-#centroid tuinen
-cntrd_tuinen <- st_centroid(st_geometry(tuinen_sf))
-
-#extract coordinates tuinen
-coord_tuinen<-as.data.frame(st_coordinates(cntrd_tuinen))
-
-
-#-----------------------------------------------------------------------------------------------
-
-# Color-infrared (CIR) aerial photography (TIF or ECW format)
+# Color-infrared (CIR) aerial photography
 
 #-----------------------------------------------------------------------------------------------
 
@@ -98,18 +62,10 @@ message("calculate vegetation indices")
 #NDVI is chlorophyll sensitive, emphasizing the green color of a healthy plant.
 #NDVI is slightly distorted by factors including shadowing, air moisture, and variations in the soil
 
-#NDVI-ranges according to Deloitte research, e.o.
-#       -1 tot -0.1: water
-#       -0.1 tot 0.2: stone, sand/earth
-#       0.2 tot 0.4: gras and low vegetation
-#       0.4 tot 1: intensive vegetation, high vegetation
-
-# NOTE: we differ from this list, except for the boundary of vegetation/non-vegetation (.2)
-
 #NDVI-ranges vegetation in this research
 #       -Inf to 0.2: non-vegetation
 #        0.2 to 0.3: grasses, weed
-#        0.3 to 0.5: low vegetation (substantial vegetation)
+#        0.3 to 0.5: low to medium vegetation (substantial vegetation)
 #        0.5 to 1: intensive vegetation, high vegetation, trees
 
 #NDVI-range verstening
@@ -149,7 +105,7 @@ plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 dev.off()
 
 #vegetation in classes
-veg_c <- raster::reclassify(ndvi, c(-Inf,0.2,1, #no vegetation
+veg_c <- raster::reclassify(ndvi, c(-1,0.2,1, #no vegetation
                                     0.2,0.3,2, #grasses, weed
                                     0.3,0.5,3, #low vegetation
                                     0.5,1,4 #dense (healthy) vegetation, trees
@@ -157,11 +113,11 @@ veg_c <- raster::reclassify(ndvi, c(-Inf,0.2,1, #no vegetation
 
 #substantial green (fixed boundary at 0.3)
 #reclassifying nvdi (all values between negative infinity and 0.3 be NAs)
-veg_s <- raster::reclassify(ndvi, cbind(-Inf, 0.3, NA))
+veg_s <- raster::reclassify(ndvi, cbind(-1, 0.3, NA))
 
 #grey / stone
 #NDVI -0.1 to 0.2: Zand/Grond/Rots
-stone_d <- raster::reclassify(ndvi, c(-Inf,-0.1,0, #water
+stone_d <- raster::reclassify(ndvi, c(-1,-0.1,0, #water
                                     -0.1,0.2,1, #stone, sand/earth
                                     0.2,1,0 #vegetation
 ))
@@ -255,7 +211,7 @@ dev.off()
 
 #for mean green
 #create new raster and remove NDVI value below 0.2.
-reclass_value <- c(-Inf, 0.2, NA)
+reclass_value <- c(-1, 0.2, NA)
 
 ndvi_above_threshold <- raster::reclassify(ndvi,reclass_value)
 
@@ -387,7 +343,6 @@ tuinen_sf$oppervlakte_tuin_unit <- st_area(tuinen_sf$geom) #keep for unit transl
 #change data type to numeric (from 'S3: units' with m^2 suffix)
 tuinen_sf$oppervlakte_tuin <- as.numeric(tuinen_sf$oppervlakte_tuin_unit)
 
-
 #surface culculation (m2)
 tuinen_sf <- tuinen_sf %>%
            mutate(
@@ -476,23 +431,23 @@ panden_sf$green_cover<-round(ndvi_cover_panden*100,1)
 panden_sf$oppervlakte_pand_unit = st_area(panden_sf)
 panden_sf$oppervlakte_pand = as.numeric(panden_sf$oppervlakte_pand_unit)
 
-#surface culculation (m2)
+#surface calculation (m2)
 panden_sf <- panden_sf %>%
         mutate(
                 #oppervlakte vegetatie
                 green_surface = round((oppervlakte_pand*(green_cover/100)),1),
                 #oppervlak potentieel vegetatie
                 green_potential = oppervlakte_pand-green_surface,
-                #buurtcode meenemen
-                buurt_selection = neighbourhood,
                 #gemiddelde NDVI
-                ndvi_green_avg = round(mean(ndvi_green_avg_panden,na.rm = TRUE),3)
+                ndvi_green_avg = round(mean(ndvi_green_avg_panden,na.rm = TRUE),3),
+                #buurtcode meenemen
+                buurt_selection = neighbourhood
         )
 
 buurt_roofgarden_stats <- panden_sf %>%
         group_by(buurt_selection) %>%
         summarise(
-                #tuin oppervlak
+                #pand oppervlak
                 roofgarden_surface_sum = sum(oppervlakte_pand, na.rm = TRUE),
                 #aandeel vegetatie in tuin
                 green_cover_avg = round(mean(green_cover, na.rm = TRUE),1),

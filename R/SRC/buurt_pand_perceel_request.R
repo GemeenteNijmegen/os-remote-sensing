@@ -288,6 +288,26 @@ tuinen_sf <- sf::st_read(gpkg_vector, layer= "tuinen", geometry_column="geom")
 }
 
 #-----------------------------------------------------------------------------------------------
+#extend and bounding box
+
+buurt_extend <- sf::st_bbox(buurt_sf$geom)
+
+xmin <- buurt_extend[1]
+xmax <- buurt_extend[3]
+ymin <- buurt_extend[2]
+ymax <- buurt_extend[4]
+bbox <- paste(xmin, ymin, xmax, ymax, sep=",")
+
+#centroid perceel
+cntrd_perceel <- st_centroid(st_geometry(percelen_sf))
+
+#centroid tuinen
+cntrd_tuinen <- st_centroid(st_geometry(tuinen_sf))
+
+#extract coordinates tuinen
+coord_tuinen<-as.data.frame(st_coordinates(cntrd_tuinen))
+
+#-----------------------------------------------------------------------------------------------
 
 png(paste0(plots.loc,"rs_tuinen_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
 plot(st_geometry(tuinen_sf))
