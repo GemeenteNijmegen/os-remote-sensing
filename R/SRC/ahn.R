@@ -131,15 +131,15 @@ ahn_panden %>% #RasterLayer
 
 #buurt
 png(paste0(plots.loc,"rs_ahn_buurt_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180, units="px")
-par(col.axis = "white", col.lab = "white", tck = 0)
+par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
 aerial_rgb <- terra::plotRGB(ai_buurt,
                               r = 1, g = 2, b = 3,
                               #stretch the values to increase the contrast of the image
                               stretch = "lin",
                               alpha=0,#hide (0), show(255)
                               axes = TRUE,
-                              main = paste0("AHN buurt ", neighbourhood))
-plot(ahn_buurt, add=TRUE, legend=FALSE, col= rev(hcl.colors(12, "YlOrRd")))
+                              main = paste0("AHN buurt (m) ", neighbourhood))
+plot(ahn_buurt, add=TRUE, legend=TRUE, col= rev(hcl.colors(12, "YlOrRd")))
 plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 aerial_rgb
@@ -148,17 +148,15 @@ dev.off()
 
 #tuinen
 png(paste0(plots.loc,"rs_ahn_tuinen_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180, units="px")
-par(col.axis = "white", col.lab = "white", tck = 0)
+par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
 aerial_rgb <- terra::plotRGB(ai_buurt,
                               r = 1, g = 2, b = 3,
                               #stretch the values to increase the contrast of the image
                               stretch = "lin",
                               alpha=0,#hide (0), show(255)
                               axes = TRUE,
-                              main = paste0("AHN tuinen ", neighbourhood))
-plot(ahn_tuinen, add=TRUE, legend=FALSE
-     #,col=colorRampPalette(c("red", "white", "blue"))(255)
-     , col= rev(hcl.colors(12, "YlOrRd"))
+                              main = paste0("AHN tuinen (m) ", neighbourhood))
+plot(ahn_tuinen, add=TRUE, legend=TRUE, col= rev(hcl.colors(12, "YlOrRd"))
      )
 plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")

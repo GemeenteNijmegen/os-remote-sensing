@@ -123,7 +123,7 @@ for (loop in loops) {
   request <- build_url(url);request
   data <- sf::st_read(request)
   empty_df <- list.append(empty_df, data)
-  print(paste0("startindex ", loop," - ",nrow(data), " panden"))
+  print(paste0("startindex ", loop," - entities: ",nrow(data), " panden"))
   if(nrow(data) < 1000) {panden_sf <- rbindlist(empty_df, use.names=TRUE) %>% st_as_sf(); break}
 }
 rm(data, empty_df)
@@ -141,6 +141,46 @@ panden_sf <- sf::st_intersection(buurt_sf, panden_sf) %>% #clip with buurt
 
 rownames(panden_sf) <- panden_sf$identificatie
 
+
+#-----------------------------------------------------------------------------------------------
+
+#Panden 3d
+
+#-----------------------------------------------------------------------------------------------
+
+#BAG footprints with calculated height from AHN3 (from TU Delft)
+
+#UNDER CONSTRUCTION
+#https://data.3dbag.nl/api/BAG3D_v2/wfs?request=getcapabilities
+
+buildings_3d <- FALSE
+
+if(buildings_3d==TRUE) {
+
+loops = c(0,1001,2001,3001,4001,5001,6001,7001,8001,9001,10001,11001,12001)
+empty_df = list()
+for (loop in loops) {
+  url <- parse_url("http://3dbag.bk.tudelft.nl/data/wfs?")
+  url$query <- list(SERVICE = "WFS",
+                    REQUEST = "GetFeature",
+                    TYPENAMES = "BAG3D:pand3d",
+                    bbox = bbox,
+                    outputFormat='json')
+  request <- build_url(url);request
+  data <- sf::st_read(request)
+  empty_df <- list.append(empty_df, data)
+  print(paste0("startindex ", loop," - entities: ",nrow(data), " 3d panden"))
+  if(nrow(data) < 1000) {panden3d_sf <- rbindlist(empty_df, use.names=TRUE) %>% st_as_sf(); break}
+}
+
+#subset 3d panden within buurt
+panden3d_sf <- sf::st_intersection(buurt_sf, panden3d_sf) %>% #clip with buurt
+  sf::st_make_valid() %>% #repair
+  sf::st_collection_extract("POLYGON") %>% #polygons
+  group_by(identificatie) %>% #unique
+  slice(1)
+
+}
 
 #-----------------------------------------------------------------------------------------------
 
@@ -164,7 +204,7 @@ for (loop in loops) {
   request <- build_url(url);request
   data <- sf::st_read(request)
   empty_df <- list.append(empty_df, data)
-  print(paste0("startindex ", loop," - ",nrow(data), " percelen"))
+  print(paste0("startindex ", loop," - entities: ",nrow(data), " percelen"))
   if(nrow(data) < 1000) {percelen_sf <- rbindlist(empty_df, use.names=TRUE) %>% st_as_sf(); break}
 }
 rm(data, empty_df)
@@ -206,7 +246,7 @@ for (loop in loops) {
   request <- build_url(url);request
   data <- sf::st_read(request)
   empty_df <- list.append(empty_df, data)
-  print(paste0("startindex ", loop," - ",nrow(data), " verblijfsobjecten"))
+  print(paste0("startindex ", loop," - entities: ",nrow(data), " verblijfsobjecten"))
   if(nrow(data) < 1000) {verblijfsobjecten_sf <- rbindlist(empty_df, use.names=TRUE) %>% st_as_sf(); break}
 }
 rm(data, empty_df)

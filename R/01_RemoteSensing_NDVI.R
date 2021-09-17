@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------------------------
 
 # date created: 2021-05-11
-# date modified: 2021-09-15
+# date modified: 2021-09-17
 
 #-----------------------------------------------------------------------------------------------
 
@@ -97,12 +97,6 @@ veg_polygon <- veg_contour %>% st_as_sf() %>% st_polygonize()
 veg_polygon$oppervlakte <- st_area(veg_polygon$geometry)
 
 sf::st_write(veg_polygon, dsn=gpkg_vector, layer='vegetation_contour',layer_options = "OVERWRITE=YES",append=FALSE)
-
-png(paste0(plots.loc,"rs_ndvi_raw_vegetation_contours_",neighbourhood,".png"), height = 1280, width = 1280, res = 180, units = "px")
-plot(ndvi)
-plot(veg_contour, add=TRUE)
-plot(percelen_sf$geom, add=TRUE, legend=FALSE)
-dev.off()
 
 #vegetation in classes
 veg_c <- raster::reclassify(ndvi, c(-1,0.2,1, #no vegetation

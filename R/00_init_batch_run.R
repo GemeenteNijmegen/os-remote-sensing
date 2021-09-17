@@ -5,7 +5,7 @@
 
 #-----------------------------------------------------------------------------------------------
 
-#external dependencies Rtools, GEOS, GDAL, PROJ.4
+
 
 #-----------------------------------------------------------------------------------------------
 
@@ -19,7 +19,7 @@ proj_env <- FALSE #default (F)
 #debug mode
 debug_mode <- FALSE #default (F)
 
-#spackages
+#packages
 source('SRC/packages.R')
 
 run_batch <- TRUE
@@ -58,6 +58,5 @@ for (i in 1:nrow(BU_codes)) {
 
   #main procedure
   source(here::here('01_RemoteSensing_NDVI.R'))
-  #rm(list=setdiff(ls(), "BU_codes"))
 
 }

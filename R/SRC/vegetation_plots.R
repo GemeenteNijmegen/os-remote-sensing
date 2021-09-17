@@ -30,6 +30,7 @@ mplot_ndvi <- rasterVis::gplot(ndvi) +
   #geom_sf(aes(st_sf(st_geometry(tuinen_sf)))) +
   theme_minimal() +
   coord_fixed() +
+  theme(legend.position = "bottom") +
 labs(fill = "NDVI")
 plot.nme = paste0('rs_ndvi_',neighbourhood,'.png')
 plot.store <-paste0(plots.loc,plot.nme)
@@ -42,6 +43,7 @@ mplot_evi2 <- rasterVis::gplot(evi2) +
   #geom_sf(aes(st_sf(st_geometry(tuinen_sf)))) +
   theme_minimal() +
   coord_fixed() +
+  theme(legend.position = "bottom") +
   labs(fill = "EVI2")
 plot.nme = paste0('rs_evi2_',neighbourhood,'.png')
 plot.store <-paste0(plots.loc,plot.nme)
@@ -54,6 +56,7 @@ mplot_rvi <- rasterVis::gplot(rvi) +
   #geom_sf(aes(st_sf(st_geometry(tuinen_sf)))) +
   theme_minimal() +
   coord_fixed() +
+  theme(legend.position = "bottom") +
   labs(fill = "RVI")
 plot.nme = paste0('rs_rvi_',neighbourhood,'.png')
 plot.store <-paste0(plots.loc,plot.nme)
@@ -66,6 +69,7 @@ mplot_veg_c <- rasterVis::gplot(veg_c) +
   scale_fill_discrete_sequential(palette = "Terrain") +
   theme_minimal() +
   coord_fixed() +
+  theme(legend.position = "bottom") +
   labs(fill = "NDVI classes (fixed)")
 plot.nme = paste0('rs_ndvi_classes_fixed_',neighbourhood,'.png')
 plot.store <-paste0(plots.loc,plot.nme)
@@ -78,6 +82,7 @@ mplot_veg_clus <- rasterVis::gplot(veg_clus) +
   scale_fill_discrete_sequential(palette = "Terrain") +
   theme_minimal() +
   coord_fixed() +
+  theme(legend.position = "bottom") +
   labs(fill = "NDVI classes (unsupervised)")
 plot.nme = paste0('rs_ndvi_classes_unsupervised_',neighbourhood,'.png')
 plot.store <-paste0(plots.loc,plot.nme)
@@ -89,6 +94,7 @@ mplot_veg_s <- rasterVis::gplot(veg_s) +
   scale_fill_gradientn(colours = rev(terrain.colors(225)), na.value ="transparent",limits = c(0.4,1)) +
   theme_minimal() +
   coord_fixed() +
+  theme(legend.position = "bottom") +
   labs(fill = "NDVI")
 plot.nme = paste0('rs_ndvi_substantial_',neighbourhood,'.png')
 plot.store <-paste0(plots.loc,plot.nme)
@@ -100,11 +106,26 @@ rm(list=setdiff(ls(pattern = "^mplot_"), lsf.str()))
 #-----------------------------------------------------------------------------------------------
 # white background
 
+ndvi_min <- round(ndvi@data@min,1)
+ndvi_max <- round(ndvi@data@max,1)+0.1
+
+#breaks NDVI grey to green
+brks <- seq(ndvi_min, ndvi_max, by=0.1)
+cols <- rev(terrain.colors((length(brks) - 1)))
+
+#plot ndvi and vegetation contour
+png(paste0(plots.loc,"rs_ndvi_raw_vegetation_contours_",neighbourhood,".png"), height = 1280, width = 1280, res = 180, units = "px")
+par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
+plot(ndvi, axes=FALSE, box=FALSE, legend=TRUE, cex = 0.5, breaks=brks, lab.breaks=brks, col=cols,na.value ="transparent")
+plot(veg_contour, add=TRUE, lwd = 0.1)
+plot(percelen_sf$geom, add=TRUE, legend=FALSE)
+dev.off()
+
 #plot rgb and ndvi
 png(paste0(plots.loc,"rs_rgb_ndvi_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
-par(col.axis = "white", col.lab = "white", tck = 0,mar = c(1,1,1,1))
+par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
 terra::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("NDVI ", neighbourhood))
-plot(ndvi, add=TRUE, legend=FALSE)
+plot(ndvi, add=TRUE, legend=TRUE, cex = 0.5, breaks=brks, lab.breaks=brks, col=cols,na.value ="transparent")
 plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
@@ -112,44 +133,64 @@ dev.off()
 #plot rgb and vegetation
 png(paste0(plots.loc,"rs_rgb_vegetation_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
 par(col.axis = "white", col.lab = "white", tck = 0,mar = c(1,1,1,1))
-raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("vegetation (NDVI >=.2)", neighbourhood))
+raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("vegetation (NDVI >=.2) ", neighbourhood))
 plot(veg_g, add=TRUE, legend=FALSE)
 plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
 
+#breaks NDVI lightgreen to darkgreen
+brks <- seq(0.3, ndvi_max, by=0.1)
+cols<- rev(colorspace::sequential_hcl((length(brks) - 1), palette = "Greens"))
+
 #plot rgb and substantial green
 png(paste0(plots.loc,"rs_rgb_veg_substantial_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
-par(col.axis = "white", col.lab = "white", tck = 0,mar = c(1,1,1,1))
-raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',alpha=0,main=paste0("substantial vegetation (NDVI >=.3)", neighbourhood))
-plot(veg_s, add=TRUE, legend=FALSE)
+par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
+raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',alpha=0,main=paste0("substantial vegetation (NDVI >=.3) ", neighbourhood))
+plot(veg_s, add=TRUE, legend=TRUE, cex = 2, breaks=brks, lab.breaks=brks, col=cols, na.value ="grey")
 plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
+
+#breaks NDVI clusters
+brks <- seq(1, k, by=1)
+cols<- colorspace::sequential_hcl(max(brks), palette = "Viridis")
 
 #plot rgb and classes (unsupervised)
 png(paste0(plots.loc,"rs_rgb_veg_classes_unsupervised_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
-par(col.axis = "white", col.lab = "white", tck = 0,mar = c(1,1,1,1))
+par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
 raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("NDVI classes (unsupervised) ", neighbourhood))
-plot(veg_clus, add=TRUE, legend=FALSE)
+plot(veg_clus, add=TRUE, legend=TRUE, cex = 0.5, breaks=brks, lab.breaks=brks, col=cols,na.value ="transparent")
 plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
+
+#breaks NDVI grey to green
+brks <- seq(1, 4, by=1)
+cols<- colorspace::sequential_hcl(max(brks), palette = "Viridis")
+lab_args <- list(at=c(1,2,3,4), labels=c("no","grass","low","dense"))
 
 #plot rgb and classes (fixed)
 png(paste0(plots.loc,"rs_rgb_veg_classes_fixed_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
-par(col.axis = "white", col.lab = "white", tck = 0,mar = c(1,1,1,1))
+par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
 raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("NDVI classes (fixed) ", neighbourhood))
-plot(veg_c, add=TRUE, legend=FALSE)
+plot(veg_c, add=TRUE, legend=TRUE, cex = 0.5, breaks=brks, lab.breaks=brks, col=cols,na.value ="transparent", axis.args=lab_args)
 plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
 
+#breaks RVI grey to green
+rvi_min <- round(rvi@data@min,1)
+rvi_max <- round(rvi@data@max,1)
+
+brks <- seq(rvi_min, rvi_max, by=0.5)
+cols <- rev(terrain.colors((length(brks) - 1)))
+
 #plot RVI
 png(paste0(plots.loc,"rs_rvi_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
-par(col.axis = "white", col.lab = "white", tck = 0,mar = c(1,1,1,1))
+par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
 raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("RVI ", neighbourhood))
-plot(rvi, add=TRUE, legend=FALSE)
+plot(rvi, add=TRUE, legend=TRUE, cex = 0.5, breaks=brks, lab.breaks=brks, col=cols,na.value ="transparent")
 plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
