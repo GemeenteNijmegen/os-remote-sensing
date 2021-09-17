@@ -4,7 +4,7 @@ This repository contains the code for detecting vegetation in private gardens wi
 Vegetation detection is based on Color-infrared (CIR) aerial photography and the NDVI vegetation metric. 
 
 The objective of this repository is to provide a base for developing custom made remote sensing applications for vegetation detection in the urban environment. 
-This so-called Minimal Viable Product is an 100-day experiment of the Experise group Data Science Dutch Municipalities and acts as a showcase. 
+This so-called Minimal Viable Product is an 100-day experiment of the Expertise Group Data Science Dutch Municipalities and acts as a showcase. 
 
 Currently the application is a pre-release version (alpha).
 
@@ -25,12 +25,13 @@ NDVI-ranges vegetation in this research
 NDVI-range 'verstening'
        -0.1 tot 0.2: stone, sand/earth.
 
-## Open Data
+## Open Data 
 The procedure extracts insights based on open data:
 - PDOK, nationaalgeoregister.nl (vector data)
 - Aerial photo, opendata.beeldmateriaal.nl (raster data)
 
-The procedure is available in both Python and R programming language.
+## Open Source
+The procedure is available in both Python and R programming language. The output can be deployed in QGIS.
 
 ## Structure of the procedure
 
@@ -56,8 +57,10 @@ The procedure is available in both Python and R programming language.
 	│
 
 ├── PYTHON
-    │
-	├── ...
+   │
+	 ├── start.py  	 	<- run procedure
+	 │
+	 ...
 
 ```
 
@@ -111,7 +114,7 @@ https://gitlab.com/datasciencehub/remote-sensing/-/issues
 
 ## Contact
 For technical assistance and other questions, please contact
-Mark Gremmen (mark.gremmen@vng.nl), or ...
+Mark Gremmen, mark.gremmen@vng.nl (R), or Stefan van der Hoorn, s.vanderhoorn@apeldoorn.nl (Python)
 
 ## Expertise groep data science
 This procedure is a joined effort of VNG, several dutch municipalities and public organisations: Amsterdam, Apeldoorn, Utrecht, Nijmegen, Omgevingsdienst Midden- en West Brabant, VNG West Brabant
