@@ -5,21 +5,17 @@
 
 #-----------------------------------------------------------------------------------------------
 
+#we assume you use your own color-infrared (CIR) aerial photography
+
+#Alternatively, this location provides ecw for The Netherlands:
+#https://datasciencevng.nl/s/ztnYabpulASJakHR
+#the file is 169GB, it takes some time to download
+#please clip the desired area before implementing in this procedure
+
 #name of output file (TIF)
 output <- paste0(data.loc,neighbourhood,".tif")
 
-#-------------------------------------------------------
-#this location provides ecw for The Netherlands https://datasciencevng.nl/s/ztnYabpulASJakHR
-#the file is 169GB, it takes some time to download
-
-#download manually and store in the AI-directory
-
-#input <- paste0(ai.dir,"2020_LR_CIR_totaalmozaiek_v2_clip.ecw")
-#-------------------------------------------------------
-
-#local TIF exists?
-
-#from previous run (as output file)
+#local TIF exists? (from previous run (as output file))
 tiff.rdy<-FALSE
 tiff.rdy<-file.exists(output)
 tiff.rdy
@@ -63,7 +59,8 @@ if(tiff.as.source==FALSE & tiff.rdy==FALSE) {
 
   message("extract aerial photo in ECW-format from AI directory")
 
-  gdalUtils::gdal_translate(input, output, overwrite=T)
+  gdalUtils::gdal_translate(src_dataset=input, dst_dataset=output, of="GTiff", overwrite=T, verbose=TRUE)
+
 }
 
 #-----------------------------------------------------------------------------------------------
@@ -72,10 +69,10 @@ if(tiff.as.source==FALSE & tiff.rdy==FALSE) {
 if(tiff.as.source==TRUE) {
   #TIFF as source
   #info on TIFF
-  #GDALinfo(output)
+  GDALinfo(output)
 
   ai <-  as(stars::read_stars(output), "Raster")
-  rm(tif)
+  #rm(tif)
 } else {
   #ECW as source
   ai<-raster::brick(output)
@@ -162,7 +159,7 @@ dev.off()
 
 #Relationship bands NIR and red
 png(paste0(plots.loc,"rs_nir_red_relationship_",neighbourhood,".png"), bg="white")
-pairs(ai_buurt[[2:1]], main = "Red vs NIR")
+terra::pairs(ai_buurt[[2:1]], main = "Red vs NIR")
 dev.off()
 
 #This distribution of points (between NIR and red) is unique due to its triangular shape. Vegetation
@@ -171,7 +168,7 @@ dev.off()
 #surface features like bright soil or concrete.
 
 #buurt
-png(paste0(plots.loc,"rs_rgb_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
+png(paste0(plots.loc,"rs_rgb_",neighbourhood,".png"), bg="white", height=1280,width=1280,res=180,units="px")
 par(col.axis = "white", col.lab = "white", tck = 0,mar = c(1,1,1,1))
 aerial_rgb <- terra::plotRGB(ai_buurt,
                               r = 1, g = 2, b = 3,
@@ -186,7 +183,7 @@ plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
 dev.off()
 
 #tuinen in buurt
-png(paste0(plots.loc,"rs_rgb_",neighbourhood,"_tuinen.png"), bg="white", height = 1280,width=1280,res=180,units = "px")
+png(paste0(plots.loc,"rs_rgb_",neighbourhood,"_tuinen.png"), bg="white", height=1280,width=1280,res=180,units="px")
 par(col.axis = "white", col.lab = "white", tck = 0,mar = c(1,1,1,1))
 aerial_rgb <- terra::plotRGB(ai_tuinen,
                               r = 1, g = 2, b = 3,
@@ -200,4 +197,5 @@ aerial_rgb
 plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
 dev.off()
 
+#garbage collection
 gc()

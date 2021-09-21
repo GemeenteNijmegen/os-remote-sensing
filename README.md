@@ -31,7 +31,7 @@ The procedure extracts insights based on open data:
 - Aerial photo, opendata.beeldmateriaal.nl (raster data)
 
 ## Open Source
-The procedure is available in both Python and R programming language. The output can be deployed in QGIS.
+The procedure is available in both Python and R programming language. 
 
 ## Structure of the procedure
 
@@ -72,7 +72,7 @@ can be visualized in QGIS or similar (commercial) GIS-software.
 R: Define the neighbourhood code(s) in the neighbourhood.xlsx file. 
 You may either use your own aerial photo (must included infrared-band) or extract the region
 from the main (119GB) aerail photo of the Netherlands. You may 
-use ecw or tif as file-format. Please verify and adjust settings in 
+use tif or ecw as file-format. Please verify and adjust settings in 
 '00_init_batch_run.R'
  
 Run the procedure via '00_init_batch_run.R'

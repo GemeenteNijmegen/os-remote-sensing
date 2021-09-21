@@ -6,7 +6,6 @@
 #-----------------------------------------------------------------------------------------------
 
 
-
 #-----------------------------------------------------------------------------------------------
 
 # Setup environment
@@ -34,7 +33,7 @@ run_batch <- TRUE
 #please change accordingly
 tiff.as.source <- TRUE
 
-#name of input file (ECW or TIF) (make available in AI-directory)
+#name of input file (TIF or ECW) (make available in AI-directory)
 #please change accordingly
 input <- paste0('AI/amsterdam.tif')
 
@@ -44,7 +43,7 @@ input <- paste0('AI/amsterdam.tif')
 
 #-----------------------------------------------------------------------------------------------
 
-#please declare (multiple) buurtcode(s) in:
+#please declare (multiple) buurtcode(s) (covered by CIR aerial photography) in:
 BU_codes <- read.xlsx('neighbourhoods.xlsx')
 
 for (i in 1:nrow(BU_codes)) {

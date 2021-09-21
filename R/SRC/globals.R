@@ -102,7 +102,7 @@ crs_wgs84$epsg
 #store Stack credentials here and remove below
 #file.edit(file.path("~", ".Rprofile"))
 
-#webdav Transip Stack credentials
+#webdav Transip Stack credentials (public directory)
 webdav_hostname <- "https://datasciencevng.nl/remote.php/webdav/"
 webdav_login <- "remotesensing"
 webdav_password <- "VNGRS2021!"
