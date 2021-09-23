@@ -8,7 +8,7 @@ This so-called Minimal Viable Product is an 100-day experiment of the Expertise 
 
 Currently the application is a pre-release version (alpha).
 
-You may test it and use it under the condition that you provide the project with feedback, improvements or extensions. See Creative Commons licence below. 
+You may test it and use it under the condition that you provide the project with feedback, improvements or extension. See Creative Commons licence below. 
 
 ## Normalized Difference Vegetation Index (NDVI)
 
@@ -33,31 +33,36 @@ The procedure extracts insights based on open data:
 ## Open Source
 The procedure is available in both Python and R programming language. 
 
+## Methodology
+More information is available at: https://datasciencevng.nl/s/fp97uFYyVmACYZuB
+
 ## Structure of the procedure
 
 ```
 ├── LICENSE
 ├── DESCRIPTION
-├── README.md         <- Top-level README for developers
+├── README.md         							<- README
 ├── R
 	│
-	├── 00_init_batch_run.R  	 	<- run procedure
+	├── 00_init_batch_run.R  	 				<- run procedure
 	│
-	├── 01_RemoteSensing_NDVI      	<- main procedure
+	├── 01_RemoteSensing_NDVI      				<- main procedure
 	│
-	├── AI				  <- input (aerial image)
+	├── AI				  						<- input (aerial image)
 	│
-	├── DATA			  <- output (geopackages)
+	├── DATA			  						<- output (geopackages)
 	│
-	├── REPORT            <- output (metrics)
+	├── REPORT            						<- output (metrics)
 	│
-	├── PLOTS             <- output (visualisations) 
+	├── PLOTS             						<- output (visualisations) 
 	│	
-	├── SRC               <- Functions and dedicated procedures
+	├── SRC               						<- Functions and dedicated procedures
 	│
+	├── report_remote_sensing_NDVI.Rmd 			<- report template
+	
 
 ├── PYTHON
-   │
+     │
 	 ├── start.py  	 	<- run procedure
 	 │
 	 ...
@@ -69,9 +74,9 @@ The procedure is available in both Python and R programming language.
 Both the Python and R procedure result in geopackage (gpkg) files with multiples layers which
 can be visualized in QGIS or similar (commercial) GIS-software. 
 
-R: Define the neighbourhood code(s) in the neighbourhood.xlsx file. 
+R: Define the neighbourhood code(s) and municipality name in the neighbourhood.xlsx file. 
 You may either use your own aerial photo (must included infrared-band) or extract the region
-from the main (119GB) aerail photo of the Netherlands. You may 
+from the main  aerail photo of the Netherlands*. You may 
 use tif or ecw as file-format. Please verify and adjust settings in 
 '00_init_batch_run.R'
  
@@ -81,11 +86,14 @@ If you like to run the Python procedure from Rstudio, read the instructions in S
 
 Python: Define the neighbourhood code(s) in the neighbourhood.csv file.
 You may either use your own aerial photo (must included infrared-band) or extract the region
-from the main (119GB) aerail photo of the Netherlands. You may
+from the main aerial photo of the Netherlands*. You may
 use ecw as file-format. Please verify and adjust settings in
 'start.py'
 
 Run the procedure via 'start.py'
+
+*)
+https://datasciencevng.nl/s/ztnYabpulASJakHR (119GB), photo 2020 (early summer)
 
 ## Requirements
 Hardware : CPU I7, RAM 16GB (or similar)
@@ -116,7 +124,7 @@ https://gitlab.com/datasciencehub/remote-sensing/-/issues
 For technical assistance and other questions, please contact
 Mark Gremmen, mark.gremmen@vng.nl (R), or Stefan van der Hoorn, s.vanderhoorn@apeldoorn.nl (Python)
 
-## Expertise groep data science
+## Expertise group data science
 This procedure is a joined effort of VNG, several dutch municipalities and public organisations: Amsterdam, Apeldoorn, Utrecht, Nijmegen, Omgevingsdienst Midden- en West Brabant, VNG West Brabant
 
 ## Licence
