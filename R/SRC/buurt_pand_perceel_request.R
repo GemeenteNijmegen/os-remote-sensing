@@ -157,21 +157,22 @@ buildings_3d <- FALSE
 
 if(buildings_3d==TRUE) {
 
-loops = c(0,1001,2001,3001,4001,5001,6001,7001,8001,9001,10001,11001,12001)
+#loops = c(0,1001,2001,3001,4001,5001,6001)
 empty_df = list()
-for (loop in loops) {
+#for (loop in loops) {
   url <- parse_url("http://3dbag.bk.tudelft.nl/data/wfs?")
   url$query <- list(SERVICE = "WFS",
                     REQUEST = "GetFeature",
                     TYPENAMES = "BAG3D:pand3d",
+                    startindex = loop,
                     bbox = bbox,
                     outputFormat='json')
   request <- build_url(url);request
   data <- sf::st_read(request)
   empty_df <- list.append(empty_df, data)
   print(paste0("startindex ", loop," - entities: ",nrow(data), " 3d panden"))
-  if(nrow(data) < 1000) {panden3d_sf <- rbindlist(empty_df, use.names=TRUE) %>% st_as_sf(); break}
-}
+  panden3d_sf <- rbindlist(empty_df, use.names=TRUE) %>% st_as_sf()
+#}
 
 #subset 3d panden within buurt
 panden3d_sf <- sf::st_intersection(buurt_sf, panden3d_sf) %>% #clip with buurt
@@ -291,8 +292,9 @@ tuinen_sf <- st_erase(percelenwoonfunctie_sf,pandenwoonperceel_sf) %>%
   sf::st_make_valid() %>% #repair
   sf::st_collection_extract("POLYGON") %>% #polygons
   filter(!is.na(perceelnummer)) %>% #garden with perceelnummer
-  dplyr::select(one_of(percelen_cols))  #relevant columns
-
+  mutate(area = as.numeric(st_area(tuinen_sf))) %>%
+  filter(area > 1) %>% #remove garbage elements
+  dplyr::select(one_of(percelen_cols)) #relevant columns
 
 #interactive Leaflet presentation of the layers buurt, percelen and panden
 #mapview(list(panden_sf,percelenwoonfunctie_sf,tuinen_sf),alpha.regions = 0.6, alpha = 1)

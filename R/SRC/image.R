@@ -16,8 +16,8 @@
 output <- paste0(data.loc,neighbourhood,".tif")
 
 #local TIF exists? (from previous run (as output file))
-tiff.rdy<-FALSE
-tiff.rdy<-file.exists(output)
+tiff.rdy <- FALSE
+tiff.rdy <- file.exists(output)
 tiff.rdy
 
 #tif as a source (as input file)
@@ -26,12 +26,12 @@ if(tiff.rdy==FALSE & tiff.as.source==TRUE) {
 input.tif <- list.files(ai.dir, pattern = "\\.tif$", full.names = TRUE)
 if(length(input.tif) != 0) {
 
-message("extract aerial photo in TIF-format from AI directory")
+message("extract CIR aerial photo in TIF-format from AI directory")
 #move to output folder
 file.copy(from = input.tif,
           to   = output)
 
-tiff.rdy<-file.exists(output)
+tiff.rdy <- file.exists(output)
 }
 
 }
@@ -40,7 +40,7 @@ tiff.rdy<-file.exists(output)
 
 if(tiff.as.source==TRUE & tiff.rdy==FALSE) {
 
-  message("extract aerial photo in TIF-format from VNG Stack")
+  message("extract CIR aerial photo in TIF-format from VNG Stack")
 
   #remote TIFF (input)
   path_tif <- paste0("https://datasciencevng.nl/remote.php/webdav/Data/cir2020perbuurt/",neighbourhood,".tif")
@@ -50,6 +50,7 @@ if(tiff.as.source==TRUE & tiff.rdy==FALSE) {
                                username = webdav_login,
                                password = webdav_password,
                                verbose  = FALSE)
+  tiff.rdy <- file.exists(output)
 }
 
 #-----------------------------------------------------------------------------------------------
@@ -57,13 +58,19 @@ if(tiff.as.source==TRUE & tiff.rdy==FALSE) {
 #ECW
 if(tiff.as.source==FALSE & tiff.rdy==FALSE) {
 
-  message("extract aerial photo in ECW-format from AI directory")
+  message("extract CIR aerial photo in ECW-format from AI directory")
 
   gdalUtils::gdal_translate(src_dataset=input, dst_dataset=output, of="GTiff", overwrite=T, verbose=TRUE)
 
+  tiff.rdy <- file.exists(output)
 }
 
 #-----------------------------------------------------------------------------------------------
+
+if(tiff.rdy==FALSE) {
+  message("No (valid) CIR aerial photo available in AI directory")
+  stop("procedure terminated")
+}
 
 #create RasterBrick
 if(tiff.as.source==TRUE) {
@@ -71,11 +78,11 @@ if(tiff.as.source==TRUE) {
   #info on TIFF
   GDALinfo(output)
 
-  ai <-  as(stars::read_stars(output), "Raster")
+  ai <- as(stars::read_stars(output), "Raster")
   #rm(tif)
 } else {
   #ECW as source
-  ai<-raster::brick(output)
+  ai <- raster::brick(output)
 }
 
 #-----------------------------------------------------------------------------------------------

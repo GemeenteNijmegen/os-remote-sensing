@@ -12,6 +12,9 @@
 
 #-----------------------------------------------------------------------------------------------
 
+#set working directory
+#setwd("") #default (de-activated)
+
 #Run in project environment (to avoid package conflicts)
 proj_env <- FALSE #default (F)
 
@@ -21,8 +24,6 @@ debug_mode <- FALSE #default (F)
 #packages
 source('SRC/packages.R')
 
-run_batch <- TRUE
-
 #-----------------------------------------------------------------------------------------------
 
 # Color-infrared (CIR) aerial photography (TIF or ECW format)
@@ -31,11 +32,11 @@ run_batch <- TRUE
 
 #read TIFF (TRUE=TIFF, FALSE=ECW)
 #please change accordingly
-tiff.as.source <- TRUE
+tiff.as.source <- TRUE #default (T)
 
 #name of input file (TIF or ECW) (make available in AI-directory)
 #please change accordingly
-input <- paste0('AI/amsterdam.tif')
+input <- paste0('AI/amsterdam.tif') #default (neighbourhood in Oss from cloud)
 
 #-----------------------------------------------------------------------------------------------
 

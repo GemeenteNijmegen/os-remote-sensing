@@ -88,6 +88,8 @@ packages <- c(
   'cluster',
   # Airborne LiDAR Data Manipulation and Visualization for Forestry Applications
   'lidR',
+  # 3D data visualizations
+  'rayshader',
   #color schemes
   'colorspace',
   'viridis',
