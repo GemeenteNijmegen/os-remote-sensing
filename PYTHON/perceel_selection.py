@@ -4,6 +4,9 @@ import geopandas as gpd
 from requests import Request
 from owslib.wfs import WebFeatureService
 
+from time import process_time
+t1_start = process_time()
+
 # Load variables
 from start import gpkg_vector
 
@@ -51,3 +54,8 @@ gdf_allpercelenbuurt = gdf_allpercelenbuurt[gdf_allpercelenbuurt.geom_type == 'P
 
 # Write percelen-polygon to gpkg
 gdf_allpercelenbuurt.to_file(gpkg_vector, driver='GPKG', layer='percelen')
+
+# Stop the stopwatch / counter
+t1_stop = process_time()
+print("Perceel selection runtime is", round(t1_stop - t1_start,1), "seconds")
+print("Perceel selection process finished \n")
