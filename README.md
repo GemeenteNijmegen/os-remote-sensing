@@ -17,8 +17,6 @@ and visible red light. It distinguishes vegetation from soil, minimizes topograp
 NDVI is chlorophyll sensitive, emphasizing the green color of a healthy plant.
 
 ![NDVI](https://eo4geo.sbg.ac.at/IGIK/Sentinel2_Data_and_Vegetation_Indices/NDVI_trees.png)
-Source: Wu Ch-D., et al. (2014) 
-
 
 NDVI-ranges vegetation in this research
        -1 to 0.2: non-vegetation; 
