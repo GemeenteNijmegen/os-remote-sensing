@@ -4,6 +4,9 @@ import geopandas as gpd
 import rasterio
 from rasterio.mask import mask
 
+from time import process_time
+t1_start = process_time()
+
 # Load variables
 from start import gpkg_vector, files_basename
 
@@ -22,16 +25,19 @@ gdf_daken = gdf_daken.rename(index=str, columns={"identificatie":"pand_identific
 
 # Clip (called mask in rasterio) tuinen with ndvi
 daken_ndvi, mask_transform = mask(dataset=ndvi,shapes=gdf_daken.geometry,crop=True)
-#show(tuinen_ndvi, transform=mask_transform)
 
 # Define profile for writing based on NDVI tif profile
 profile = ndvi.meta
 WIDTH = daken_ndvi.shape[2] ## get the dimensions of the image we are writting out
 HEIGHT = daken_ndvi.shape[1]
 profile.update(driver='GTiff', transform=mask_transform, height = HEIGHT, width = WIDTH)
-print(profile) ## check on the updated profile
 
 # Write tuinen NDVI
 output_daken_ndvi = files_basename + "_daken_ndvi.tif"
 with rasterio.open(output_daken_ndvi, 'w', **profile) as dst:
     dst.write(daken_ndvi)
+
+# Stop the stopwatch / counter
+t1_stop = process_time()
+print("Roof vegetation clip runtime is ", round(t1_stop - t1_start,1), "seconds")
+print("Roof vegetation clip process finished \n")
