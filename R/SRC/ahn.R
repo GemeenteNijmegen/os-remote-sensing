@@ -75,7 +75,8 @@ names(ahn_dtm_raster) <- "BBOXrs_rAHN3_05m_DTM"
 }
 
 #digital surface model minus digital terrain model to obtain height of objects
-ahn_raster<-ahn_dsm_raster-ahn_dtm_raster
+ahn_raster <- raster::overlay(ahn_dsm_raster, ahn_dtm_raster, fun = function(x, y) { (x) - (y) })
+names(ahn_raster) <- "height_objects"
 
 rm(ahn_dsm_raster,ahn_dtm_raster)
 
@@ -85,7 +86,7 @@ ahn_raster_hr <- terra::disaggregate(ahn_raster, fact=4)
 ahn_raster_hr<-ahn_raster
 
 #resample to match dimension, resolution and extent with nearest neighbor as method (we do not want to change values as with bilinear method)
-ahn_raster_hr_rs <- terra::resample(ahn_raster_hr,ndvi, method = 'ngb') # or raster::projectRaster
+ahn_raster_hr_rs <- terra::resample(ahn_raster_hr,ndvi, method = 'ngb')
 
 #mask rasters
 ahn_buurt <- terra::mask(ahn_raster_hr_rs, buurt_sf)
@@ -93,7 +94,6 @@ ahn_tuinen <- terra::mask(ahn_raster_hr_rs, tuinen_sf)
 ahn_panden <- terra::mask(ahn_raster_hr_rs, panden_sf)
 
 rm(ahn_raster,ahn_raster_hr, ahn_raster_hr_rs)
-
 
 #-----------------------------------------------------------------------------------------------
 #Update geopackage
@@ -156,8 +156,7 @@ aerial_rgb <- terra::plotRGB(ai_buurt,
                               alpha=0,#hide (0), show(255)
                               axes = TRUE,
                               main = paste0("AHN tuinen (m) ", neighbourhood))
-plot(ahn_tuinen, add=TRUE, legend=TRUE, col= rev(hcl.colors(12, "YlOrRd"))
-     )
+plot(ahn_tuinen, add=TRUE, legend=TRUE, col= rev(hcl.colors(12, "YlOrRd")))
 plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 aerial_rgb

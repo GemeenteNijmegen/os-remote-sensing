@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------------------------
 
 # date created: 2021-05-11
-# date modified: 2021-09-17
+# date modified: 2021-09-24
 
 #-----------------------------------------------------------------------------------------------
 
@@ -118,6 +118,22 @@ stone_d <- raster::reclassify(ndvi, c(-1,-0.1,0, #water
 
 #--------------------------------------------------
 
+#Transformed Normalized Difference Vegetation Index (TNDVI)
+
+#--------------------------------------------------
+
+#TNDVI indicates a relation between the amount of green biomass that is found in a pixel.
+#It has always positive values and the variances of the ratio are proportional to mean values
+
+tndvi_calc <- FALSE
+
+if(tndvi_calc==TRUE) {
+tndvi <- raster::overlay(ndvi, fun = function(x) { sqrt(x + 0.5) })
+names(tndvi) <- "tndvi"
+}
+
+#--------------------------------------------------
+
 #Enhanced vegetation index - Two-band (EVI2)
 
 #--------------------------------------------------
@@ -187,8 +203,6 @@ rm(reclass_binary, reclass_binary_m, ahn_buurt, ahn_panden)
 # Polygon filtering, green coverage and mean NDVI calculations
 
 #-----------------------------------------------------------------------------------------------
-
-#filter ndvi raster by polygon
 
 raster::crs(ndvi) <- raster::crs(percelen_sf)
 
@@ -483,7 +497,8 @@ source(here::here('SRC/vegetation_plots.R'))
 message("exiting procedure for neighbourhood ", neighbourhood)
 
 end_time <- Sys.time()
-end_time - start_time
+performance = end_time - start_time
+cat("\ntime passed ",performance," minutes\n")
 
 rlang::last_error()
 rlang::last_trace()

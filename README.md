@@ -11,10 +11,14 @@ Currently the application is a pre-release version (alpha).
 You may test it and use it under the condition that you provide the project with feedback, improvements or extension. See Creative Commons licence below. 
 
 ## Normalized Difference Vegetation Index (NDVI)
-
-Normalized Difference Vegetation Index (NDVI) quantifies vegetation by measuring the difference between near-infrared (which vegetation strongly reflects) 
-and red light (which vegetation absorbs). It distinguishes vegetation from soil, minimizes topographic effects
+Spectral indices dedicated to vegetation analysis are developed based on the principle that the healthy vegetation reflects strongly in the near-infrared (NIR) spectrum, while absorbing strongly in the visible red.
+Normalized Difference Vegetation Index (NDVI) quantifies vegetation by measuring the difference between near-infrared  
+and visible red light. It distinguishes vegetation from soil, minimizes topographic effects
 NDVI is chlorophyll sensitive, emphasizing the green color of a healthy plant.
+
+![NDVI](https://eo4geo.sbg.ac.at/IGIK/Sentinel2_Data_and_Vegetation_Indices/NDVI_trees.png)
+Source: Wu Ch-D., et al. (2014) 
+
 
 NDVI-ranges vegetation in this research
        -1 to 0.2: non-vegetation; 
@@ -34,31 +38,31 @@ The procedure extracts insights based on open data:
 The procedure is available in both Python and R programming language. 
 
 ## Methodology
-More information is available at: https://datasciencevng.nl/s/fp97uFYyVmACYZuB
+More information is available in the [presentation slides](https://datasciencevng.nl/s/fp97uFYyVmACYZuB)
 
 ## Structure of the procedure
 
 ```
 ├── LICENSE
 ├── DESCRIPTION
-├── README.md         							<- README
+├── README.md         					<- README
 ├── R
 	│
-	├── 00_init_batch_run.R  	 				<- run procedure
+	├── 00_init_batch_run.R  	 		<- run procedure
 	│
-	├── 01_RemoteSensing_NDVI      				<- main procedure
+	├── 01_RemoteSensing_NDVI      		<- main procedure
 	│
-	├── AI				  						<- input (aerial image)
+	├── AI				  				<- input (aerial image)
 	│
-	├── DATA			  						<- output (geopackages)
+	├── DATA			  				<- output (geopackages)
 	│
-	├── REPORT            						<- output (metrics)
+	├── REPORT            				<- output (metrics)
 	│
-	├── PLOTS             						<- output (visualisations) 
+	├── PLOTS             				<- output (visualisations) 
 	│	
-	├── SRC               						<- Functions and dedicated procedures
+	├── SRC               				<- Functions and dedicated procedures
 	│
-	├── report_remote_sensing_NDVI.Rmd 			<- report template
+	├── report_remote_sensing_NDVI.Rmd 	<- report template
 	
 
 ├── PYTHON

@@ -16,6 +16,14 @@ ndvi %>%
   write_stars(gpkg_indices,
               driver = "GPKG",options = c("RASTER_TABLE=ndvi","APPEND_SUBDATASET=YES"))
 
+if(tndvi_calc==TRUE) {
+#TNDVI (value)
+tndvi %>%
+  st_as_stars %>% # convert the RasterLayer to a stars object
+  write_stars(gpkg_indices,
+              driver = "GPKG",options = c("RASTER_TABLE=tndvi","APPEND_SUBDATASET=YES"))
+}
+
 #vegetation (fixed class)
 veg_g %>%
   st_as_stars %>% # convert the RasterLayer to a stars object

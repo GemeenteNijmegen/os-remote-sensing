@@ -130,6 +130,17 @@ plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
 
+#plot rgb and tndvi
+if(tndvi_calc==TRUE) {
+png(paste0(plots.loc,"rs_rgb_tndvi_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
+par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
+terra::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("TNDVI ", neighbourhood))
+plot(tndvi, add=TRUE, legend=TRUE, cex = 0.5, col=cols,na.value ="transparent")
+plot(percelen_sf$geom, add=TRUE, legend=FALSE)
+box(col = "white")
+dev.off()
+}
+
 #plot rgb and vegetation
 png(paste0(plots.loc,"rs_rgb_vegetation_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
 par(col.axis = "white", col.lab = "white", tck = 0,mar = c(1,1,1,1))

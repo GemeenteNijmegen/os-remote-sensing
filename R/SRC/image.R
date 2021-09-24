@@ -165,14 +165,14 @@ plot(ai_tuinen)
 dev.off()
 
 #Relationship bands NIR and red
-png(paste0(plots.loc,"rs_nir_red_relationship_",neighbourhood,".png"), bg="white")
-terra::pairs(ai_buurt[[2:1]], main = "Red vs NIR")
-dev.off()
 
 #This distribution of points (between NIR and red) is unique due to its triangular shape. Vegetation
 #reflects very highly in the NIR range than red and creates the upper corner close to NIR (y) axis. Water absorbs energy
 #from all the bands and occupies the location close to origin. The furthest corner is created due to highly reflecting
 #surface features like bright soil or concrete.
+png(paste0(plots.loc,"rs_nir_red_relationship_",neighbourhood,".png"), bg="white")
+terra::pairs(ai_buurt[[2:1]], main = "Red vs NIR")
+dev.off()
 
 #buurt
 png(paste0(plots.loc,"rs_rgb_",neighbourhood,".png"), bg="white", height=1280,width=1280,res=180,units="px")

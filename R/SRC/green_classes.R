@@ -9,7 +9,7 @@ ndvi_subset <- ndvi
 class(ndvi_subset)
 
 #ndvi scores greater than 0.2 are considered vegetation
-ndvi_subset@data@values[ndvi_subset@data@values <= 0.2] <- NA
+ndvi_subset@data@values[ndvi_subset@data@values < 0.2] <- NA
 
 # convert the raster to vector/matrix ('getValues' converts the RasterLAyer to array) )
 ndvi_array <- getValues(ndvi_subset)
