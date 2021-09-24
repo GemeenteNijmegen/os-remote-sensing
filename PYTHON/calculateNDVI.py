@@ -1,81 +1,63 @@
 #import required libraries
 import rasterio
-from rasterio import plot
-import matplotlib.pyplot as plt
 import numpy as np
 import os
+
+from time import process_time
+t1_start = process_time()
 
 # Load variables
 from start import files_basename, gpkg_raster
 
-#import bands as separate 1 band raster
-band4 = rasterio.open(files_basename + '_red.tif') #red
-band5 = rasterio.open(files_basename + '_nir.tif') #nir
+# Import bands as separate 1 band raster
+band1 = rasterio.open(files_basename + '_red.tif') #red
+band2 = rasterio.open(files_basename + '_nir.tif') #nir
 
-#number of raster rows
-band4.height
+# Number of raster rows
+band1.height
 
-#number of raster columns
-band4.width
-band5.nodatavals
+# Number of raster columns
+band1.width
+band2.nodatavals
 
+# Type of raster byte
+band1.dtypes[0]
 
-#plot band
-#plot.show(band4)
+# Raster sytem of reference
+band1.crs
 
-#type of raster byte
-band4.dtypes[0]
+# Raster transform parameters
+band1.transform
 
-#raster sytem of reference
-band4.crs
+# Raster values as matrix array
+band1.read(1)
 
-#raster transform parameters
-band4.transform
-
-#raster values as matrix array
-band4.read(1)
-
-#multiple band representation
-#fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
-#plot.show(band4, ax=ax1, cmap='Blues') #red
-#plot.show(band5, ax=ax2, cmap='Blues') #nir
-#fig.tight_layout()
-
-#generate nir and red objects as arrays in float64 format
-red = band4.read(1).astype('float64')
-nir = band5.read(1).astype('float64')
-
+# Generate nir and red objects as arrays in float64 format
+red = band1.read(1).astype('float64')
+nir = band2.read(1).astype('float64')
 
 #np.seterr(divide='ignore', invalid='ignore')  # Allow division by zero
 
-#
-
-#ndvi calculation, empty cells or nodata cells are reported as 0
+# NDVI calculation, empty cells or nodata cells are reported as 0
 ndvi = np.where( (nir+red) == 0., 0, (nir-red)/(nir+red))
 
-#ndvi[:5,:5]
-
-#export ndvi image
-ndviImage = rasterio.open(files_basename + '_ndvi.tif','w',driver='Gtiff',
-                          width=band4.width,
-                          height = band4.height,
-                          count=1, crs=band4.crs,
-                          transform=band4.transform,
+# Export ndvi image
+ndviImage = rasterio.open(files_basename + '_ndvi.tif','w', driver='Gtiff',
+                          width=band1.width,
+                          height = band1.height,
+                          count=1, crs=band1.crs,
+                          transform=band1.transform,
                           dtype='float64')
 ndviImage.write(ndvi,1)
 ndviImage.close()
 
-#Write to GPKG, convert to dtype Float32
-desGPKG = gpkg_raster
+#Write to GPKG
 sourcetif_ndvi = files_basename + "_ndvi.tif"
 lyr_ndvi = "ndvi"
-
-gdal_string_ndvi = 'gdal_translate -ot Float32 -of GPKG "{}" "{}" -co RASTER_TABLE={} -co APPEND_SUBDATASET=YES'.format(sourcetif_ndvi, desGPKG, lyr_ndvi)
+gdal_string_ndvi = 'gdal_translate -of GPKG "{}" "{}" -co RASTER_TABLE={} -co APPEND_SUBDATASET=YES'.format(sourcetif_ndvi, gpkg_raster, lyr_ndvi)
 os.system(gdal_string_ndvi)
 
-
-
-#plot ndvi
-#ndvi = rasterio.open(files_basename + '_ndvi.tif')
-#fig = plt.figure(figsize=(18,12))
-#plot.show(ndvi)
+# Stop the stopwatch / counter
+t1_stop = process_time()
+print("Calculate NDVI runtime is ", round(t1_stop - t1_start,1), "seconds")
+print("Calculate NDVI process finished")
