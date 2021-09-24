@@ -3,6 +3,9 @@ import geopandas as gpd
 from requests import Request
 from owslib.wfs import WebFeatureService
 
+from time import process_time
+t1_start = process_time()
+
 # Load variables
 from start import buurtcode, gpkg_vector
 
@@ -36,3 +39,9 @@ gdf_buurtselection = gdf_buurtselection.set_crs("EPSG:28992")
 
 # Write buurt-polygon to geopackage (gpkg)
 gdf_buurtselection.to_file(gpkg_vector, driver='GPKG', layer='buurt')
+
+
+# Stop the stopwatch / counter
+t1_stop = process_time()
+print("Buurt selection runtime is", round(t1_stop - t1_start,1), "seconds")
+print("Buurt selection process finished \n")
