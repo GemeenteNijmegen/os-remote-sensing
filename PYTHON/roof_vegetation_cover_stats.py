@@ -1,55 +1,55 @@
-#Import libraries
-import os
+#Load required Python libraries
 from rasterstats import zonal_stats
 import pandas as pd
 import geopandas as gpd
 
-from start import files_basename #werkt niet, zit ergens een lock op een tif uit start.py
-from start import gpkg_vector #werkt niet, zit ergens een lock op een tif uit start.py
+from time import process_time
+t1_start = process_time()
+
+# Load variables
+from start import files_basename, gpkg_vector
 
 #Source of code
 #https://gis.stackexchange.com/questions/408583/zonal-histogram-python
 
 """
-Hieronder wordt het percentage groen per dak berekend.
+Calculate percentage green for each roof
 """
-#Input voor percentage groen berekening
-raster = files_basename + "_roofs_ndvi_3_classes.tif"
-#zones = files_basename + "_tuinen_polygon.shp"
-
-#Berekening percentage groen dmv dataframe
+#Input tif and roof
+raster = files_basename + "_daken_ndvi_3_classes.tif"
 df = gpd.read_file(gpkg_vector, driver='GPKG', layer='daken')
+
 zs = zonal_stats(vectors=df['geometry'], raster=raster, categorical=True)
 dfz = pd.DataFrame(zs).fillna(0)
 
 dfz_perc = dfz.apply(lambda x: round(x/x.sum()*100,1), axis=1) #From pixel count to percentage
 dfres = pd.merge(left=df, right=dfz_perc, how='left', left_index=True, right_index=True)
 
-#Hernoemen kolom '10'
-#'10' = perc_groen (percentage groen)
-# '20' = overige percentage (totaal - percentage groen)
-
 #Change column data types to string for all columns
 dfres.columns = dfres.columns.astype(str)
 
-#Get data type for each column
-print(dfres.columns.map(type))
+if '10' in dfres.columns:
+    dfres.rename(columns={'10': 'pGROEN'}, inplace=True)
+    #Afronden kolommen naar 0 decimalen
+    dfres['pGROEN'] = dfres['pGROEN'].astype(float)
+    dfres['pGROEN'] = dfres['pGROEN'] + 0.5
+    dfres['pGROEN'] = dfres['pGROEN'].fillna(0)
+    dfres['pGROEN'] = dfres['pGROEN'].astype(int)
 
-#delete column, this column contains 100% - percentage vegetation
-del dfres['20']
+if '20' in dfres.columns:
+    dfres.rename(columns={'20': 'pGRIJS'}, inplace=True)
+    #Afronden kolommen naar 0 decimalen
+    dfres['pGRIJS'] = dfres['pGRIJS'].astype(float)
+    dfres['pGRIJS'] = dfres['pGRIJS'] + 0.5
+    dfres['pGRIJS'] = dfres['pGRIJS'].fillna(0)
+    dfres['pGRIJS'] = dfres['pGRIJS'].astype(int)
 
-dfres.rename(columns={'10': 'pGROEN'}, inplace=True)
+dfres = dfres.loc[dfres['pGROEN'] * dfres['pGROEN'] != 0]
 
-#Afronden kolommen naar 0 decimalen
-dfres['pGROEN'] = dfres['pGROEN'].astype(float)
-dfres['pGROEN'] = dfres['pGROEN'] + 0.5
-dfres['pGROEN'] = dfres['pGROEN'].astype(int)
-# dfres['perceelnummer'] = dfres['perceelnummer'].astype(int)
+# Write tuinen_stats-polygon to gpkg
+dfres.to_file(gpkg_vector, driver='GPKG', layer='daken_stats')
 
-#Get column names dataframe
-print(dfres.columns.tolist())
-
-#Wegschrijven naar shapefile
-#dfres.to_file(zones)
-
-dfres.to_file(gpkg_vector, driver='GPKG', layer='roofs_stats')
+# Stop the stopwatch / counter
+t1_stop = process_time()
+print("Roof vegetation cover stats runtime is ", round(t1_stop - t1_start,1), "seconds")
+print("Roof vegetation cover stats process finished \n")
