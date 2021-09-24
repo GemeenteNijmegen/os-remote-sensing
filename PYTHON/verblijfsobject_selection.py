@@ -4,8 +4,20 @@ import geopandas as gpd
 from requests import Request
 from owslib.wfs import WebFeatureService
 
+from time import process_time
+t1_start = process_time()
+
 # Load variables
-from start import gpkg_vector
+#from start import gpkg_vector
+
+import os
+buurtcode = "BU08280002"
+workingdirectory = os.getcwd()
+parent = os.path.dirname(workingdirectory)
+outputdirectory = parent + "/output/" + buurtcode + "/"
+files_basename = outputdirectory + buurtcode
+gpkg_vector = outputdirectory + buurtcode + "_vector.gpkg"
+gpkg_raster = outputdirectory + buurtcode + "_raster.gpkg"
 
 ## Start verblijfsobject selection script
 # Read buurt-polygon
@@ -46,17 +58,15 @@ gdf_allvobuurt = gdf_allvobuurt.set_crs("EPSG:28992")
 # Clip verblijfsobjecten with buurt
 gdf_allvobuurt = gpd.clip(gdf_allvobuurt, gdf_buurt)
 
+# Filter all verblijfsobjecten with status 'in gebruik' and 'verbouwing'
+gdf_allvobuurt = gdf_allvobuurt[gdf_allvobuurt['status'].str.contains('Verblijfsobject in gebruik|Verbouwing verblijfsobject')]
+
 # Write verblijfsobjecten to gpkg
 gdf_allvobuurt.to_file(gpkg_vector, driver='GPKG', layer='verblijfsobjecten')
-
-# Filter all verblijfsobjecten with status 'in gebruik' and 'verbouwing'
-gdf_vobuurtwoonfunctie = gdf_allvobuurt[gdf_allvobuurt['status'].str.contains('Verblijfsobject in gebruik|Verbouwing verblijfsobject')]
 
 # Filter all verblijfsobjecten which contain the function 'woonfunctie' and 'logiesfunctie'
 gdf_vobuurtwoonfunctie = gdf_allvobuurt[gdf_allvobuurt['gebruiksdoel'].str.contains('woonfunctie|logiesfunctie')]
 
-
-gdf_vobuurtwoonfunctie
 
 # Write woningen to gpkg
 if len(gdf_vobuurtwoonfunctie.columns) == 0:
@@ -64,3 +74,8 @@ if len(gdf_vobuurtwoonfunctie.columns) == 0:
     quit()
 else:
     gdf_vobuurtwoonfunctie.to_file(gpkg_vector, driver='GPKG', layer='woningen')
+
+# Stop the stopwatch / counter
+t1_stop = process_time()
+print("Verblijfsobject selection runtime is", round(t1_stop - t1_start,1), "seconds")
+print("Verblijfsobject selection process finished \n")
