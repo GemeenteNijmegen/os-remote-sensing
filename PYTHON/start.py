@@ -3,7 +3,7 @@ import os
 from os import listdir
 import runpy
 import pandas as pd
-
+import time
 from time import process_time
 total_start = process_time()
 
@@ -12,27 +12,30 @@ workingdirectory = os.getcwd()
 parent = os.path.dirname(workingdirectory)
 
 # ECW location
-# path_ECW_2020 = parent + "/rasterdata/2020_LR_CIR_totaalmozaiek_v2_clip.ecw"
+# path_ECW_2020 = parent + "/inputdata/2020_LR_CIR_totaalmozaiek_v2_clip.ecw"
 
 # Set location for csv with buurtcodes and declare (multiple) buurtcode(s) in:
 filename = workingdirectory + "/neighbourhoods.csv"
 df = pd.read_csv(filename)
 
 # Loop through csv with buurtcodes and run process below for each buurtcode
+#for buurtcode, item in df.iteritems():
+
+# Iterate over column names
 for index, row in df.iterrows():
     buurtcode = row["buurtcode"]
     workingdirectory = os.getcwd()
     parent = os.path.dirname(workingdirectory)
-    tempdirectory = parent + "/tempdata/" + row["buurtcode"] + "/"
-    files_basename = tempdirectory + row["buurtcode"]
-    gpkg_vector = tempdirectory + row["buurtcode"] + "_vector.gpkg"
-    gpkg_raster = tempdirectory + row["buurtcode"] + "_raster.gpkg"
-    if not os.path.exists(tempdirectory):
-        os.makedirs(tempdirectory)
+    outputdirectory = parent + "/output/" + row["buurtcode"] + "/"
+    files_basename = outputdirectory + row["buurtcode"]
+    gpkg_vector = outputdirectory + row["buurtcode"] + "_vector.gpkg"
+    gpkg_raster = outputdirectory + row["buurtcode"] + "_raster.gpkg"
+    if not os.path.exists(outputdirectory):
+        os.makedirs(outputdirectory)
     ext = [".gpkg", ".tif", ".xml"]
-    for file_name in listdir(tempdirectory):
+    for file_name in listdir(outputdirectory):
         if file_name.endswith(tuple(ext)):
-            os.remove(tempdirectory + file_name)
+            os.remove(outputdirectory + file_name)
     runpy.run_module(mod_name='buurt_selection')
     runpy.run_module(mod_name='pand_selection')
     runpy.run_module(mod_name='perceel_selection')
@@ -44,11 +47,38 @@ for index, row in df.iterrows():
     runpy.run_module(mod_name='calculateNDVI')
     runpy.run_module(mod_name='garden_vegetation_clip')
     runpy.run_module(mod_name='garden_vegetation_reclassify')
+    time.sleep(30)
     runpy.run_module(mod_name='garden_vegetation_cover_stats')
     runpy.run_module(mod_name='roof_vegetation_clip')
     runpy.run_module(mod_name='roof_vegetation_reclassify')
+    time.sleep(30)
     runpy.run_module(mod_name='roof_vegetation_cover_stats')
     # Stop the stopwatch / counter
     total_stop = process_time()
     print("Total process runtime is", round(total_stop - total_start, 1), "seconds")
     print("Process finished for " + row["buurtcode"] + "\n")
+
+import glob
+types = ('*ndvi_2_classes.tif', '*.xml') # the tuple of file types
+files_grabbed = []
+for files in types:
+    files_grabbed.extend(glob.glob(files))
+    try:
+        os.remove(files)
+    except OSError as e:
+        print("Error: %s : %s" % (files, e.strerror))
+
+
+# Cleanup all temp files
+import glob
+outputdir = parent + "/output/"
+
+files = glob.glob(outputdir + "**/*ndvi_2_classes.tif", recursive=True)
+for f in files:
+    try:
+        os.remove(f)
+    except OSError as e:
+        print("Error: %s : %s" % (f, e.strerror))
+
+print("Process finished for all neighbourhoods \n")
+quit()
