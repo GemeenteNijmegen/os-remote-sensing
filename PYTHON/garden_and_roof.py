@@ -6,17 +6,7 @@ from time import process_time
 t1_start = process_time()
 
 # Load variables
-#from start import gpkg_vector
-
-import os
-buurtcode = "BU08280002"
-workingdirectory = os.getcwd()
-parent = os.path.dirname(workingdirectory)
-outputdirectory = parent + "/output/" + buurtcode + "/"
-files_basename = outputdirectory + buurtcode
-gpkg_vector = outputdirectory + buurtcode + "_vector.gpkg"
-gpkg_raster = outputdirectory + buurtcode + "_raster.gpkg"
-
+from start import gpkg_vector
 
 ## Start garden and roof selection script
 #Let’s first enable shapely.speedups which makes some of the spatial queries running faster.
