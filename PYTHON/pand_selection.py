@@ -4,6 +4,9 @@ import geopandas as gpd
 from requests import Request
 from owslib.wfs import WebFeatureService
 
+from time import process_time
+t1_start = process_time()
+
 # Load variables
 from start import gpkg_vector
 
@@ -46,5 +49,12 @@ gdf_allpandenbuurt = gdf_allpandenbuurt.set_crs("EPSG:28992")
 # Clip panden with buurt
 gdf_allpandenbuurt = gpd.clip(gdf_allpandenbuurt, gdf_buurt)
 
+gdf_allpandenbuurt = gdf_allpandenbuurt[gdf_allpandenbuurt.geom_type == 'Polygon']
+
 # Write panden-polygon to gpkg
 gdf_allpandenbuurt.to_file(gpkg_vector, driver='GPKG', layer='panden')
+
+# Stop the stopwatch / counter
+t1_stop = process_time()
+print("Pand selection runtime is", round(t1_stop - t1_start,1), "seconds")
+print("Pand selection process finished \n")
