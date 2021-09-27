@@ -360,8 +360,6 @@ tuinen_sf <- tuinen_sf %>%
                   tree_surface_5m = round((oppervlakte_tuin*(tree_cover_5m/100)),1),
                   #oppervlak middelhoge en hoge vegetatie (3m and above)
                   veg_surface_3m = round((oppervlakte_tuin*(veg_cover_3m/100)),1),
-                  #oppervlak middelhoge en hoge vegetatie (3m and above)
-                  tree_surface_5m = round((oppervlakte_tuin*(tree_cover_5m/100)),1),
                   #oppervlak bomen (5m and above)
                   treeingreen_cover = round(tree_surface_5m/green_surface*100,1),
                   #oppervlak potentieel vegetatie
@@ -371,9 +369,6 @@ tuinen_sf <- tuinen_sf %>%
                   #buurtcode meenemen
                   buurt_selection = neighbourhood
                   )
-
-#gardens with 5m and above, but no vegetation cover (todo: tackle in polygon section!) : infinite to Na
-#is.na(tuinen_sf$treeingreen_cover) <- sapply(tuinen_sf$treeingreen_cover, is.infinite)
 
 sf::st_write(tuinen_sf, dsn=gpkg_vector, layer='tuinen',layer_options = "OVERWRITE=YES",append=FALSE)
 
