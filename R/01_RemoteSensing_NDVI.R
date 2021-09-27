@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------------------------
 
 # date created: 2021-05-11
-# date modified: 2021-09-24
+# date modified: 2021-09-27
 
 #-----------------------------------------------------------------------------------------------
 
@@ -375,9 +375,11 @@ tuinen_sf <- tuinen_sf %>%
 #gardens with 5m and above, but no vegetation cover (todo: tackle in polygon section!) : infinite to Na
 #is.na(tuinen_sf$treeingreen_cover) <- sapply(tuinen_sf$treeingreen_cover, is.infinite)
 
+sf::st_write(tuinen_sf, dsn=gpkg_vector, layer='tuinen',layer_options = "OVERWRITE=YES",append=FALSE)
+
 #compute buurt statistics
 buurt_garden_stats <- tuinen_sf %>%
-        group_by(buurt_selection)  %>%
+        group_by(buurt_selection) %>%
         summarise(
                   #tuin oppervlak
                   garden_surface_sum = sum(oppervlakte_tuin, na.rm = TRUE),
@@ -405,7 +407,7 @@ buurt_garden_stats <- tuinen_sf %>%
                   ndvi_green_avg = round(mean(ndvi_green_avg,na.rm = TRUE),1)
                   )
 
-buurt_garden_stats <- cbind(buurt_sf,buurt_garden_stats)
+buurt_garden_stats <- cbind(buurt_sf,buurt_garden_stats) %>% rename(geom_tuinen=geom.1)
 
 write.csv(buurt_garden_stats,file=paste(report.loc,"Buurt_tuinen_statistieken_",neighbourhood,".csv"))
 
@@ -452,6 +454,9 @@ panden_sf <- panden_sf %>%
                 buurt_selection = neighbourhood
         )
 
+
+sf::st_write(panden_sf, dsn=gpkg_vector, layer='panden',layer_options = "OVERWRITE=YES",append=FALSE)
+
 buurt_roofgarden_stats <- panden_sf %>%
         group_by(buurt_selection) %>%
         summarise(
@@ -467,7 +472,7 @@ buurt_roofgarden_stats <- panden_sf %>%
                 ndvi_green_avg = round(mean(ndvi_green_avg,na.rm = TRUE),1)
         )
 
-buurt_roofgarden_stats <- cbind(buurt_sf,buurt_roofgarden_stats)
+buurt_roofgarden_stats <- cbind(buurt_sf,buurt_roofgarden_stats) %>% rename(geom_panden=geom.1)
 
 write.csv(buurt_roofgarden_stats,file=paste(report.loc,"Buurt_daken_statistieken_",neighbourhood,".csv"))
 

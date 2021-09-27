@@ -78,7 +78,7 @@ rvi %>%
   write_stars(gpkg_indices,
               driver = "GPKG", options = c("RASTER_TABLE=rvi","APPEND_SUBDATASET=YES"))
 
-#review raster layers in gpkg-file
+#review green indices raster layers in gpkg-file
 gdalUtils::gdalinfo(gpkg_indices) %>%
   cat(sep = "\n")
 
