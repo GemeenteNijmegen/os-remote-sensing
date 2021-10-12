@@ -8,10 +8,10 @@
 ndvi_subset <- ndvi
 class(ndvi_subset)
 
-#ndvi scores greater than 0.2 are considered vegetation
+# ndvi scores greater than 0.2 are considered vegetation
 ndvi_subset@data@values[ndvi_subset@data@values < 0.2] <- NA
 
-# convert the raster to vector/matrix ('getValues' converts the RasterLAyer to array) )
+# convert the RasterLAyer to array
 ndvi_array <- getValues(ndvi_subset)
 
 # keep valid observations only
@@ -42,7 +42,8 @@ gi_km <- ndvi_subset
 gi_km[]  <- NA
 gi_km[i] <- km$cluster
 
-# boxplots cluster result
+#-----------------------------------------------------------------------------------------------
+# boxplots
 tmp <- data.frame(ndvi = ndvi[], gi = gi_km[])
 
 tmp$gi <- factor(tmp$gi)
@@ -60,9 +61,10 @@ ggplot(ndvi_cluster, aes(x = gi, y = ndvi)) +
   xlab("Cluster")+
   ylab("NDVI") +
   theme_light()
-  plot.nme = paste0('NDVI_cluster_boundaries_unsupervised.png')
+plot.nme = paste0('NDVI_cluster_boundaries_unsupervised.png')
 plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=dpi)
+
 
 # create list with upper-bounds per cluster
 rng_list <- list()
@@ -76,5 +78,8 @@ veg_clus <- raster::reclassify(ndvi, c(-Inf, rng_list[[1]], 1,
                                    rng_list[[2]], rng_list[[3]], 3,
                                    rng_list[[3]], rng_list[[4]], 4,
                                    rng_list[[4]], Inf, 5))
+
+#-----------------------------------------------------------------------------------------------
+#garbage collecting
 
 rm(tmp, gi_km, ndvi_subset)

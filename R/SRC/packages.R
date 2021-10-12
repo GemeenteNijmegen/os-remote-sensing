@@ -86,10 +86,12 @@ packages <- c(
   'mapview',
   #unsupervised segmentation
   'cluster',
+  #quantify landscape configuration
+  'landscapemetrics',
   # Airborne LiDAR Data Manipulation and Visualization for Forestry Applications
   'lidR',
   # 3D data visualizations
-  'rayshader',
+  #'rayshader',
   #color schemes
   'colorspace',
   'viridis',

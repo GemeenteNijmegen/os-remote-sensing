@@ -1,3 +1,5 @@
+#-----------------------------------------------------------------------------------------------
+
 NDVI-ranges vegetation in this research
        -1 to 0.2: non-vegetation; 
         0.2 to 0.3: grasses, weed; 
@@ -7,10 +9,13 @@ NDVI-ranges vegetation in this research
 NDVI-range 'verstening'
        -0.1 tot 0.2: stone, sand/earth.
 
+#-----------------------------------------------------------------------------------------------
+#NDVI patches
+
 garden_surface_sum (tuinen)	
 totaal areaal tuin (m2)
 
-green_cover_avg	(tuinen,panden)
+green_cover_avg (tuinen,panden)
 aandeel van het totaal areaal bedekt met vegetatie (%)
 
 veg_cover_3m_avg (tuinen)		
@@ -46,3 +51,23 @@ gemiddelde NDVI waarde vegetatie areaal
 roofgarden_surface_sum (panden)
 totaal areaal pand(en) (m2)
 
+#-----------------------------------------------------------------------------------------------
+#unsupervised NDVI clusters
+
+ai (unsupervised clusters)
+aggregation index
+
+ca (unsupervised clusters)
+total (class) area (m2) (oppervlakte)
+
+contig_mn (unsupervised  clusters)     
+Mean of Contiguity index (samenhangendheid)
+
+enn_mn (buurt)
+Mean of euclidean nearest-neighbor distance (m)
+
+division (buurt)      
+Landscape division index (versnippering)
+
+pd (buurt)
+patch density

@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------------------------
 
 # date created: 2021-05-11
-# date modified: 2021-09-27
+# date modified: 2021-10-12
 
 #-----------------------------------------------------------------------------------------------
 
@@ -54,7 +54,7 @@ message("calculate vegetation indices")
 
 #--------------------------------------------------
 
-#Normalized difference vegetation index (NDVI)
+# Normalized difference vegetation index (NDVI)
 
 #--------------------------------------------------
 
@@ -118,7 +118,7 @@ stone_d <- raster::reclassify(ndvi, c(-1,-0.1,0, #water
 
 #--------------------------------------------------
 
-#Transformed Normalized Difference Vegetation Index (TNDVI)
+# Transformed Normalized Difference Vegetation Index (TNDVI)
 
 #--------------------------------------------------
 
@@ -134,7 +134,7 @@ names(tndvi) <- "tndvi"
 
 #--------------------------------------------------
 
-#Enhanced vegetation index - Two-band (EVI2)
+# Enhanced vegetation index - Two-band (EVI2)
 
 #--------------------------------------------------
 
@@ -145,7 +145,7 @@ names(evi2) <- "evi2"
 
 #--------------------------------------------------
 
-#Ratio vegetation index (RVI)
+# Ratio vegetation index (RVI)
 
 #--------------------------------------------------
 
@@ -166,7 +166,7 @@ source(here::here('SRC/ahn.R'))
 
 #-----------------------------------------------------------------------------------------------
 
-#Garden above xmeter
+# Garden above xmeter
 
 #-----------------------------------------------------------------------------------------------
 
@@ -244,7 +244,7 @@ raster::crs(veg_t5) <- raster::crs(percelen_sf)
 
 #-----------------------------------------------------------------------------------------------
 
-#vegetation geopackage
+# Vegetation geopackage
 
 #-----------------------------------------------------------------------------------------------
 
@@ -269,14 +269,14 @@ green_indices
 
 #-----------------------------------------------------------------------------------------------
 
-#vegetation coverage
+# Vegetation coverage
 
 #-----------------------------------------------------------------------------------------------
 
 
 #-----------------------------------------------------------------------------------------------
 
-#tuinen
+# Tuinen
 
 #-----------------------------------------------------------------------------------------------
 
@@ -408,11 +408,11 @@ write.csv(buurt_garden_stats,file=paste(report.loc,"Buurt_tuinen_statistieken_",
 
 #-----------------------------------------------------------------------------------------------
 
-#panden
+# Panden
 
 #-----------------------------------------------------------------------------------------------
 
-message("calculate green coverage panden met woonfunctie")
+message("calculate green coverage panden op perceel met woonfunctie")
 
 #Mean value (NDVI) of cells that intersect the polygon, weighted by the percent of the cell that is covered.
 #mean ndvi per polygon element (panden)
@@ -473,7 +473,7 @@ write.csv(buurt_roofgarden_stats,file=paste(report.loc,"Buurt_daken_statistieken
 
 #-----------------------------------------------------------------------------------------------
 
-#vegetation plots
+# Vegetation plots
 
 #-----------------------------------------------------------------------------------------------
 
@@ -481,16 +481,15 @@ source(here::here('SRC/vegetation_plots.R'))
 
 #-----------------------------------------------------------------------------------------------
 
-#green classes metrics
-
-#-----------------------------------------------------------------------------------------------
-##UNDER CONSTRUCTION
-
-#source(here::here('SRC/green_classes_metrics.R'))
+# Metrics for unsupervised NDVI clusters (Fragmentation analysis)
 
 #-----------------------------------------------------------------------------------------------
 
-# Debugging
+source(here::here('SRC/green_classes_metrics.R'))
+
+#-----------------------------------------------------------------------------------------------
+
+# Performance and debugging
 
 #-----------------------------------------------------------------------------------------------
 

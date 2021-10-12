@@ -12,19 +12,18 @@ You may test it and use it under the condition that you provide the project with
 
 ## Normalized Difference Vegetation Index (NDVI)
 Spectral indices dedicated to vegetation analysis are developed based on the principle that the healthy vegetation reflects strongly in the near-infrared (NIR) spectrum, while absorbing strongly in the visible red.
-Normalized Difference Vegetation Index (NDVI) quantifies vegetation by measuring the difference between near-infrared  
-and visible red light. It distinguishes vegetation from soil, minimizes topographic effects
+Normalized Difference Vegetation Index (NDVI) quantifies vegetation by measuring the difference between near-infrared and visible red light. It distinguishes vegetation from soil, minimizes topographic effects
 NDVI is chlorophyll sensitive, emphasizing the green color of a healthy plant.
 
 ![NDVI](https://eo4geo.sbg.ac.at/IGIK/Sentinel2_Data_and_Vegetation_Indices/NDVI_trees.png)
 
-NDVI-ranges vegetation in this research
+NDVI-ranges vegetation in this research: 
        -1 to 0.2: non-vegetation; 
         0.2 to 0.3: grasses, weed; 
         0.3 to 0.5: low to medium vegetation (substantial vegetation); 
         0.5 to 1: #intensive vegetation, high vegetation, trees.
 
-NDVI-range 'verstening'
+NDVI-range 'verstening': 
        -0.1 tot 0.2: stone, sand/earth.
 
 ## Open Data 
@@ -73,14 +72,13 @@ More information is available in the [presentation slides](https://datasciencevn
 
 ## Instructions
 
-Both the Python and R procedure result in geopackage (gpkg) files with multiples layers which
-can be visualized in QGIS or similar (commercial) GIS-software. 
+Both the Python and R procedure result geopackage (gpkg) files with multiples layers containing the results of the analysis.
+The geopackages be visualized in QGIS or similar (commercial) GIS-software. 
 
 R: Define the neighbourhood code(s) and municipality name in the neighbourhood.xlsx file. 
 You may either use your own aerial photo (must included infrared-band) or extract the region
-from the main  aerail photo of the Netherlands*. You may 
-use tif or ecw as file-format. Please verify and adjust settings in 
-'00_init_batch_run.R'
+from the main  aerail photo of the Netherlands*. You may use tif or ecw as file-format. 
+Please verify and adjust settings in '00_init_batch_run.R'
  
 Run the procedure via '00_init_batch_run.R'
 
@@ -98,7 +96,7 @@ Run the procedure via 'start.py'
 https://datasciencevng.nl/s/ztnYabpulASJakHR (119GB), photo 2020 (early summer)
 
 ## Requirements
-Hardware : CPU I7, RAM 16GB (or similar)
+Hardware : CPU I7 (or similar processor), minimal 16GB RAM 
 
 QGIS
 https://www.qgis.org/en/
@@ -124,10 +122,10 @@ https://gitlab.com/datasciencehub/remote-sensing/-/issues
 
 ## Contact
 For technical assistance and other questions, please contact
-Mark Gremmen, mark.gremmen@vng.nl (R), or Stefan van der Hoorn, s.vanderhoorn@apeldoorn.nl (Python)
+Mark Gremmen, mark.gremmen@vng.nl (project, R language), or Stefan van der Hoorn, s.vanderhoorn@apeldoorn.nl (Python language)
 
 ## Expertise group data science
-This procedure is a joined effort of VNG, several dutch municipalities and public organisations: Amsterdam, Apeldoorn, Utrecht, Nijmegen, Omgevingsdienst Midden- en West Brabant, VNG West Brabant
+This procedure is a joined effort of VNG, several dutch municipalities and public organisations: Amsterdam, Apeldoorn, Utrecht, Nijmegen, Omgevingsdienst Midden- en West Brabant, and GGD West Brabant
 
 ## Licence
 <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons-Licentie" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br />Dit werk valt onder een <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Naamsvermelding-NietCommercieel-GelijkDelen 4.0 Internationaal-licentie</a>.
