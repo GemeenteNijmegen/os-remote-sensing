@@ -86,6 +86,9 @@ tuinen_opp = tuinen_opp.round(2)
 #Voeg kolom aan tuinen DF toe
 tuinen['opp'] = tuinen_opp
 
+#Selecteer tuinen groter dan 3 meter
+tuinen = tuinen[tuinen['opp'] > 1]
+
 
 # A garden needs to have a perceelnummer otherwise the garden selection is likely selected because of an overlay in the previous step.
 #TODO methode wellicht verbeteren
