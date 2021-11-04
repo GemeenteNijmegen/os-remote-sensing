@@ -292,7 +292,7 @@ tuinen_sf <- st_erase(percelenwoonfunctie_sf,pandenwoonperceel_sf) %>%
   sf::st_make_valid() %>% #repair
   sf::st_collection_extract("POLYGON") %>% #polygons
   filter(!is.na(perceelnummer)) %>% #garden with perceelnummer
-  mutate(area = as.numeric(st_area(tuinen_sf))) %>%
+  mutate(area = as.numeric(st_area(geom))) %>%
   filter(area > 1) %>% #remove garbage elements
   dplyr::select(one_of(percelen_cols)) #relevant columns
 
