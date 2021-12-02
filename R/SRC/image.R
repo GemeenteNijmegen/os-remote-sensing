@@ -7,7 +7,7 @@
 
 #we assume you use your own color-infrared (CIR) aerial photography
 
-#Alternatively, this location provides ecw for The Netherlands:
+#Alternatively, this location provides ECW-format aerial image for The Netherlands:
 #https://datasciencevng.nl/s/ztnYabpulASJakHR
 #the file is 169GB, it takes some time to download
 #please clip the desired area before implementing in this procedure
@@ -58,11 +58,18 @@ if(tiff.as.source==TRUE & tiff.rdy==FALSE) {
 #ECW
 if(tiff.as.source==FALSE & tiff.rdy==FALSE) {
 
-  message("extract CIR aerial photo in ECW-format from AI directory")
+  input.ecw <- list.files(ai.dir, pattern = "\\.ecw$", full.names = TRUE)
+  if(length(input.ecw) != 0) {
 
-  gdalUtils::gdal_translate(src_dataset=input, dst_dataset=output, of="GTiff", overwrite=T, verbose=TRUE)
+    message("extract CIR aerial photo in ECW-format from AI directory")
 
-  tiff.rdy <- file.exists(output)
+    gdalUtils::gdal_translate(src_dataset=input.ecw, dst_dataset=output, of="GTiff", overwrite=T, verbose=TRUE)
+
+    tiff.rdy <- file.exists(output)
+  } else {
+    message("no aerial photo in ECW-format available in AI directory")
+  }
+
 }
 
 #-----------------------------------------------------------------------------------------------
@@ -85,6 +92,13 @@ if(tiff.as.source==TRUE) {
   ai <- raster::brick(output)
 }
 
+
+#Amersfoort projection
+#https://www.spatialreference.org/ref/epsg/amersfoort-rd-new/
+crs(ai) <- 28992
+
+crs(ai)
+
 #-----------------------------------------------------------------------------------------------
 #meta data
 
@@ -103,7 +117,6 @@ names(ai)
 #set correct layer names
 #https://www.mngeo.state.mn.us/chouse/airphoto/cir.html
 names(ai) <- c("nir","red","green")
-
 
 #-----------------------------------------------------------------------------------------------
 #cropping and masking

@@ -31,12 +31,8 @@ source('SRC/packages.R')
 #-----------------------------------------------------------------------------------------------
 
 #read TIFF (TRUE=TIFF, FALSE=ECW)
-#please change accordingly
+#make aerial image available in AI-directory
 tiff.as.source <- TRUE #default (T)
-
-#name of input file (TIF or ECW) (make available in AI-directory)
-#please change accordingly
-input <- paste0('AI/amsterdam.tif') #default (neighbourhood in Oss from cloud)
 
 #-----------------------------------------------------------------------------------------------
 
@@ -44,11 +40,10 @@ input <- paste0('AI/amsterdam.tif') #default (neighbourhood in Oss from cloud)
 
 #-----------------------------------------------------------------------------------------------
 
-#please declare (multiple) buurtcode(s) (covered by CIR aerial photography) in:
+#please declare (multiple) buurtcode(s) (covered by CIR aerial photography) in xlsx-sheet:
 BU_codes <- read.xlsx('neighbourhoods.xlsx')
 
 for (i in 1:nrow(BU_codes)) {
-
   #cat("iteration =", i, "\n")
   neighbourhood <- BU_codes$buurtcode[i]
   municipality <- BU_codes$gemeente[i]
@@ -58,5 +53,4 @@ for (i in 1:nrow(BU_codes)) {
 
   #main procedure
   source(here::here('01_RemoteSensing_NDVI.R'))
-
 }
