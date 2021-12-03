@@ -11,8 +11,14 @@ vec.gpkg.rdy<-FALSE
 #check existence
 vec.gpkg.rdy<-file.exists(gpkg_vector)
 
-if(vec.gpkg.rdy==FALSE) {
+if(vec.gpkg.rdy==FALSE | gpkg.new==TRUE) {
 #not available, let's create gpkg
+
+#PDOK webservice instruction
+#https://pdok-ngr.readthedocs.io/services.html
+
+#terms of use
+#https://www.pdok.nl/documents/1901824/4016976/PDOK+-+Producten-+en+Diensten+Catalogus+-+Afnemers+van+Data.pdf
 
 #-----------------------------------------------------------------------------------------------
 
@@ -20,7 +26,7 @@ if(vec.gpkg.rdy==FALSE) {
 
 #-----------------------------------------------------------------------------------------------
 
-#read local file containing all gemeenten in NL
+#if exists, read local file containing all gemeenten in NL
 
   gemeenten.rdy<-FALSE
   gemeenten.rdy<-file.exists("DATA/gemeenten_nl_sf.rds")
@@ -54,7 +60,7 @@ if(vec.gpkg.rdy==FALSE) {
 
 #-----------------------------------------------------------------------------------------------
 
-#read local file containing all buurten in NL
+#if exists, read local file containing all buurten in NL
 buurten.rdy<-FALSE
 buurten.rdy<-file.exists("DATA/buurten_nl_sf.rds")
 
@@ -153,26 +159,27 @@ rownames(panden_sf) <- panden_sf$identificatie
 #UNDER CONSTRUCTION
 #https://data.3dbag.nl/api/BAG3D_v2/wfs?request=getcapabilities
 
-buildings_3d <- FALSE
-
 if(buildings_3d==TRUE) {
 
-#loops = c(0,1001,2001,3001,4001,5001,6001)
+loops = c(0,1001,2001,3001,4001,5001,6001)
 empty_df = list()
-#for (loop in loops) {
+for (loop in loops) {
   url <- parse_url("http://3dbag.bk.tudelft.nl/data/wfs?")
+  #url <- parse_url("https://data.3dbag.nl/api/BAG3D_v2/wfs?")
   url$query <- list(SERVICE = "WFS",
                     REQUEST = "GetFeature",
                     TYPENAMES = "BAG3D:pand3d",
-                    startindex = loop,
+                    STARTINDEX = loop,
                     bbox = bbox,
                     outputFormat='json')
   request <- build_url(url);request
   data <- sf::st_read(request)
   empty_df <- list.append(empty_df, data)
+  #remove empty list items
+  empty_df<-empty_df[lapply(empty_df,length)>1]
   print(paste0("startindex ", loop," - entities: ",nrow(data), " 3d panden"))
   panden3d_sf <- rbindlist(empty_df, use.names=TRUE) %>% st_as_sf()
-#}
+}
 
 #subset 3d panden within buurt
 panden3d_sf <- sf::st_intersection(buurt_sf, panden3d_sf) %>% #clip with buurt
@@ -271,6 +278,7 @@ message("build tuinen " , neighbourhood)
 
 #tuinen within percelen with object woonfunctie
 
+
 #verblijfsobjecten with status 'in gebruik' or 'verbouwing'
 woningen_sf <- verblijfsobjecten_sf[verblijfsobjecten_sf$status %like% "Verblijfsobject in gebruik"
                                     | verblijfsobjecten_sf$status %like% "Verbouwing verblijfsobject"
@@ -279,7 +287,10 @@ woningen_sf <- verblijfsobjecten_sf[verblijfsobjecten_sf$status %like% "Verblijf
 #verblijfsobjecten with object 'woonfunctie' or 'logiesfunctie'
 woningen_sf <- woningen_sf[woningen_sf$gebruiksdoel %like% "woonfunctie" | woningen_sf$gebruiksdoel %like% "logiesfunctie",]
 
-#percelen with woonverblijfsobject
+#woningen from year aerial photo or earlier
+woningen_sf <- woningen_sf[woningen_sf$bouwjaar<=yr,]
+
+#percelen with woning(en)
 percelenwoonfunctie_sf <- percelen_sf[woningen_sf,] %>% dplyr::select(one_of(percelen_cols))
 
 #panden on woonperceel
@@ -314,6 +325,10 @@ sf::st_write(woningen_sf, dsn=gpkg_vector, layer='woningen',layer_options = "OVE
 sf::st_write(tuinen_sf, dsn=gpkg_vector, layer='tuinen',layer_options = "OVERWRITE=YES",append=FALSE)
 sf::st_write(percelenwoonfunctie_sf, dsn=gpkg_vector, layer='percelenwoonfunctie',layer_options = "OVERWRITE=YES",append=FALSE)
 
+if(buildings_3d==TRUE) {
+sf::st_write(panden3d_sf, dsn=gpkg_vector, layer='panden3d',layer_options = "OVERWRITE=YES",append=FALSE)
+}
+
 #review layers
 sf::st_layers(gpkg_vector)
 
@@ -321,6 +336,7 @@ sf::st_layers(gpkg_vector)
 message("read layers from existing geopackage ",neighbourhood,"_vector.gpkg")
 
 #read existing geopackage, individual layers
+gemeente_sf <- sf::st_read(gpkg_vector, layer= "gemeente", geometry_column="geom")
 buurt_sf <- sf::st_read(gpkg_vector, layer= "buurt", geometry_column="geom")
 panden_sf <- sf::st_read(gpkg_vector, layer= "panden",geometry_column="geom")
 percelen_sf <- sf::st_read(gpkg_vector, layer= "percelen",geometry_column="geom")

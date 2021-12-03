@@ -72,11 +72,12 @@ More information is available in the [presentation slides](https://datasciencevn
 
 ## Instructions
 
-Both the Python and R procedure result geopackage (gpkg) files with multiples layers containing the results of the analysis.
-The geopackages be visualized in QGIS or similar (commercial) GIS-software. 
+Both the Python and R procedure result in geopackage (gpkg) files with multiples layers containing the results of the analysis.
+The geopackages can be deployed in QGIS or similar (commercial) GIS-software. 
 
-R: Define the neighbourhood code(s) and municipality name in the neighbourhood.xlsx file. 
-You may either use your own aerial photo (must included infrared-band) or extract the region
+R: Open de REMOTESENSING.Rproj file to start the environment.
+Define the neighbourhood code(s) and municipality name in the neighbourhood.xlsx file. 
+You may either use your own color infrared (CIR) aerial photo (must included infrared-band) or extract the region
 from the main  aerail photo of the Netherlands*. You may use tif or ecw as file-format. 
 Please verify and adjust settings in '00_init_batch_run.R'
  
@@ -85,7 +86,7 @@ Run the procedure via '00_init_batch_run.R'
 If you like to run the Python procedure from Rstudio, read the instructions in SRC>python.R
 
 Python: Define the neighbourhood code(s) in the neighbourhood.csv file.
-You may either use your own aerial photo (must included infrared-band) or extract the region
+You may either use your own color infrared (CIR) aerial photo (must included infrared-band) or extract the region
 from the main aerial photo of the Netherlands*. You may
 use ecw as file-format. Please verify and adjust settings in
 'start.py'

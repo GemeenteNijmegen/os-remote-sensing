@@ -34,6 +34,21 @@ source('SRC/packages.R')
 #make aerial image available in AI-directory
 tiff.as.source <- TRUE #default (T)
 
+#year of the aerial photo
+yr<-2020
+
+#-----------------------------------------------------------------------------------------------
+
+#PDOK polygons (vectors): percelen, panden, verblijfsobjecten, etc.
+
+#-----------------------------------------------------------------------------------------------
+
+#download fresh PDOK polygons, do not use output from earlier run (except gemeente, buurt)
+gpkg.new <- FALSE #default (F)
+
+#add 3D panden (TU Delft) as layer in (vector) geopackage
+buildings_3d <- TRUE #default (F)
+
 #-----------------------------------------------------------------------------------------------
 
 # Batch run neighbourhoods
