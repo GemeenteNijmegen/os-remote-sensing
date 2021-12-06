@@ -20,21 +20,15 @@ message("deploy packages")
 if(proj_env == TRUE) {
   #  #containerized packages (in case you encounter issue with the current version of packages within your computing set-up)
   if (!require("renv")) install.packages("renv")
+  library("renv")
   renv::upgrade() # upgrades renv, if new version is available
   renv::update() # updates packages from CRAN and GitHub, within the project
   renv::hydrate(update = "all") # populates the renv cache with copies of-up-to-date packages
   renv::snapshot() # inspect the message before confirming to overwrite renv.lock
-  library("renv")
   renv::init()
 }
 
 #-----------------------------------------------------------------------------------------------
-
-#shut-up RGDAL
-options("rgdal_show_exportToProj4_warnings"="none")
-
-#prevents an auxiliary file being written next to *.gpkg
-Sys.setenv(GDAL_PAM_ENABLED = "NO")
 
 # load CRAN packages
 packages <- c(
@@ -86,6 +80,8 @@ packages <- c(
   'mapview',
   #unsupervised segmentation
   'cluster',
+  #Tools for Remote Sensing Data Analysis
+  'RStoolbox',
   #quantify landscape configuration
   'landscapemetrics',
   # Airborne LiDAR Data Manipulation and Visualization for Forestry Applications
@@ -143,5 +139,11 @@ sf::sf_extSoftVersion()[1:3]
 #lwgeom version
 sf::sf_extSoftVersion()["lwgeom"]
 
-#review packages loaded
+#review packages loaded (store active-packages set-up)
 sessionInfo() %>% capture.output(file="session_info.txt")
+
+#shut-up RGDAL
+options("rgdal_show_exportToProj4_warnings"="none")
+
+#prevents an auxiliary file being written next to *.gpkg
+Sys.setenv(GDAL_PAM_ENABLED = "NO")

@@ -48,29 +48,41 @@ py_root <- here::here("Processing")
 #create directories on-the-fly if not exist
 
 #location data
-data.dir <- here::here("DATA",'/')
-data.loc <- here::here("DATA",neighbourhood,'/')
+data.dir <- here::here("DATA")
+data.run <- here::here("DATA",neighbourhood)
+data.loc <- here::here("DATA",neighbourhood,yr)
 
 #location plots
-plots.dir <- here::here("PLOTS",'/')
-plots.loc <- here::here("PLOTS",neighbourhood,'/')
+plots.dir <- here::here("PLOTS")
+plots.run <- here::here("PLOTS",neighbourhood)
+plots.loc <- here::here("PLOTS",neighbourhood,yr,"/")
 
 #aerial photo (local source)
-ai.dir <- here::here("AI",'/')
+ai.dir <- here::here("AI")
 
 #location data
-report.dir <- here::here("REPORT",'/')
-report.loc <- here::here("REPORT",neighbourhood,'/')
+report.dir <- here::here("REPORT")
+report.run <- here::here("REPORT",neighbourhood)
+report.loc <- here::here("REPORT",neighbourhood,yr,"/")
 
 #create locations if not exist
-locations <- c(data.dir, data.loc, plots.dir, plots.loc, ai.dir, report.dir, report.loc)
+locations <- c(data.dir,
+               data.run,
+               data.loc,
+               plots.dir,
+               plots.run,
+               plots.loc,
+               ai.dir,
+               report.dir,
+               report.run,
+               report.loc)
 
 lapply(locations, function(x) {
   if (!dir.exists(x)) {dir.create(x)}
 })
 
-#clear plots directory
-clear_locations <- c(plots.loc)
+#clear plots and data directory
+clear_locations <- c(plots.loc,data.loc)
 
 # get all files in the directories, recursively
 f <- list.files(clear_locations, include.dirs = F, full.names = T, recursive = T)
@@ -80,11 +92,13 @@ file.remove(f)
 
 #location geopackages
 #vector layers (polygons buurt, percelen, panden, tuinen)
-gpkg_vector <- paste0(data.loc,neighbourhood,"_vector.gpkg")
+gpkg_vector <- here::here(data.loc,"vector.gpkg")
+
 #raster data: aerial photo, NH3
-gpkg_raster <- paste0(data.loc,neighbourhood,"_raster.gpkg")
+gpkg_raster <- here::here(data.loc,"raster.gpkg")
+
 #raster data: vegetation indices
-gpkg_indices <- paste0(data.loc,neighbourhood,"_green_indices.gpkg")
+gpkg_indices <- here::here(data.loc,"green_indices.gpkg")
 
 #dimension and quality plots
 graph_height <- 6
@@ -94,10 +108,10 @@ dpi <- 180 #retina(320)
 sub_title<-''
 
 #Coordinate reference systems
-crs_wgs84 <- st_crs(4326) # WGS84 has EPSG code 4326
-crs_wgs84
-cat(crs_wgs84$wkt)
-crs_wgs84$epsg
+#crs_wgs84 <- st_crs(4326) # WGS84 has EPSG code 4326
+#crs_wgs84
+#cat(crs_wgs84$wkt)
+#crs_wgs84$epsg
 
 #store Stack credentials here and remove below
 #file.edit(file.path("~", ".Rprofile"))
@@ -110,3 +124,6 @@ webdav_password <- "VNGRS2021!"
 #Maximum number of cells to read into memory.
 #default value of maxmemory is 5e+09 (4.66GB)
 rasterOptions(maxmemory = 6e+09)
+
+#location for temporary raster file (drive with big storage)
+#raster::rasterOptions(tmpdir = "path/to/drive/with/space")

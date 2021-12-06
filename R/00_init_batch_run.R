@@ -43,11 +43,15 @@ yr<-2020
 
 #-----------------------------------------------------------------------------------------------
 
-#download fresh PDOK polygons, do not use output from earlier run (except gemeente, buurt)
+#download fresh PDOK polygons, do not use output from earlier run (except for gemeente, buurt)
 gpkg.new <- FALSE #default (F)
 
 #add 3D panden (TU Delft) as layer in (vector) geopackage
-buildings_3d <- TRUE #default (F)
+buildings_3d <- FALSE #default (F)
+
+#-----------------------------------------------------------------------------------------------
+
+pca.ai <- TRUE #default (F)
 
 #-----------------------------------------------------------------------------------------------
 

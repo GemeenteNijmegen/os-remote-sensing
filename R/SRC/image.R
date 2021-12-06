@@ -13,7 +13,7 @@
 #please clip the desired area before implementing in this procedure
 
 #name of output file (TIF)
-output <- paste0(data.loc,neighbourhood,".tif")
+output <- paste0(data.loc,"/",neighbourhood,".tif")
 
 #local TIF exists? (from previous run (as output file))
 tiff.rdy <- FALSE
@@ -92,12 +92,14 @@ if(tiff.as.source==TRUE) {
   ai <- raster::brick(output)
 }
 
+message("The projection of the aerial photo is:")
+raster::crs(ai)
 
 #Amersfoort projection
 #https://www.spatialreference.org/ref/epsg/amersfoort-rd-new/
-crs(ai) <- 28992
+message("The projection of the aerial photo will be set to: Amersfoort EPSG 28992")
+raster::crs(ai) <- 28992
 
-crs(ai)
 
 #-----------------------------------------------------------------------------------------------
 #meta data
@@ -170,6 +172,23 @@ ai_buurt[[2]] %>% #RasterLayer
 
 
 #-----------------------------------------------------------------------------------------------
+#Principle component bands
+
+if(pca.ai==TRUE) {
+ai_pca <- rasterPCA(ai_buurt, nSamples = NULL, nComp = nlayers(ai_buurt), spca = FALSE)
+ai_pca$model
+
+ai_pca_img <- stack(ai_pca$map)
+
+png(paste0(plots.loc,"rs_pca_",neighbourhood,".png"), bg="white", height=1280,width=1280,res=180,units="px")
+terra::plotRGB(ai_pca_img, r=1, b=2, g=3, stretch="lin", smooth=TRUE)
+#plot(percelen_sf$geom, add=TRUE, col="transparent", legend=FALSE)
+plot(percelen_sf$geom, add=TRUE, col="transparent", legend=FALSE)
+plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
+dev.off()
+}
+
+#-----------------------------------------------------------------------------------------------
 #Plots
 
 #plot of aerial image bands
@@ -194,13 +213,20 @@ aerial_rgb <- terra::plotRGB(ai_buurt,
                               r = 1, g = 2, b = 3,
                               #stretch the values to increase the contrast of the image
                               stretch = "lin",
+                              smooth=TRUE,
                               axes = TRUE,
                               main = paste0("RGB stack neighbourhood ", neighbourhood))
-plot(percelen_sf$geom, add=TRUE, col="transparent", legend=FALSE)
-box(col = "white")
 aerial_rgb
+plot(percelen_sf$geom, add=TRUE, col="transparent", legend=FALSE)
 plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
+box(col = "white")
 dev.off()
+
+ggR(ai_buurt, stretch = "lin") +
+  theme_void()
+plot.nme = paste0('rs_grey_',neighbourhood,'.png')
+plot.store <-paste0(plots.loc,plot.nme)
+ggsave(plot.store, dpi=dpi)
 
 #tuinen in buurt
 png(paste0(plots.loc,"rs_rgb_",neighbourhood,"_tuinen.png"), bg="white", height=1280,width=1280,res=180,units="px")
@@ -219,3 +245,7 @@ dev.off()
 
 #garbage collection
 gc()
+
+
+
+

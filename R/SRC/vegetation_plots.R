@@ -28,7 +28,7 @@ mplot_ndvi <- rasterVis::gplot(ndvi) +
   geom_tile(aes(fill = value)) +
   scale_fill_gradientn(colours = rev(terrain.colors(225)), na.value ="transparent", limits = c(-0.5,1)) +
   #geom_sf(aes(st_sf(st_geometry(tuinen_sf)))) +
-  theme_minimal() +
+  theme_void() +
   coord_fixed() +
   theme(legend.position = "bottom") +
 labs(fill = "NDVI")
@@ -67,7 +67,7 @@ mplot_veg_c <- rasterVis::gplot(veg_c) +
   geom_tile(aes(fill = as.factor(value))) +
   #scale_fill_gradientn(colours = rev(terrain.colors(5)), na.value ="transparent") +
   scale_fill_discrete_sequential(palette = "Terrain") +
-  theme_minimal() +
+  theme_void() +
   coord_fixed() +
   theme(legend.position = "bottom") +
   labs(fill = "NDVI classes (fixed)")
@@ -80,7 +80,7 @@ mplot_veg_clus <- rasterVis::gplot(veg_clus) +
   geom_tile(aes(fill = as.factor(value))) +
   #scale_fill_gradientn(colours = rev(terrain.colors(5)), na.value ="transparent") +
   scale_fill_discrete_sequential(palette = "Terrain") +
-  theme_minimal() +
+  theme_void() +
   coord_fixed() +
   theme(legend.position = "bottom") +
   labs(fill = "NDVI classes (unsupervised)")
@@ -242,7 +242,7 @@ ggplot(data = tuinen_sf) +
     size = 1.9,hjust = 0, nudge_x = 0.07
   ) +
   xlab("Longitude") + ylab("Latitude") +
-  theme_minimal()
+  theme_void()
 plot.nme = paste0('NDVI_mean_garden.png')
 plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=320)
@@ -262,7 +262,7 @@ ggplot(data = tuinen_sf) +
     size = 1.9,hjust = 0, nudge_x = 0.07
   ) +
   xlab("Longitude") + ylab("Latitude") +
-  theme_minimal()
+  theme_void()
 plot.nme = paste0('NDVI_mean_vegetation_garden.png')
 plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=320)
@@ -303,7 +303,7 @@ ggplot(data = tuinen_sf) +
     size = 2.2,hjust = 0, nudge_x = 0.07
   ) +
   xlab("Longitude") + ylab("Latitude") +
-  theme_minimal()
+  theme_void()
 plot.nme = paste0('green_coverage_garden.png')
 plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=320)
@@ -363,7 +363,7 @@ ggplot(data = panden_sf) +
     size = 2.2,hjust = 0, nudge_x = 0.07
   ) +
   xlab("Longitude") + ylab("Latitude") +
-  theme_minimal()
+  theme_void()
 plot.nme = paste0('green_coverage_woningen.png')
 plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=320)
