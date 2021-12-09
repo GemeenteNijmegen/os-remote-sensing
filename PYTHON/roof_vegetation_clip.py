@@ -4,9 +4,6 @@ import geopandas as gpd
 import rasterio
 from rasterio.mask import mask
 
-from time import process_time
-t1_start = process_time()
-
 # Load variables
 from start import gpkg_vector, files_basename
 
@@ -36,8 +33,3 @@ profile.update(driver='GTiff', transform=mask_transform, height = HEIGHT, width 
 output_daken_ndvi = files_basename + "_daken_ndvi.tif"
 with rasterio.open(output_daken_ndvi, 'w', **profile) as dst:
     dst.write(daken_ndvi)
-
-# Stop the stopwatch / counter
-t1_stop = process_time()
-print("Roof vegetation clip runtime is ", round(t1_stop - t1_start,1), "seconds")
-print("Roof vegetation clip process finished \n")
