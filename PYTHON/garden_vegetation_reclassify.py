@@ -7,9 +7,6 @@ import rasterio
 from rasterio.mask import mask
 import os
 
-from time import process_time
-t1_start = process_time()
-
 # Load variables
 from start import files_basename, gpkg_vector, gpkg_raster
 
@@ -24,7 +21,7 @@ chm_dataset = gdal.Open(chm_filename)
 cols = chm_dataset.RasterXSize; print('# of columns:',cols)
 rows = chm_dataset.RasterYSize; print('# of rows:',rows)
 
-#Get spatial extent
+# Get spatial extent
 chm_mapinfo = chm_dataset.GetGeoTransform()
 xMin = chm_mapinfo[0]
 yMax = chm_mapinfo[3]
@@ -50,8 +47,9 @@ chm_nonan_array = copy.copy(chm_array)
 chm_nonan_array = chm_nonan_array[~np.isnan(chm_array)]
 
 chm_reclass = copy.copy(chm_array)
-chm_reclass[np.where(chm_array< 0.2)] = 20 # NDVI < 0.2
-chm_reclass[np.where(chm_array>= 0.2)] = 10 # NDVI >= 0.2
+chm_reclass[np.where(chm_array >= -0.1) and np.where(chm_array < 0.2)] = 20  # NDVI < 0.2 - vergroenings/verblauwingspotentieel
+chm_reclass[np.where(chm_array < -0.1)] = 10  # NDVI < 0.1 - Water
+chm_reclass[np.where(chm_array >= 0.2)] = 30  # NDVI >= 0.2 - Green
 
 # Raster to array
 # raster2array.py reads in the first band of geotif file and returns an array and associated
@@ -124,7 +122,7 @@ def array2raster(newRasterfn,rasterOrigin,pixelWidth,pixelHeight,array,epsg):
     outband.FlushCache()
 
 # Set output filename
-classified_gardens = files_basename + "_tuinen_ndvi_2_classes.tif"
+classified_gardens = files_basename + "_tuinen_ndvi_classified_temp.tif"
 
 epsg = 28992 #RD New
 rasterOrigin = (SERC_chm_metadata['ext_dict']['xMin'],SERC_chm_metadata['ext_dict']['yMax'])
@@ -137,8 +135,8 @@ array2raster(classified_gardens,rasterOrigin,0.25,-0.25,chm_reclass,epsg)
 # Clip classified gardens a second time, in order to give everything outside the gardens value 0 (was NoData)
 
 # Read NDVI tif
-tif_ndvi = files_basename + "_tuinen_ndvi_2_classes.tif"
-ndvi = rasterio.open(tif_ndvi, driver='GTiff') #RGB
+tif_ndvi_temp = files_basename + "_tuinen_ndvi_classified_temp.tif"
+ndvi = rasterio.open(tif_ndvi_temp, driver='GTiff') #RGB
 
 # Read tuinen vector
 gdf_tuinen = gpd.read_file(gpkg_vector, driver='GPKG', layer='tuinen')
@@ -153,24 +151,24 @@ HEIGHT = tuinen_ndvi.shape[1]
 profile.update(driver='GTiff', transform=mask_transform, height = HEIGHT, width = WIDTH)
 
 # Write tuinen NDVI to tif
-output_tuinen_ndvi = files_basename + "_tuinen_ndvi_3_classes.tif"
+output_tuinen_ndvi = files_basename + "_tuinen_ndvi_classified.tif"
 with rasterio.open(output_tuinen_ndvi, 'w', **profile) as dst:
     dst.write(tuinen_ndvi)
 
 #Write to GPKG
-sourcetif_tuinen_ndvi = files_basename + "_tuinen_ndvi_3_classes.tif"
-lyr_tuinen_ndvi = "tuinen_ndvi"
+sourcetif_tuinen_ndvi = files_basename + "_tuinen_ndvi_classified.tif"
+lyr_tuinen_ndvi = "tuinen_ndvi_classified"
 gdal_string_ndvi_tuinen = 'gdal_translate -of GPKG "{}" "{}" -co RASTER_TABLE={} -co APPEND_SUBDATASET=YES'.format(sourcetif_tuinen_ndvi, gpkg_raster, lyr_tuinen_ndvi)
 os.system(gdal_string_ndvi_tuinen)
+
+#Remove temp file
+ndvi.close()
+os.remove(tif_ndvi_temp)
 
 """
 Ouput values:
 0 = geen tuin
-10 = wel tuin, vegetatie
-20 = wel tuin, geen vegetatie
+10 = tuin, water
+20 = tuin, vergroenings/verblauwingspotentieel
+30 = tuin, groen
 """
-
-# Stop the stopwatch / counter
-t1_stop = process_time()
-print("Garden vegetation reclassify runtime is ", round(t1_stop - t1_start,1), "seconds")
-print("Garden vegetation reclassify process finished \n")
