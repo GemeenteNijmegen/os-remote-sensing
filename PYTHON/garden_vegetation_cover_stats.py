@@ -1,10 +1,7 @@
-#Import libraries
+#Load required Python libraries
 from rasterstats import zonal_stats
 import pandas as pd
 import geopandas as gpd
-
-from time import process_time
-t1_start = process_time()
 
 # Load variables
 from start import files_basename, gpkg_vector
@@ -16,7 +13,7 @@ from start import files_basename, gpkg_vector
 Calculate percentage green for each garden
 """
 #Input tif and gardens
-raster = files_basename + "_tuinen_ndvi_3_classes.tif"
+raster = files_basename + "_tuinen_ndvi_classified.tif"
 df = gpd.read_file(gpkg_vector, driver='GPKG', layer='tuinen')
 
 zs = zonal_stats(vectors=df['geometry'], raster=raster, categorical=True)
@@ -29,7 +26,25 @@ dfres = pd.merge(left=df, right=dfz_perc, how='left', left_index=True, right_ind
 dfres.columns = dfres.columns.astype(str)
 
 if '10' in dfres.columns:
-    dfres.rename(columns={'10': 'pGROEN'}, inplace=True)
+    dfres.rename(columns={'10': 'pWATER'}, inplace=True)
+    #Afronden kolommen naar 0 decimalen
+    dfres['pWATER'] = dfres['pWATER'].astype(float)
+    dfres['pWATER'] = dfres['pWATER'] + 0.5
+    dfres['pWATER'] = dfres['pWATER'].fillna(0)
+    dfres['pWATER'] = dfres['pWATER'].astype(int)
+    dfres['perceelnummer'] = dfres['perceelnummer'].astype(int)
+
+if '20' in dfres.columns:
+    dfres.rename(columns={'20': 'pVERGROENINGSPOTENTIE'}, inplace=True)
+    #Afronden kolommen naar 0 decimalen
+    dfres['pVERGROENINGSPOTENTIE'] = dfres['pVERGROENINGSPOTENTIE'].astype(float)
+    dfres['pVERGROENINGSPOTENTIE'] = dfres['pVERGROENINGSPOTENTIE'] + 0.5
+    dfres['pVERGROENINGSPOTENTIE'] = dfres['pVERGROENINGSPOTENTIE'].fillna(0)
+    dfres['pVERGROENINGSPOTENTIE'] = dfres['pVERGROENINGSPOTENTIE'].astype(int)
+    dfres['perceelnummer'] = dfres['perceelnummer'].astype(int)
+
+if '30' in dfres.columns:
+    dfres.rename(columns={'30': 'pGROEN'}, inplace=True)
     #Afronden kolommen naar 0 decimalen
     dfres['pGROEN'] = dfres['pGROEN'].astype(float)
     dfres['pGROEN'] = dfres['pGROEN'] + 0.5
@@ -37,22 +52,7 @@ if '10' in dfres.columns:
     dfres['pGROEN'] = dfres['pGROEN'].astype(int)
     dfres['perceelnummer'] = dfres['perceelnummer'].astype(int)
 
-if '20' in dfres.columns:
-    dfres.rename(columns={'20': 'pGRIJS'}, inplace=True)
-    #Afronden kolommen naar 0 decimalen
-    dfres['pGRIJS'] = dfres['pGRIJS'].astype(float)
-    dfres['pGRIJS'] = dfres['pGRIJS'] + 0.5
-    dfres['pGRIJS'] = dfres['pGRIJS'].fillna(0)
-    dfres['pGRIJS'] = dfres['pGRIJS'].astype(int)
-    dfres['perceelnummer'] = dfres['perceelnummer'].astype(int)
-
-
 dfres = dfres.loc[dfres['pGROEN'] * dfres['pGROEN'] != 0]
 
 # Write tuinen_stats-polygon to gpkg
 dfres.to_file(gpkg_vector, driver='GPKG', layer='tuinen_stats')
-
-# Stop the stopwatch / counter
-t1_stop = process_time()
-print("Garden vegetation cover stats runtime is ", round(t1_stop - t1_start,1), "seconds")
-print("Garden vegetation cover stats process finished \n")
