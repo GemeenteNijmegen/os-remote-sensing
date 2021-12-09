@@ -3,9 +3,6 @@ import geopandas as gpd
 import rasterio
 from rasterio.mask import mask
 
-from time import process_time
-t1_start = process_time()
-
 # Load variables
 from start import gpkg_vector, files_basename
 
@@ -45,8 +42,3 @@ lyr_ndvi = "tuinen_ndvi"
 gdal_string_ndvi = 'gdal_translate -ot Float32 -of GPKG "{}" "{}" -co RASTER_TABLE={} -co APPEND_SUBDATASET=YES'.format(sourcetif_tuinen_ndvi, desGPKG, lyr_ndvi)
 os.system(gdal_string_ndvi)
 '''
-
-# Stop the stopwatch / counter
-t1_stop = process_time()
-print("Garden vegetation clip runtime is ", round(t1_stop - t1_start,1), "seconds")
-print("Garden vegetation clip process finished \n")
