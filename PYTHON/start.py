@@ -4,8 +4,10 @@ from os import listdir
 import runpy
 import pandas as pd
 import time
-from time import process_time
-total_start = process_time()
+
+from datetime import datetime
+start_time = datetime.now()
+start_time = start_time.strftime("%H:%M:%S")
 
 # Working directory
 workingdirectory = os.getcwd()
@@ -13,10 +15,14 @@ parent = os.path.dirname(workingdirectory)
 
 # ECW location
 # path_ECW_2020 = parent + "/inputdata/2020_LR_CIR_totaalmozaiek_v2_clip.ecw"
+# path local raster file = parent + "/inputdata/gemeenteApeldoorn_CIR2020.tif"
 
 # Set location for csv with buurtcodes and declare (multiple) buurtcode(s) in:
 filename = workingdirectory + "/neighbourhoods.csv"
 df = pd.read_csv(filename)
+
+# Variables
+yearAerialPhoto = 2020
 
 # Loop through csv with buurtcodes and run process below for each buurtcode
 #for buurtcode, item in df.iteritems():
@@ -53,32 +59,12 @@ for index, row in df.iterrows():
     runpy.run_module(mod_name='roof_vegetation_reclassify')
     time.sleep(30)
     runpy.run_module(mod_name='roof_vegetation_cover_stats')
-    # Stop the stopwatch / counter
-    total_stop = process_time()
-    print("Total process runtime is", round(total_stop - total_start, 1), "seconds")
     print("Process finished for " + row["buurtcode"] + "\n")
 
-import glob
-types = ('*ndvi_2_classes.tif', '*.xml') # the tuple of file types
-files_grabbed = []
-for files in types:
-    files_grabbed.extend(glob.glob(files))
-    try:
-        os.remove(files)
-    except OSError as e:
-        print("Error: %s : %s" % (files, e.strerror))
-
-
-# Cleanup all temp files
-import glob
-outputdir = parent + "/output/"
-
-files = glob.glob(outputdir + "**/*ndvi_2_classes.tif", recursive=True)
-for f in files:
-    try:
-        os.remove(f)
-    except OSError as e:
-        print("Error: %s : %s" % (f, e.strerror))
+end_time = datetime.now()
+end_time = end_time.strftime("%H:%M:%S")
+print("Start time =", start_time)
+print("End Time =", end_time)
 
 print("Process finished for all neighbourhoods \n")
 quit()
