@@ -7,9 +7,6 @@ import rasterio
 from rasterio.mask import mask
 import os
 
-from time import process_time
-t1_start = process_time()
-
 # Load variables
 from start import files_basename, gpkg_vector, gpkg_raster
 
@@ -39,7 +36,7 @@ noDataVal = chm_raster.GetNoDataValue(); print('no data value:',noDataVal)
 scaleFactor = chm_raster.GetScale(); print('scale factor:',scaleFactor)
 chm_stats = chm_raster.GetStatistics(True,True)
 
-#Convert raster to array
+# Convert raster to array
 chm_array = chm_dataset.GetRasterBand(1).ReadAsArray(0,0,cols,rows).astype(np.float)
 
 # Calculate the % of pixels that are NaN and non-zero:
@@ -50,8 +47,8 @@ chm_nonan_array = copy.copy(chm_array)
 chm_nonan_array = chm_nonan_array[~np.isnan(chm_array)]
 
 chm_reclass = copy.copy(chm_array)
-chm_reclass[np.where(chm_array< 0.2)] = 20 # NDVI < 0.2
-chm_reclass[np.where(chm_array>= 0.2)] = 10 # NDVI >= 0.2
+chm_reclass[np.where(chm_array< 0.2)] = 10 # NDVI < 0.2 - Not green
+chm_reclass[np.where(chm_array>= 0.2)] = 20 # NDVI >= 0.2 - Green
 
 #Raster to array
 # raster2array.py reads in the first band of geotif file and returns an array and associated
@@ -125,7 +122,7 @@ def array2raster(newRasterfn,rasterOrigin,pixelWidth,pixelHeight,array,epsg):
 
 #array2raster(newRasterfn,rasterOrigin,pixelWidth,pixelHeight,array)
 #Set output filename
-classified_roofs = files_basename + "_daken_ndvi_2_classes.tif"
+classified_roofs = files_basename + "_daken_ndvi_classified_temp.tif"
 
 epsg = 28992 #RD New
 rasterOrigin = (SERC_chm_metadata['ext_dict']['xMin'],SERC_chm_metadata['ext_dict']['yMax'])
@@ -139,8 +136,8 @@ Hieronder worden de geclassificeerde tuinen nogmaals geclipt. Het effect hiervan
 is dat alles buiten de tuinen waarde 0 krijgt (dit was NoData).
 """
 # Read NDVI tif
-tif_ndvi = files_basename + "_daken_ndvi_2_classes.tif"
-ndvi = rasterio.open(tif_ndvi, driver='GTiff') #RGB
+tif_ndvi_temp = files_basename + "_daken_ndvi_classified_temp.tif"
+ndvi = rasterio.open(tif_ndvi_temp, driver='GTiff') #RGB
 #show(ndvi.read(), transform=ndvi.transform)
 
 # Read tuinen vector
@@ -158,17 +155,23 @@ profile.update(driver='GTiff', transform=mask_transform, height = HEIGHT, width 
 print(profile) ## check on the updated profile
 
 # Write tuinen NDVI
-output_roofs_ndvi = files_basename + "_daken_ndvi_3_classes.tif"
+output_roofs_ndvi = files_basename + "_daken_ndvi_classified.tif"
 with rasterio.open(output_roofs_ndvi, 'w', **profile) as dst:
     dst.write(roofs_ndvi)
 
 #Write to GPKG
-sourcetif_daken_ndvi = files_basename + "_daken_ndvi_3_classes.tif"
+sourcetif_daken_ndvi = files_basename + "_daken_ndvi_classified.tif"
 lyr_daken_ndvi = "daken_ndvi"
 gdal_string_ndvi_daken = 'gdal_translate -of GPKG "{}" "{}" -co RASTER_TABLE={} -co APPEND_SUBDATASET=YES'.format(sourcetif_daken_ndvi, gpkg_raster, lyr_daken_ndvi)
 os.system(gdal_string_ndvi_daken)
 
-# Stop the stopwatch / counter
-t1_stop = process_time()
-print("Roof vegetation reclassify runtime is ", round(t1_stop - t1_start,1), "seconds")
-print("Roof vegetation reclassify process finished \n")
+#Remove temp file
+ndvi.close()
+os.remove(tif_ndvi_temp)
+
+"""
+Ouput values:
+0 = geen dak
+10 = dak,  grijs (vergroenings/verblauwingspotentieel)
+20 = dak, groen
+"""
