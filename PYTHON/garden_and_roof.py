@@ -2,11 +2,8 @@
 import geopandas as gpd
 import shapely.speedups
 
-from time import process_time
-t1_start = process_time()
-
 # Load variables
-from start import gpkg_vector
+from start import gpkg_vector, yearAerialPhoto
 
 ## Start garden and roof selection script
 #Let’s first enable shapely.speedups which makes some of the spatial queries running faster.
@@ -19,7 +16,11 @@ gdf_percelen = gpd.read_file(gpkg_vector, driver='GPKG', layer='percelen')
 
 # Rename columns
 gdf_woningen =gdf_woningen.rename(index=str, columns={"identificatie":"vbo_identificatie"})
-gdf_panden =gdf_panden.rename(index=str, columns={"identificatie":"pand_identificatie"})
+gdf_panden = gdf_panden.rename(index=str, columns={"identificatie":"pand_identificatie"})
+
+#
+gdf_panden = gdf_panden[gdf_panden['bouwjaar'] < yearAerialPhoto]
+
 
 # Filter all panden with status 'in gebruik' and 'verbouwing'
 gdf_pandenwoonfunctie = gdf_panden[gdf_panden['status'].str.contains('Pand in gebruik|Verbouwing pand')]
@@ -43,6 +44,8 @@ gdf_laagbouw.to_file(gpkg_vector, driver='GPKG', layer='laagbouw_woonfunctie')
 gdf_laagbouw_small = gdf_laagbouw.copy()
 gdf_laagbouw_small['geometry'] = gdf_laagbouw_small.geometry.buffer(-1)
 
+gdf_laagbouw_small.to_file(gpkg_vector, driver='GPKG', layer='laagbouw_small')
+
 #gdf_laagbouw_small.to_file(gpkg_vector, driver='GPKG', layer='laagbouw_small')
 
 # Select percelen with pand who contain woonfunctie or logiesfunctie
@@ -54,7 +57,7 @@ gdf_percelen_laagbouw.to_file(gpkg_vector, driver='GPKG', layer='laagbouw_percel
 
 
 ### FLATS
-## Select parcels with 3 or more verblijfsobjecten
+## Select parcels with 2 or more verblijfsobjecten
 gdf_flats = gdf_pandenwoonfunctie[gdf_pandenwoonfunctie.groupby('pand_identificatie')['pand_identificatie'].transform('size') >= 2]
 
 # Clip verblijfsobjecten with flats
@@ -86,8 +89,12 @@ tuinen_opp = tuinen_opp.round(2)
 #Voeg kolom aan tuinen DF toe
 tuinen['opp'] = tuinen_opp
 
+large_tuinen = tuinen['opp'].mean() * 100
+
 #Selecteer tuinen groter dan 3 meter
 tuinen = tuinen[tuinen['opp'] > 1]
+# Selecteer tuinen die kleiner zijn dan 100 keer het gemiddelde van de buurt om percelen van de openbare ruimte er uit te halen
+tuinen = tuinen[tuinen['opp'] < large_tuinen]
 
 
 # A garden needs to have a perceelnummer otherwise the garden selection is likely selected because of an overlay in the previous step.
@@ -117,8 +124,3 @@ daken_opp = daken_opp.round(2)
 daken['opp'] = daken_opp
 
 daken.to_file(gpkg_vector, driver='GPKG', layer='daken')
-
-# Stop the stopwatch / counter
-t1_stop = process_time()
-print("Garden and roof runtime is", round(t1_stop - t1_start,1), "seconds")
-print("Garden and roof selection process finished \n")
