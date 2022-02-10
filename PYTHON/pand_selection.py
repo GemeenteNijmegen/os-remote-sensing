@@ -5,6 +5,7 @@ import requests
 from requests import Request
 from owslib.wfs import WebFeatureService
 import xml.etree.ElementTree as ET
+import math
 
 # Load variables
 from start import gpkg_vector
@@ -38,9 +39,9 @@ numberofrecords = numberofrecords.attrib
 numberofrecords = numberofrecords["numberMatched"]
 numberofrecords = int(numberofrecords)
 
+
 # Define startindex for WFS-request. A maximum of 1000 features return from WFS-request. To receive all features in a buurt the startindex for each request is new.
-l = round(numberofrecords, -3)
-l = int(l//1000)
+l = math.ceil(numberofrecords/1000)
 loops = list(range(l))
 loops = [i * 1000 for i in loops]
 #loops = [0,1000,2000,3000,4000,5000]
@@ -56,7 +57,7 @@ for loop in loops:
     gdf_pandenbuurt = gpd.read_file(q)
     empty_df.append(gdf_pandenbuurt)
 
-# Merge all WFS-rquest in one df
+# Merge all WFS-request in one df
 gdf_allpandenbuurt = pd.concat(empty_df, ignore_index=True)
 
 # Set projection
