@@ -82,6 +82,8 @@ packages <- c(
   'cluster',
   #Tools for Remote Sensing Data Analysis
   'RStoolbox',
+  #satellite images processing and functions
+  #'RGISTools',
   #quantify landscape configuration
   'landscapemetrics',
   # Airborne LiDAR Data Manipulation and Visualization for Forestry Applications

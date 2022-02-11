@@ -134,7 +134,6 @@ png(paste0(plots.loc,"rs_ahn_buurt_",neighbourhood,".png"), bg="white", height=1
 par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
 aerial_rgb <- terra::plotRGB(ai_buurt,
                               r = 1, g = 2, b = 3,
-                              #stretch the values to increase the contrast of the image
                               stretch = "lin",
                               alpha=0,#hide (0), show(255)
                               axes = TRUE,
@@ -151,7 +150,6 @@ png(paste0(plots.loc,"rs_ahn_tuinen_",neighbourhood,".png"), bg="white", height=
 par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
 aerial_rgb <- terra::plotRGB(ai_buurt,
                               r = 1, g = 2, b = 3,
-                              #stretch the values to increase the contrast of the image
                               stretch = "lin",
                               alpha=0,#hide (0), show(255)
                               axes = TRUE,
@@ -163,4 +161,4 @@ aerial_rgb
 plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
 dev.off()
 
-rm(ahn_tuinen, ai_buurt)
+rm(ai_buurt)

@@ -36,6 +36,7 @@ plot.nme = paste0('rs_ndvi_',neighbourhood,'.png')
 plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=dpi)
 
+if(evi2_calc==TRUE) {
 # plot EVI2
 mplot_evi2 <- rasterVis::gplot(evi2) +
   geom_tile(aes(fill = value)) +
@@ -48,6 +49,9 @@ mplot_evi2 <- rasterVis::gplot(evi2) +
 plot.nme = paste0('rs_evi2_',neighbourhood,'.png')
 plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=dpi)
+
+
+}
 
 # plot RVI
 mplot_rvi <- rasterVis::gplot(rvi) +
@@ -116,7 +120,8 @@ cols <- rev(terrain.colors((length(brks) - 1)))
 #plot ndvi and vegetation contour
 png(paste0(plots.loc,"rs_ndvi_raw_vegetation_contours_",neighbourhood,".png"), height = 1280, width = 1280, res = 180, units = "px")
 par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
-plot(ndvi, axes=FALSE, box=FALSE, legend=TRUE, cex = 0.5, breaks=brks, lab.breaks=brks, col=cols,na.value ="transparent")
+plot(ndvi, axes=FALSE, box=FALSE, legend=TRUE, cex = 0.5, breaks=brks, lab.breaks=brks, col=cols,na.value ="transparent",
+     main=paste0("NDVI and vegetation contour ", neighbourhood))
 plot(veg_contour, add=TRUE, lwd = 0.1)
 plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 dev.off()
@@ -136,6 +141,17 @@ png(paste0(plots.loc,"rs_rgb_tndvi_",neighbourhood,".png"), bg="white", height=1
 par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
 terra::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("TNDVI ", neighbourhood))
 plot(tndvi, add=TRUE, legend=TRUE, cex = 0.5, col=cols,na.value ="transparent")
+plot(percelen_sf$geom, add=TRUE, legend=FALSE)
+box(col = "white")
+dev.off()
+}
+
+#plot rgb and msavi2
+if(msavi2_calc==TRUE) {
+png(paste0(plots.loc,"rs_rgb_msavi2_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
+par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
+terra::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("MSAVI2 ", neighbourhood))
+plot(msavi2, add=TRUE, legend=TRUE, cex = 0.5, col=cols,na.value ="transparent")
 plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
@@ -177,9 +193,9 @@ box(col = "white")
 dev.off()
 
 #breaks NDVI grey to green
-brks <- seq(1, 4, by=1)
+brks <- seq(1, 5, by=1)
 cols<- colorspace::sequential_hcl(max(brks), palette = "Viridis")
-lab_args <- list(at=c(1,2,3,4), labels=c("no","grass","low","dense"))
+lab_args <- list(at=c(1,2,3,4,5), labels=c("water","sand/stone","grasses/weed","low veg.","dense veg."))
 
 #plot rgb and classes (fixed)
 png(paste0(plots.loc,"rs_rgb_veg_classes_fixed_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
@@ -268,9 +284,9 @@ plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=320)
 
 #Distribution of gardens over NDVI
-png(paste0(plots.loc,"rs_garden_ndvi_",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio*2, height=png_height)
+png(paste0(plots.loc,"rs_garden_distibution_ndvi_freq_",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio*2, height=png_height)
 hist(tuinen_sf$ndvi_avg,
-     breaks=8,
+     #breaks=4,
      main = paste0("Distribution of gardens over NDVI ",neighbourhood),
      xlab = "ndvi", ylab = "freq",
      col = "steelblue")
@@ -278,11 +294,12 @@ dev.off()
 
 #distribution of gardens over NDVI
 ggplot(tuinen_sf, aes(x = ndvi_avg)) +
-  geom_histogram(aes(y = (..count..)/sum(..count..)), binwidth = 0.02,color="lightblue", fill="steelblue") +
+  geom_histogram(aes(y = (..count..)/sum(..count..)), binwidth = 0.08,color="lightblue", fill="steelblue") +
   stat_bin(aes(y=(..count..)/sum(..count..),
                label=paste0(round((..count..)/sum(..count..)*100,1),"%")),
            geom="text", size=4, binwidth = 0.08, vjust=-1.5) +
   #scale_x_continuous(breaks = seq(0.2,0.8,0.1))+
+  labs(x = "NDVI", y = "%") +
   theme_light()
 plot.nme = paste0('rs_gardens_distibution_ndvi_',neighbourhood,'.png')
 plot.store <-paste0(plots.loc,plot.nme)
@@ -315,8 +332,9 @@ ggplot(tuinen_sf, aes(x = green_cover)) +
                label=paste0(round((..count..)/sum(..count..)*100,1),"%")),
            geom="text", size=4, binwidth = 20, vjust=-1.5) +
   #scale_x_continuous(breaks = seq(0.2,0.8,0.1))+
+  labs(x = "% vegetation cover tuinen on woonperceel", y = "%") +
   theme_light()
-plot.nme = paste0('rs_gardens_distibution_coverage_',neighbourhood,'.png')
+plot.nme = paste0('rs_gardens_distibution_vegetation_coverage_',neighbourhood,'.png')
 plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=dpi)
 
@@ -336,10 +354,29 @@ ggplot(data = tuinen_sf) +
   ) +
   xlab("Longitude") + ylab("Latitude") +
   theme_minimal()
-plot.nme = paste0('stoned_coverage_garden.png')
+plot.nme = paste0('stone_coverage_garden.png')
 plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=320)
 
+#water coverage of gardens
+ggplot(data = tuinen_sf) +
+  geom_sf(aes(fill = water_cover)) +
+  scale_fill_viridis_c(option = "plasma", direction = -1,name = "water cover proportion") +
+  geom_point(size = 0.4, aes(x = coord_tuinen$X,y = coord_tuinen$Y), colour="white", shape = 15) +
+  geom_text(
+    aes(
+      label = tuinen_sf$water_cover,
+      x = coord_tuinen$X,
+      y = coord_tuinen$Y
+    ),
+    colour = "black",
+    size = 2.2,hjust = 0, nudge_x = 0.07
+  ) +
+  xlab("Longitude") + ylab("Latitude") +
+  theme_minimal()
+plot.nme = paste0('water_coverage_garden.png')
+plot.store <-paste0(plots.loc,plot.nme)
+ggsave(plot.store, dpi=320)
 
 #green coverage of panden
 
@@ -376,8 +413,9 @@ ggplot(panden_sf, aes(x = green_cover)) +
                label=paste0(round((..count..)/sum(..count..)*100,1),"%")),
            geom="text", size=4, binwidth = 20, vjust=-1.5) +
   #scale_x_continuous(breaks = seq(0.2,0.8,0.1))+
+  labs(x = "% vegetation cover panden on woonperceel", y = "%") +
   theme_light()
-plot.nme = paste0('rs_woningen_distibution_coverage_',neighbourhood,'.png')
+plot.nme = paste0('rs_woningen_distibution_vegetation_coverage_',neighbourhood,'.png')
 plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=dpi)
 

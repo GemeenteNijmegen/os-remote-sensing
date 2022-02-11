@@ -17,9 +17,9 @@ system <- Sys.info()['sysname']
 Sys.getlocale()
 
 options(encoding = "UTF-8")
-# use getOption("encoding") to see if things were changed
+#getOption("encoding")
 
-#turn off R’s automatic conversion of strings into factors
+#turn-off R’s automatic conversion of strings into factors
 options(stringsAsFactors = FALSE)
 
 #prevent exponential / scientific notation.
@@ -32,7 +32,7 @@ if(debug_mode==FALSE) {
   options(warn = 0)
 }
 
-#turn of dplyr's summarise notifications
+#turn-off dplyr's summarise notifications
 options(dplyr.summarise.inform = FALSE)
 
 #R root
@@ -55,8 +55,13 @@ data.loc <- here::here("DATA",neighbourhood,yr)
 #location plots
 plots.dir <- here::here("PLOTS")
 plots.run <- here::here("PLOTS",neighbourhood)
-plots.loc <- here::here("PLOTS",neighbourhood,yr,"/")
+plots.yr <- here::here("PLOTS",neighbourhood,yr)
 
+if(report_tuinen==TRUE) {
+  plots.loc<-paste0(plots.yr,"/TUINEN/")
+} else {
+  plots.loc<-paste0(plots.yr,"/BUURT/")
+}
 #aerial photo (local source)
 ai.dir <- here::here("AI")
 
@@ -71,6 +76,7 @@ locations <- c(data.dir,
                data.loc,
                plots.dir,
                plots.run,
+               plots.yr,
                plots.loc,
                ai.dir,
                report.dir,
@@ -82,7 +88,7 @@ lapply(locations, function(x) {
 })
 
 #clear plots and data directory
-clear_locations <- c(plots.loc,data.loc)
+clear_locations <- c(plots.loc,data.loc, report.loc)
 
 # get all files in the directories, recursively
 f <- list.files(clear_locations, include.dirs = F, full.names = T, recursive = T)

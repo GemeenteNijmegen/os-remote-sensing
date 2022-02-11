@@ -1,4 +1,4 @@
-# Remote Sensing: Green private urban spaces
+# Remote Sensing: Vegetation in private urban spaces
 
 This repository contains the code for detecting vegetation in private gardens within dutch neighbourhoods.
 Vegetation detection is based on Color-infrared (CIR) aerial photography and the NDVI vegetation metric. 
@@ -6,25 +6,24 @@ Vegetation detection is based on Color-infrared (CIR) aerial photography and the
 The objective of this repository is to provide a base for developing custom made remote sensing applications for vegetation detection in the urban environment. 
 This so-called Minimal Viable Product is an 100-day experiment of the Expertise Group Data Science Dutch Municipalities and acts as a showcase. 
 
-Currently the application is a pre-release version (alpha).
+Currently the application is a beta version.
 
 You may test it and use it under the condition that you provide the project with feedback, improvements or extension. See Creative Commons licence below. 
 
 ## Normalized Difference Vegetation Index (NDVI)
 Spectral indices dedicated to vegetation analysis are developed based on the principle that the healthy vegetation reflects strongly in the near-infrared (NIR) spectrum, while absorbing strongly in the visible red.
+
 Normalized Difference Vegetation Index (NDVI) quantifies vegetation by measuring the difference between near-infrared and visible red light. It distinguishes vegetation from soil, minimizes topographic effects
 NDVI is chlorophyll sensitive, emphasizing the green color of a healthy plant.
 
 ![NDVI](https://eo4geo.sbg.ac.at/IGIK/Sentinel2_Data_and_Vegetation_Indices/NDVI_trees.png)
 
 NDVI-ranges vegetation in this research: 
-       -1 to 0.2: non-vegetation; 
-        0.2 to 0.3: grasses, weed; 
-        0.3 to 0.5: low to medium vegetation (substantial vegetation); 
-        0.5 to 1: #intensive vegetation, high vegetation, trees.
-
-NDVI-range 'verstening': 
-       -0.1 tot 0.2: stone, sand/earth.
+       -1 to -0.1: water
+       -0.1 to 0.2: sand/stone
+       0.2 to 0.3: grasses, weed
+       0.3 to 0.5: low to medium vegetation (substantial vegetation)
+       0.5 to 1: intensive vegetation, high vegetation, trees
 
 ## Open Data 
 The procedure extracts insights based on open data:
@@ -77,8 +76,8 @@ The geopackages can be deployed in QGIS or similar (commercial) GIS-software.
 
 R: Open de REMOTESENSING.Rproj file to start the environment.
 Define the neighbourhood code(s) and municipality name in the neighbourhood.xlsx file. 
-You may either use your own color infrared (CIR) aerial photo (must included infrared-band) or extract the region
-from the main  aerail photo of the Netherlands*. You may use tif or ecw as file-format. 
+You may either use your own color infrared (CIR) aerial photo (must include infrared-band) or extract the area from the main  aerail photo of the Netherlands*. You may use tif or ecw as file-format. 
+
 Please verify and adjust settings in '00_init_batch_run.R'
  
 Run the procedure via '00_init_batch_run.R'
@@ -86,7 +85,7 @@ Run the procedure via '00_init_batch_run.R'
 If you like to run the Python procedure from Rstudio, read the instructions in SRC>python.R
 
 Python: Define the neighbourhood code(s) in the neighbourhood.csv file.
-You may either use your own color infrared (CIR) aerial photo (must included infrared-band) or extract the region
+You may either use your own color infrared (CIR) aerial photo (must include infrared-band) or extract the region
 from the main aerial photo of the Netherlands*. You may
 use ecw as file-format. Please verify and adjust settings in
 'start.py'

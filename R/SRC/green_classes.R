@@ -6,9 +6,9 @@
 #-----------------------------------------------------------------------------------------------
 
 ndvi_subset <- ndvi
-class(ndvi_subset)
+#class(ndvi_subset)
 
-# ndvi scores greater than 0.2 are considered vegetation
+# NDVI scores greater than or equal to 0.2 are considered vegetation
 ndvi_subset@data@values[ndvi_subset@data@values < 0.2] <- NA
 
 # convert the RasterLAyer to array

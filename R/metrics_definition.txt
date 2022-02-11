@@ -12,6 +12,8 @@ NDVI-range 'verstening'
 #-----------------------------------------------------------------------------------------------
 #NDVI patches
 
+
+
 garden_surface_sum (tuinen)	
 totaal areaal tuin (m2)
 
@@ -42,6 +44,9 @@ totaal areaal niet bedenkt met vegetatie (m2)
 stone_cover_avg (tuinen)	
 aandeel van het totaal areaal met zand of steen	
 
+water_cover_avg (tuinen)    
+aandeel van het totaal areaal met water  
+
 ndvi_avg (tuinen)		
 gemiddelde NDVI waarde totaal areaal
 
@@ -54,16 +59,16 @@ totaal areaal pand(en) (m2)
 #-----------------------------------------------------------------------------------------------
 #unsupervised NDVI clusters
 
-ai (unsupervised clusters)
+ai (clusters)
 aggregation index
 
-ca (unsupervised clusters)
+ca (clusters)
 total (class) area (m2) (oppervlakte)
 
-contig_mn (unsupervised  clusters)     
+contig_mn (clusters)     
 Mean of Contiguity index (samenhangendheid)
 
-enn_mn (buurt)
+enn_mn (clusters)
 Mean of euclidean nearest-neighbor distance (m)
 
 division (buurt)      

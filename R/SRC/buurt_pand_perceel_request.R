@@ -313,6 +313,11 @@ tuinen_sf <- st_erase(percelenwoonfunctie_sf,pandenwoonperceel_sf) %>%
 #mapview(list(verschilpanden,tuinen_sf),alpha.regions = 0.6, alpha = 1)
 
 #-----------------------------------------------------------------------------------------------
+# percelen overig (Not-being woonpercelen)
+
+percelenoverig_sf <- st_difference(buurt_sf, st_union(percelenwoonfunctie_sf))
+
+#-----------------------------------------------------------------------------------------------
 
 message("store layers in geopackage ",neighbourhood,"_vector.gpkg")
 
@@ -324,6 +329,7 @@ sf::st_write(verblijfsobjecten_sf, dsn=gpkg_vector, layer='verblijfsobjecten',la
 sf::st_write(woningen_sf, dsn=gpkg_vector, layer='woningen',layer_options = "OVERWRITE=YES",append=FALSE)
 sf::st_write(tuinen_sf, dsn=gpkg_vector, layer='tuinen',layer_options = "OVERWRITE=YES",append=FALSE)
 sf::st_write(percelenwoonfunctie_sf, dsn=gpkg_vector, layer='percelenwoonfunctie',layer_options = "OVERWRITE=YES",append=FALSE)
+sf::st_write(percelenoverig_sf, dsn=gpkg_vector, layer='percelenoverig',layer_options = "OVERWRITE=YES",append=FALSE)
 
 if(buildings_3d==TRUE) {
 sf::st_write(panden3d_sf, dsn=gpkg_vector, layer='panden3d',layer_options = "OVERWRITE=YES",append=FALSE)
@@ -331,6 +337,15 @@ sf::st_write(panden3d_sf, dsn=gpkg_vector, layer='panden3d',layer_options = "OVE
 
 #review layers
 sf::st_layers(gpkg_vector)
+
+#GEOJSON
+percelenwoonfunctie_sf %>%
+st_write("DATA/percelenwoonfunctie.geojson",
+         layer_options = "RFC7946=YES", delete_dsn = TRUE)
+
+tuinen_sf %>%
+  st_write("DATA/tuinen.geojson",
+           layer_options = "RFC7946=YES", delete_dsn = TRUE)
 
 } else {
 message("read layers from existing geopackage ",neighbourhood,"_vector.gpkg")
@@ -343,7 +358,20 @@ percelen_sf <- sf::st_read(gpkg_vector, layer= "percelen",geometry_column="geom"
 verblijfsobjecten_sf <- sf::st_read(gpkg_vector, layer= "verblijfsobjecten", geometry_column="geom")
 woningen_sf <- sf::st_read(gpkg_vector, layer= "woningen", geometry_column="geom")
 tuinen_sf <- sf::st_read(gpkg_vector, layer= "tuinen", geometry_column="geom")
+percelenwoonfunctie_sf <- sf::st_read(gpkg_vector, layer= "tuinen", geometry_column="geom")
+percelenoverig_sf <- sf::st_read(gpkg_vector, layer= "tuinen", geometry_column="geom")
 }
+
+#-----------------------------------------------------------------------------------------------
+#surface area buurt, tuinen
+buurt_sf$oppervlakte_buurt_unit <- st_area(buurt_sf$geom) #keep for unit translations
+#change data type to numeric (from 'S3: units' with m^2 suffix)
+buurt_sf$oppervlakte_buurt <- as.numeric(buurt_sf$oppervlakte_buurt_unit)
+
+#make sure the surface is the effective garden area after geometric operations (and not perceel as in 'opp' from PDOK source)
+tuinen_sf$oppervlakte_tuin_unit <- st_area(tuinen_sf$geom) #keep for unit translations
+#change data type to numeric (from 'S3: units' with m^2 suffix)
+tuinen_sf$oppervlakte_tuin <- as.numeric(tuinen_sf$oppervlakte_tuin_unit)
 
 #-----------------------------------------------------------------------------------------------
 #extend and bounding box
@@ -367,7 +395,7 @@ coord_tuinen<-as.data.frame(st_coordinates(cntrd_tuinen))
 
 #-----------------------------------------------------------------------------------------------
 
-png(paste0(plots.loc,"rs_tuinen_",neighbourhood,".png"), bg="white", height = 1280,width=1280,res=180,units = "px")
+png(paste0(plots.loc,"rs_tuinen_",neighbourhood,".png"), bg="white", height=1280,width=1280,res=180,units="px")
 plot(st_geometry(tuinen_sf))
 dev.off()
 

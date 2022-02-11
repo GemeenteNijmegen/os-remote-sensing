@@ -12,6 +12,8 @@
 #the file is 169GB, it takes some time to download
 #please clip the desired area before implementing in this procedure
 
+#this procedure checks the AI directory first, then checks for a clipping on the VNG stack
+
 #name of output file (TIF)
 output <- paste0(data.loc,"/",neighbourhood,".tif")
 
@@ -19,6 +21,9 @@ output <- paste0(data.loc,"/",neighbourhood,".tif")
 tiff.rdy <- FALSE
 tiff.rdy <- file.exists(output)
 tiff.rdy
+
+#-----------------------------------------------------------------------------------------------
+#Check for Aerial image in AI-directory (TIF-format)
 
 #tif as a source (as input file)
 if(tiff.rdy==FALSE & tiff.as.source==TRUE) {
@@ -37,6 +42,8 @@ tiff.rdy <- file.exists(output)
 }
 
 #-----------------------------------------------------------------------------------------------
+#Check for Aerial image clipping of the neighbourhood on VNG Stack
+#please request for the image first
 
 if(tiff.as.source==TRUE & tiff.rdy==FALSE) {
 
@@ -54,8 +61,8 @@ if(tiff.as.source==TRUE & tiff.rdy==FALSE) {
 }
 
 #-----------------------------------------------------------------------------------------------
+#Check for Aerial image in AI-directory (ECW-format)
 
-#ECW
 if(tiff.as.source==FALSE & tiff.rdy==FALSE) {
 
   input.ecw <- list.files(ai.dir, pattern = "\\.ecw$", full.names = TRUE)
@@ -92,9 +99,6 @@ if(tiff.as.source==TRUE) {
   ai <- raster::brick(output)
 }
 
-message("The projection of the aerial photo is:")
-raster::crs(ai)
-
 #Amersfoort projection
 #https://www.spatialreference.org/ref/epsg/amersfoort-rd-new/
 message("The projection of the aerial photo will be set to: Amersfoort EPSG 28992")
@@ -108,7 +112,12 @@ raster::crs(ai) <- 28992
 str(ai)
 
 #layers
-nlayers(ai)
+nlayer<-nlayers(ai)
+nlayer
+
+if(nlayer<3) {
+  stop("Number of bands in the aerial image is less than 3")
+}
 
 #extent
 extent(ai)
@@ -132,6 +141,8 @@ ai_buurt <- raster::mask(ai_crop, buurt_sf)
 
 #mask tuinen
 ai_tuinen <- raster::mask(ai_crop, tuinen_sf)
+
+
 
 rm(ai, ai_crop)
 
@@ -175,18 +186,19 @@ ai_buurt[[2]] %>% #RasterLayer
 #Principle component bands
 
 if(pca.ai==TRUE) {
-ai_pca <- rasterPCA(ai_buurt, nSamples = NULL, nComp = nlayers(ai_buurt), spca = FALSE)
+ai_pca <- RStoolbox::rasterPCA(ai_buurt, nSamples = NULL, nComp = nlayers(ai_buurt), spca = FALSE)
 ai_pca$model
 
 ai_pca_img <- stack(ai_pca$map)
 
 png(paste0(plots.loc,"rs_pca_",neighbourhood,".png"), bg="white", height=1280,width=1280,res=180,units="px")
-terra::plotRGB(ai_pca_img, r=1, b=2, g=3, stretch="lin", smooth=TRUE)
-#plot(percelen_sf$geom, add=TRUE, col="transparent", legend=FALSE)
+terra::plotRGB(ai_pca_img, r=1, b=2, g=3, stretch="lin", smooth=TRUE,main=paste0("PCA ", neighbourhood))
 plot(percelen_sf$geom, add=TRUE, col="transparent", legend=FALSE)
 plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
 dev.off()
 }
+
+rm(ai_pca,ai_pca_img)
 
 #-----------------------------------------------------------------------------------------------
 #Plots
@@ -214,8 +226,9 @@ aerial_rgb <- terra::plotRGB(ai_buurt,
                               #stretch the values to increase the contrast of the image
                               stretch = "lin",
                               smooth=TRUE,
-                              axes = TRUE,
-                              main = paste0("RGB stack neighbourhood ", neighbourhood))
+                              axes = TRUE
+                             # ,main = paste0("RGB stack neighbourhood ", neighbourhood)
+                             )
 aerial_rgb
 plot(percelen_sf$geom, add=TRUE, col="transparent", legend=FALSE)
 plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
@@ -236,16 +249,14 @@ aerial_rgb <- terra::plotRGB(ai_tuinen,
                               #stretch the values to increase the contrast of the image
                               stretch = "lin",
                               axes = TRUE,
-                              main = paste0("RGB stack gardens ", neighbourhood))
+                              main = paste0("RGB stack ", neighbourhood)
+                             )
 plot(percelen_sf$geom, add=TRUE, col="transparent", legend=FALSE)
 box(col = "white")
 aerial_rgb
 plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
 dev.off()
 
+
 #garbage collection
 gc()
-
-
-
-
