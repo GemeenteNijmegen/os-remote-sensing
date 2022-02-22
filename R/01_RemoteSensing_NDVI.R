@@ -235,9 +235,11 @@ names(rvi) <- "rvi"
 
 #-----------------------------------------------------------------------------------------------
 
+if(ahn_calc==TRUE) {
 message("apply Actueel Hoogtebestand Nederland (AHN)")
 
 source(here::here('SRC/ahn.R'))
+
 
 #-----------------------------------------------------------------------------------------------
 
@@ -278,6 +280,8 @@ veg_t5 <- garden_5mplus*veg_g
 raster::crs(veg_t5) <- raster::crs(percelen_sf)
 
 rm(reclass_binary, reclass_binary_m)
+
+}
 
 #Distribution of raster cell NDVI values
 png(paste0(plots.loc,"rs_ndvi_distibution_raster_cell_",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio*2, height=png_height)
@@ -354,7 +358,7 @@ buurt_sf$water_cover_all<-round(water_cover_all*100,1)
 message("calculate green coverage tuinen")
 
 # Number of cells covered by the polygon (raster values are ignored)
-cells_cnt <- exact_extract(ndvi, tuinen_sf, function(values, coverage_fraction)
+cells_cnt <- exactextractr::exact_extract(ndvi, tuinen_sf, function(values, coverage_fraction)
         sum(coverage_fraction))
 
 tuinen_sf$cells_cnt<-cells_cnt
@@ -380,6 +384,7 @@ ndvi_cover<-exactextractr::exact_extract(veg_g,tuinen_sf,
 
 tuinen_sf$green_cover<-round(ndvi_cover*100,1)
 
+if(ahn_calc==TRUE) {
 #medium to high vegetation (3m+) cover per polygon element (tuin)
 veg_cover_3m<-exactextractr::exact_extract(veg_t3,tuinen_sf,
                                             fun ='mean',
@@ -393,6 +398,7 @@ tree_cover_5m<-exactextractr::exact_extract(veg_t5,tuinen_sf,
                                          force_df =FALSE)
 
 tuinen_sf$tree_cover_5m<-round(tree_cover_5m*100,1)
+}
 
 #stone cover per polygon element (tuin)
 stone_cover<-exactextractr::exact_extract(stone_d,tuinen_sf,
@@ -417,12 +423,6 @@ tuinen_sf <- tuinen_sf %>%
            mutate(
                   #oppervlakte vegetatie
                   green_surface = round((oppervlakte_tuin*(green_cover/100)),1),
-                  #oppervlak vegetatie 5m of hoger
-                  tree_surface_5m = round((oppervlakte_tuin*(tree_cover_5m/100)),1),
-                  #oppervlak vegetatie 3m of hoger
-                  veg_surface_3m = round((oppervlakte_tuin*(veg_cover_3m/100)),1),
-                  #oppervlak vegetatie 5m of hoger
-                  treeingreen_cover = round(tree_surface_5m/green_surface*100,1),
                   #oppervlak potentieel vegetatie
                   green_potential = oppervlakte_tuin-green_surface,
                   #oppervlakte versteend
@@ -432,6 +432,18 @@ tuinen_sf <- tuinen_sf %>%
                   #buurtcode meenemen
                   buurt_selection = neighbourhood
                   )
+
+if(ahn_calc==TRUE) {
+  tuinen_sf <- tuinen_sf %>%
+    mutate(
+      #oppervlak vegetatie 5m of hoger
+      tree_surface_5m = round((oppervlakte_tuin*(tree_cover_5m/100)),1),
+      #oppervlak vegetatie 3m of hoger
+      veg_surface_3m = round((oppervlakte_tuin*(veg_cover_3m/100)),1),
+      #oppervlak vegetatie 5m of hoger
+      treeingreen_cover = round(tree_surface_5m/green_surface*100,1)
+    )
+}
 
 sf::st_write(tuinen_sf, dsn=gpkg_vector, layer='tuinen',layer_options = "OVERWRITE=YES",append=FALSE)
 
@@ -444,20 +456,20 @@ buurt_garden_stats <- tuinen_sf %>%
                   garden_surface_sum = sum(oppervlakte_tuin, na.rm = TRUE),
                   #aandeel vegetatie in tuin
                   green_cover_avg = round(mean(green_cover, na.rm = TRUE),1),
-                  #aandeel middelhoge en hoge vegetatie in tuin (3m and above)
-                  veg_cover_3m_avg = round(mean(veg_cover_3m, na.rm = TRUE),1),
-                  #aandeel bomen in tuin (5m and above)
-                  tree_cover_5m_avg = round(mean(tree_cover_5m, na.rm = TRUE),1),
                   #oppervlak vegetatie
                   green_surface_sum = sum(green_surface, na.rm = TRUE),
-                  #oppervlak middelhoge en hoge vegetatie (3m and above)
-                  veg3m_surface_sum = sum(veg_surface_3m, na.rm = TRUE),
-                  #oppervlak bomen (5m and above)
-                  tree_surface_sum = sum(tree_surface_5m, na.rm = TRUE),
-                  #aandeel bomen in vegetatie
-                  treeingreen_cover_avg = round(mean(treeingreen_cover,na.rm = TRUE),1),
                   #oppervlak potentieel vegetatie
                   green_potential_sum = sum(green_potential, na.rm = TRUE),
+                  #aandeel middelhoge en hoge vegetatie in tuin (3m and above)
+                  #veg_cover_3m_avg = round(mean(veg_cover_3m, na.rm = TRUE),1),
+                  #aandeel bomen in tuin (5m and above)
+                  #tree_cover_5m_avg = round(mean(tree_cover_5m, na.rm = TRUE),1),
+                  #oppervlak middelhoge en hoge vegetatie (3m and above)
+                  #veg3m_surface_sum = sum(veg_surface_3m, na.rm = TRUE),
+                  #oppervlak bomen (5m and above)
+                  #tree_surface_sum = sum(tree_surface_5m, na.rm = TRUE),
+                  #aandeel bomen in vegetatie
+                  #treeingreen_cover_avg = round(mean(treeingreen_cover,na.rm = TRUE),1),
                   #aandeel versteend in tuin
                   stone_cover_avg = round(mean(stone_cover, na.rm = TRUE),1),
                   #aandeel versteend in tuin
@@ -467,6 +479,11 @@ buurt_garden_stats <- tuinen_sf %>%
                   #gemiddelde NDVI waarde vegetatie
                   ndvi_green_avg = round(mean(ndvi_green_avg,na.rm = TRUE),1)
                   )
+
+
+
+
+
 
 buurt_garden_stats <- cbind(buurt_sf,buurt_garden_stats) %>% rename(geom_tuinen=geom.1)
 

@@ -123,6 +123,17 @@ evi2_calc <- TRUE #default (T)
 
 pca.ai <- TRUE #default (F)
 
+
+#-----------------------------------------------------------------------------------------------
+
+#Current Dutch Elevation (Actueel Hoogtebestand Nederland, AHN)
+
+#-----------------------------------------------------------------------------------------------
+
+#apply height of objects
+ahn_calc <-TRUE #default (T)
+
+
 #-----------------------------------------------------------------------------------------------
 
 # Batch run neighbourhoods
@@ -133,6 +144,7 @@ pca.ai <- TRUE #default (F)
 BU_codes <- read.xlsx('neighbourhoods.xlsx')
 
 for (i in 1:nrow(BU_codes)) {
+
   #cat("iteration =", i, "\n")
   neighbourhood <- BU_codes$buurtcode[i]
   municipality <- BU_codes$gemeente[i]

@@ -48,6 +48,7 @@ veg_clus %>%
   write_stars(gpkg_indices,
               driver = "GPKG", options = c("RASTER_TABLE=vegetation_classes_unsupervised","APPEND_SUBDATASET=YES"))
 
+if(ahn_calc==TRUE) {
 #high vegetation (above 3m)
 veg_t3 %>%
   st_as_stars %>% # convert the RasterLayer to a stars object
@@ -59,6 +60,7 @@ veg_t5 %>%
   st_as_stars %>% # convert the RasterLayer to a stars object
   write_stars(gpkg_indices,
               driver = "GPKG", options = c("RASTER_TABLE=trees_5mplus","APPEND_SUBDATASET=YES"))
+}
 
 #stone and sand/earth
 stone_d %>%

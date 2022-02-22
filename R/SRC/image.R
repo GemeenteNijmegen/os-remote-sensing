@@ -142,15 +142,15 @@ ai_buurt <- raster::mask(ai_crop, buurt_sf)
 #mask tuinen
 ai_tuinen <- raster::mask(ai_crop, tuinen_sf)
 
-
-
 rm(ai, ai_crop)
 
 #-----------------------------------------------------------------------------------------------
 #Geopackage raster data
 
 #remove existing raster geopackage
+if (file.exists(gpkg_raster)) {
 unlink(gpkg_raster)
+}
 
 message("store CIR layers as rasters in geopackage")
 
@@ -235,7 +235,7 @@ plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
 box(col = "white")
 dev.off()
 
-ggR(ai_buurt, stretch = "lin") +
+RStoolbox::ggR(ai_buurt, stretch = "lin") +
   theme_void()
 plot.nme = paste0('rs_grey_',neighbourhood,'.png')
 plot.store <-paste0(plots.loc,plot.nme)

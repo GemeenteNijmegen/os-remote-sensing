@@ -222,6 +222,7 @@ plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
 
+if(ahn_calc==TRUE) {
 #vegetation (3m and above)
 png(paste0(plots.loc,"rs_rgb_veg_3m_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
 par(col.axis = "white", col.lab = "white", tck = 0,mar = c(1,1,1,1))
@@ -241,6 +242,7 @@ plot(veg_t5, add=TRUE, legend=FALSE)
 plot(percelen_sf$geom, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
+}
 
 #mean NVDI garden
 ggplot(data = tuinen_sf) +

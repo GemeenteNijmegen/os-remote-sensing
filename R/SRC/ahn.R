@@ -81,7 +81,8 @@ names(ahn_raster) <- "height_objects"
 rm(ahn_dsm_raster,ahn_dtm_raster)
 
 #adjust resolution (0.5) (to match aerial image) (0.25)
-ahn_raster_hr <- terra::disaggregate(ahn_raster, fact=4)
+#ahn_raster_hr <- terra::disaggregate(ahn_raster, fact=4)
+ahn_raster_hr <- raster::disaggregate(ahn_raster, fact=4)
 
 ahn_raster_hr<-ahn_raster
 
