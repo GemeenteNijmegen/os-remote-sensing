@@ -321,6 +321,13 @@ percelenoverig_sf <- st_difference(buurt_sf, st_union(percelenwoonfunctie_sf))
 
 message("store layers in geopackage ",neighbourhood,"_vector.gpkg")
 
+#remove existing vector geopackage
+if (file.exists(gpkg_vector)) {
+  unlink(gpkg_vector)
+}
+
+
+#review layers
 #create vector geopackage (GPKG)
 sf::st_write(buurt_sf, dsn=gpkg_vector, layer='buurt',layer_options = "OVERWRITE=YES",append=FALSE)
 sf::st_write(panden_sf, dsn=gpkg_vector, layer='panden',layer_options = "OVERWRITE=YES",append=FALSE)
@@ -335,7 +342,6 @@ if(buildings_3d==TRUE) {
 sf::st_write(panden3d_sf, dsn=gpkg_vector, layer='panden3d',layer_options = "OVERWRITE=YES",append=FALSE)
 }
 
-#review layers
 sf::st_layers(gpkg_vector)
 
 #GEOJSON
