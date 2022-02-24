@@ -21,7 +21,7 @@ gdf_daken = gpd.read_file(gpkg_vector, driver='GPKG', layer='daken')
 gdf_daken = gdf_daken.rename(index=str, columns={"identificatie":"pand_identificatie"})
 
 # Clip (called mask in rasterio) tuinen with ndvi
-daken_ndvi, mask_transform = mask(dataset=ndvi,shapes=gdf_daken.geometry,crop=True)
+daken_ndvi, mask_transform = mask(dataset=ndvi,shapes=gdf_daken.geometry,crop=False)
 
 # Define profile for writing based on NDVI tif profile
 profile = ndvi.meta
