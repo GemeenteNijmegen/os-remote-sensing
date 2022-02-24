@@ -144,7 +144,7 @@ ndvi = rasterio.open(tif_ndvi_temp, driver='GTiff') #RGB
 gdf_roofs = gpd.read_file(gpkg_vector, driver='GPKG', layer='daken')
 
 # Clip (called mask in rasterio) tuinen with ndvi
-roofs_ndvi, mask_transform = mask(dataset=ndvi,shapes=gdf_roofs.geometry,crop=True)
+roofs_ndvi, mask_transform = mask(dataset=ndvi,shapes=gdf_roofs.geometry,crop=False)
 #show(tuinen_ndvi, transform=mask_transform)
 
 # Define profile for writing based on NDVI tif profile
