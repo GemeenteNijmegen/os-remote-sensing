@@ -19,7 +19,7 @@ ndvi = rasterio.open(tif_ndvi, driver='GTiff') #RGB
 gdf_tuinen = gpd.read_file(gpkg_vector, driver='GPKG', layer='tuinen')
 
 # Clip (called mask in rasterio) garden with ndvi
-tuinen_ndvi, mask_transform = mask(dataset=ndvi,shapes=gdf_tuinen.geometry,crop=True)
+tuinen_ndvi, mask_transform = mask(dataset=ndvi,shapes=gdf_tuinen.geometry,crop=False)
 
 # Define profile for writing based on NDVI tif profile
 profile = ndvi.meta
