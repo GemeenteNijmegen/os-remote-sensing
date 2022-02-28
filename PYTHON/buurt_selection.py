@@ -35,4 +35,4 @@ gdf_buurtselection = gdf_buurten[gdf_buurten.buurtcode == buurtcode]
 gdf_buurtselection = gdf_buurtselection.set_crs("EPSG:28992")
 
 # Write buurt-polygon to geopackage (gpkg)
-gdf_buurtselection.to_file(gpkg_vector, driver='GPKG', layer='buurt')
+gdf_buurtselection.to_file(gpkg_vector, driver='GPKG', layer='buurt',  index=False)
