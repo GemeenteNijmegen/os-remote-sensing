@@ -55,4 +55,4 @@ if '30' in dfres.columns:
 dfres = dfres.loc[dfres['pGROEN'] * dfres['pGROEN'] != 0]
 
 # Write tuinen_stats-polygon to gpkg
-dfres.to_file(gpkg_vector, driver='GPKG', layer='tuinen_stats')
+dfres.to_file(gpkg_vector, driver='GPKG', layer='tuinen_stats', index=False)
