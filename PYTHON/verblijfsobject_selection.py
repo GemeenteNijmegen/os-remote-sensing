@@ -81,7 +81,7 @@ gdf_allvobuurt = gpd.clip(gdf_allvobuurt, gdf_buurt)
 gdf_allvobuurt = gdf_allvobuurt[gdf_allvobuurt['status'].str.contains('Verblijfsobject in gebruik|Verbouwing verblijfsobject')]
 
 # Write verblijfsobjecten to gpkg
-gdf_allvobuurt.to_file(gpkg_vector, driver='GPKG', layer='verblijfsobjecten')
+gdf_allvobuurt.to_file(gpkg_vector, driver='GPKG', layer='verblijfsobjecten', index=False)
 
 # Filter all verblijfsobjecten which contain the function 'woonfunctie' and 'logiesfunctie'
 gdf_vobuurtwoonfunctie = gdf_allvobuurt[gdf_allvobuurt['gebruiksdoel'].str.contains('woonfunctie|logiesfunctie')]
@@ -92,4 +92,4 @@ if len(gdf_vobuurtwoonfunctie.columns) == 0:
     print("Geen woningen in deze buurt")
     quit()
 else:
-    gdf_vobuurtwoonfunctie.to_file(gpkg_vector, driver='GPKG', layer='woningen')
+    gdf_vobuurtwoonfunctie.to_file(gpkg_vector, driver='GPKG', layer='woningen', index=False)
