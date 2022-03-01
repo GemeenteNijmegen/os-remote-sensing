@@ -1,7 +1,7 @@
 
 #-----------------------------------------------------------------------------------------------
 
-# Remote Sensing: Green private urban spaces
+# Remote Sensing: Green (private) urban spaces
 
 #-----------------------------------------------------------------------------------------------
 
@@ -45,8 +45,14 @@ nir_seq<-1
 #color red resides in band:
 red_seq<-2
 
-#Report on tuinen of woonpercelen (FALSE for all percelen in buurt)
+#Coordinate Reference System
+#Amersfoort projection (28992)
+#https://www.spatialreference.org/ref/epsg/amersfoort-rd-new/
+crs_sp<-28992
+
+#Report on tuinen on woonpercelen (FALSE for all percelen in buurt)
 report_tuinen<-TRUE #default (T)
+
 
 #-----------------------------------------------------------------------------------------------
 
@@ -144,7 +150,6 @@ ahn_calc <-TRUE #default (T)
 BU_codes <- read.xlsx('neighbourhoods.xlsx')
 
 for (i in 1:nrow(BU_codes)) {
-
   #cat("iteration =", i, "\n")
   neighbourhood <- BU_codes$buurtcode[i]
   municipality <- BU_codes$gemeente[i]

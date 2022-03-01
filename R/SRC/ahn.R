@@ -140,7 +140,7 @@ aerial_rgb <- terra::plotRGB(ai_buurt,
                               axes = TRUE,
                               main = paste0("AHN buurt (m) ", neighbourhood))
 plot(ahn_buurt, add=TRUE, legend=TRUE, col= rev(hcl.colors(12, "YlOrRd")))
-plot(percelen_sf$geom, add=TRUE, legend=FALSE)
+plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
 box(col = "white")
 aerial_rgb
 plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
@@ -156,7 +156,7 @@ aerial_rgb <- terra::plotRGB(ai_buurt,
                               axes = TRUE,
                               main = paste0("AHN tuinen (m) ", neighbourhood))
 plot(ahn_tuinen, add=TRUE, legend=TRUE, col= rev(hcl.colors(12, "YlOrRd")))
-plot(percelen_sf$geom, add=TRUE, legend=FALSE)
+plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
 box(col = "white")
 aerial_rgb
 plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)

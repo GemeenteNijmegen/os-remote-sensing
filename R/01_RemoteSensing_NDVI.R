@@ -134,7 +134,6 @@ veg_polygon$oppervlakte <- st_area(veg_polygon$geometry)
 #ass layer to geopackage
 sf::st_write(veg_polygon, dsn=gpkg_vector, layer='vegetation_contour',layer_options = "OVERWRITE=YES",append=FALSE)
 
-
 #for mean green
 #create new raster and remove NDVI value below 0.2.
 reclass_value <- c(-1, 0.2, NA)
@@ -485,7 +484,7 @@ buurt_garden_stats <- tuinen_sf %>%
 
 
 
-buurt_garden_stats <- cbind(buurt_sf,buurt_garden_stats) %>% rename(geom_tuinen=geom.1)
+buurt_garden_stats <- cbind(buurt_sf,buurt_garden_stats) %>% rename(geom_tuinen=geometry.1)
 
 write.csv(buurt_garden_stats,file=paste(report.loc,"Buurt_tuinen_statistieken_",neighbourhood,".csv"))
 
@@ -495,7 +494,7 @@ write.csv(buurt_garden_stats,file=paste(report.loc,"Buurt_tuinen_statistieken_",
 
 #-----------------------------------------------------------------------------------------------
 
-message("calculate green coverage panden op perceel met woonfunctie")
+message("calculate green coverage panden on perceel with woonfunctie")
 
 #Mean value (NDVI) of cells that intersect the polygon, weighted by the percent of the cell that is covered.
 #mean ndvi per polygon element (panden)
@@ -550,7 +549,7 @@ buurt_roofgarden_stats <- panden_sf %>%
                 ndvi_green_avg = round(mean(ndvi_green_avg,na.rm = TRUE),1)
         )
 
-buurt_roofgarden_stats <- cbind(buurt_sf,buurt_roofgarden_stats) %>% rename(geom_panden=geom.1)
+buurt_roofgarden_stats <- cbind(buurt_sf,buurt_roofgarden_stats) %>% rename(geom_panden=geometry.1)
 
 write.csv(buurt_roofgarden_stats,file=paste(report.loc,"Buurt_daken_statistieken_",neighbourhood,".csv"))
 write.csv(buurt_sf,file=paste(report.loc,"Buurt_vollediggebeid_statistieken_",neighbourhood,".csv"))

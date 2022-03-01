@@ -123,7 +123,7 @@ par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
 plot(ndvi, axes=FALSE, box=FALSE, legend=TRUE, cex = 0.5, breaks=brks, lab.breaks=brks, col=cols,na.value ="transparent",
      main=paste0("NDVI and vegetation contour ", neighbourhood))
 plot(veg_contour, add=TRUE, lwd = 0.1)
-plot(percelen_sf$geom, add=TRUE, legend=FALSE)
+plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
 dev.off()
 
 #plot rgb and ndvi
@@ -131,7 +131,7 @@ png(paste0(plots.loc,"rs_rgb_ndvi_",neighbourhood,".png"), bg="white", height=12
 par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
 terra::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("NDVI ", neighbourhood))
 plot(ndvi, add=TRUE, legend=TRUE, cex = 0.5, breaks=brks, lab.breaks=brks, col=cols,na.value ="transparent")
-plot(percelen_sf$geom, add=TRUE, legend=FALSE)
+plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
 
@@ -141,7 +141,7 @@ png(paste0(plots.loc,"rs_rgb_tndvi_",neighbourhood,".png"), bg="white", height=1
 par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
 terra::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("TNDVI ", neighbourhood))
 plot(tndvi, add=TRUE, legend=TRUE, cex = 0.5, col=cols,na.value ="transparent")
-plot(percelen_sf$geom, add=TRUE, legend=FALSE)
+plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
 }
@@ -152,7 +152,7 @@ png(paste0(plots.loc,"rs_rgb_msavi2_",neighbourhood,".png"), bg="white", height=
 par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
 terra::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("MSAVI2 ", neighbourhood))
 plot(msavi2, add=TRUE, legend=TRUE, cex = 0.5, col=cols,na.value ="transparent")
-plot(percelen_sf$geom, add=TRUE, legend=FALSE)
+plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
 }
@@ -162,7 +162,7 @@ png(paste0(plots.loc,"rs_rgb_vegetation_",neighbourhood,".png"), bg="white", hei
 par(col.axis = "white", col.lab = "white", tck = 0,mar = c(1,1,1,1))
 raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("vegetation (NDVI >=.2) ", neighbourhood))
 plot(veg_g, add=TRUE, legend=FALSE)
-plot(percelen_sf$geom, add=TRUE, legend=FALSE)
+plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
 
@@ -175,7 +175,7 @@ png(paste0(plots.loc,"rs_rgb_veg_substantial_",neighbourhood,".png"), bg="white"
 par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
 raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',alpha=0,main=paste0("substantial vegetation (NDVI >=.3) ", neighbourhood))
 plot(veg_s, add=TRUE, legend=TRUE, cex = 2, breaks=brks, lab.breaks=brks, col=cols, na.value ="grey")
-plot(percelen_sf$geom, add=TRUE, legend=FALSE)
+plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
 
@@ -188,7 +188,7 @@ png(paste0(plots.loc,"rs_rgb_veg_classes_unsupervised_",neighbourhood,".png"), b
 par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
 raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("NDVI classes (unsupervised) ", neighbourhood))
 plot(veg_clus, add=TRUE, legend=TRUE, cex = 0.5, breaks=brks, lab.breaks=brks, col=cols,na.value ="transparent")
-plot(percelen_sf$geom, add=TRUE, legend=FALSE)
+plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
 
@@ -202,7 +202,7 @@ png(paste0(plots.loc,"rs_rgb_veg_classes_fixed_",neighbourhood,".png"), bg="whit
 par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
 raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("NDVI classes (fixed) ", neighbourhood))
 plot(veg_c, add=TRUE, legend=TRUE, cex = 0.5, breaks=brks, lab.breaks=brks, col=cols,na.value ="transparent", axis.args=lab_args)
-plot(percelen_sf$geom, add=TRUE, legend=FALSE)
+plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
 
@@ -218,7 +218,7 @@ png(paste0(plots.loc,"rs_rvi_",neighbourhood,".png"), bg="white", height=1280, w
 par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
 raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("RVI ", neighbourhood))
 plot(rvi, add=TRUE, legend=TRUE, cex = 0.5, breaks=brks, lab.breaks=brks, col=cols,na.value ="transparent")
-plot(percelen_sf$geom, add=TRUE, legend=FALSE)
+plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
 
@@ -229,7 +229,7 @@ par(col.axis = "white", col.lab = "white", tck = 0,mar = c(1,1,1,1))
 raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin", colNA='transparent', alpha=0,#hide (0), show(255)
                 main=paste0("3m+ vegetation ", neighbourhood))
 plot(veg_t3, add=TRUE, legend=FALSE)
-plot(percelen_sf$geom, add=TRUE, legend=FALSE)
+plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
 
@@ -239,7 +239,7 @@ par(col.axis = "white", col.lab = "white", tck = 0,mar = c(1,1,1,1))
 raster::plotRGB(ai_tuinen, r=1, g=2, b=3, axes=TRUE, stretch="lin", colNA='transparent', alpha=0,#hide (0), show(255)
                 main=paste0("5m+ vegetation (trees) ", neighbourhood))
 plot(veg_t5, add=TRUE, legend=FALSE)
-plot(percelen_sf$geom, add=TRUE, legend=FALSE)
+plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
 }

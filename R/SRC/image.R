@@ -192,7 +192,7 @@ ai_pca_img <- stack(ai_pca$map)
 
 png(paste0(plots.loc,"rs_pca_",neighbourhood,".png"), bg="white", height=1280,width=1280,res=180,units="px")
 terra::plotRGB(ai_pca_img, r=1, b=2, g=3, stretch="lin", smooth=TRUE,main=paste0("PCA ", neighbourhood))
-plot(percelen_sf$geom, add=TRUE, col="transparent", legend=FALSE)
+plot(percelen_sf$geometry, add=TRUE, col="transparent", legend=FALSE)
 plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
 dev.off()
 }
@@ -229,7 +229,7 @@ aerial_rgb <- terra::plotRGB(ai_buurt,
                              # ,main = paste0("RGB stack neighbourhood ", neighbourhood)
                              )
 aerial_rgb
-plot(percelen_sf$geom, add=TRUE, col="transparent", legend=FALSE)
+plot(percelen_sf$geometry, add=TRUE, col="transparent", legend=FALSE)
 plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
 box(col = "white")
 dev.off()
@@ -250,7 +250,7 @@ aerial_rgb <- terra::plotRGB(ai_tuinen,
                               axes = TRUE,
                               main = paste0("RGB stack ", neighbourhood)
                              )
-plot(percelen_sf$geom, add=TRUE, col="transparent", legend=FALSE)
+plot(percelen_sf$geometry, add=TRUE, col="transparent", legend=FALSE)
 box(col = "white")
 aerial_rgb
 plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
