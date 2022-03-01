@@ -5,33 +5,21 @@
 
 #-----------------------------------------------------------------------------------------------
 
-#vector geopackage already available?
-vec.gpkg.rdy<-FALSE
+#PDOK webservice instruction
+#https://pdok-ngr.readthedocs.io/services.html
 
-#check existence
-vec.gpkg.rdy<-file.exists(gpkg_vector)
-
-
-  #not available, let's create gpkg
-
-  #PDOK webservice instruction
-  #https://pdok-ngr.readthedocs.io/services.html
-
-  #terms of use
-  #https://www.pdok.nl/documents/1901824/4016976/PDOK+-+Producten-+en+Diensten+Catalogus+-+Afnemers+van+Data.pdf
+#terms of use
+#https://www.pdok.nl/documents/1901824/4016976/PDOK+-+Producten-+en+Diensten+Catalogus+-+Afnemers+van+Data.pdf
 
 
+#-----------------------------------------------------------------------------------------------
 
-  #-----------------------------------------------------------------------------------------------
+#Buurt
 
-  #Buurt
+#-----------------------------------------------------------------------------------------------
 
-  #-----------------------------------------------------------------------------------------------
-
-  #if exists, read local file containing all buurten in NL
-
-    layer <-paste0("wijkenbuurten",yr,":cbs_buurten_",yr)
-    filter<-paste0("<Filter><PropertyIsEqualTo><PropertyName>buurtcode</PropertyName><Literal>",neighbourhood,"</Literal></PropertyIsEqualTo></Filter>")
+    layer <- paste0("wijkenbuurten",yr,":cbs_buurten_",yr)
+    filter <- paste0("<Filter><PropertyIsEqualTo><PropertyName>buurtcode</PropertyName><Literal>",neighbourhood,"</Literal></PropertyIsEqualTo></Filter>")
 
     message("extract NL-buurten polygon from nationaalgeoregister.nl ")
     #Buurt request
@@ -44,16 +32,13 @@ vec.gpkg.rdy<-file.exists(gpkg_vector)
                       filter=filter,
                       outputFormat='json')
     request <- build_url(url);request
-    request <- URLencode(request)
-    buurten_nl_sf <- sf::st_read(request)
-    saveRDS(buurten_nl_sf, "DATA/buurten_nl_sf.rds")
-    rm(buurten_nl_sf)
+    request <- utils::URLencode(request)
 
+    buurt_sf <- sf::st_read(request)
+    buurt_sf <- buurt_sf[, c('buurtcode', 'buurtnaam', 'gemeentecode', 'geometry')]
+    #saveRDS(buurt_sf, "DATA/buurten_sf.rds")
 
-  buurt_sf <- readRDS("DATA/buurten_nl_sf.rds")
-  buurt_sf <- buurt_sf[, c('buurtcode', 'buurtnaam', 'gemeentecode', 'geometry')]
-
-  #transform from Multisurface to Polygon
+    #transform from Multisurface to Polygon
   buurt_sf <- st_cast(buurt_sf, "GEOMETRYCOLLECTION") %>% st_collection_extract("POLYGON")
 
   #Extend and bounding box
@@ -73,11 +58,11 @@ vec.gpkg.rdy<-file.exists(gpkg_vector)
   x_centroid<-cen[1]
   y_centroid<-cen[2]
 
-  #-----------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------
 
-  #Pand
+#Pand
 
-  #-----------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------
 
   message("extract panden polygons from nationaalgeoregister.nl ", neighbourhood)
 
@@ -116,11 +101,11 @@ vec.gpkg.rdy<-file.exists(gpkg_vector)
   rownames(panden_sf) <- panden_sf$identificatie
 
 
-  #-----------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------
 
-  #Panden 3d
+#Panden 3d
 
-  #-----------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------
 
   #BAG footprints with calculated height from AHN3 (from TU Delft)
 
@@ -158,11 +143,11 @@ vec.gpkg.rdy<-file.exists(gpkg_vector)
 
   }
 
-  #-----------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------
 
-  #Perceel
+#Perceel
 
-  #-----------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------
 
   message("extract percelen polygons from nationaalgeoregister.nl " , neighbourhood)
 
@@ -200,11 +185,11 @@ vec.gpkg.rdy<-file.exists(gpkg_vector)
   #add id to rownames
   rownames(percelen_sf) <- percelen_sf$identificatieLokaalID
 
-  #-----------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------
 
-  #Verblijfsobjecten
+#Verblijfsobjecten
 
-  #-----------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------
 
   message("extract verblijfsobjecten from nationaalgeoregister.nl ", neighbourhood)
 
@@ -236,11 +221,11 @@ vec.gpkg.rdy<-file.exists(gpkg_vector)
     group_by(gid) %>% slice(1)#clipping
   verblijfsobjecten_sf <- verblijfsobjecten_sf %>% dplyr::select(one_of(verblijfsobjecten_cols)) #relevant vbo features
 
-  #-----------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------
 
-  #Tuinen
+#Tuinen
 
-  #-----------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------
 
   message("build tuinen " , neighbourhood)
 
@@ -280,12 +265,12 @@ vec.gpkg.rdy<-file.exists(gpkg_vector)
   #mapview(list(verschiltuinen,tuinen_sf_py,tuinen_sf),alpha.regions = 0.6, alpha = 1)
   #mapview(list(verschilpanden,tuinen_sf),alpha.regions = 0.6, alpha = 1)
 
-  #-----------------------------------------------------------------------------------------------
-  # percelen overig (Not-being woonpercelen)
+#-----------------------------------------------------------------------------------------------
+# percelen overig (Not-being woonpercelen)
 
   percelenoverig_sf <- st_difference(buurt_sf, st_union(percelenwoonfunctie_sf))
 
-  #-----------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------
 
   message("store layers in geopackage ",neighbourhood,"_vector.gpkg")
 
@@ -293,7 +278,6 @@ vec.gpkg.rdy<-file.exists(gpkg_vector)
   if (file.exists(gpkg_vector)) {
     unlink(gpkg_vector)
   }
-
 
   #review layers
   #create vector geopackage (GPKG)

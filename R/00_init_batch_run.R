@@ -56,12 +56,9 @@ report_tuinen<-TRUE #default (T)
 
 #-----------------------------------------------------------------------------------------------
 
-# PDOK polygons (vectors): percelen, panden, verblijfsobjecten, etc.
+# 3D Panden
 
 #-----------------------------------------------------------------------------------------------
-
-#download fresh PDOK polygons, do not use output from earlier run (except for gemeente, buurt)
-gpkg.new <- FALSE #default (F)
 
 #add 3D panden (TU Delft) as layer in (vector) geopackage
 buildings_3d <- FALSE #default (F)
@@ -127,7 +124,7 @@ evi2_calc <- TRUE #default (T)
 
 #-----------------------------------------------------------------------------------------------
 
-pca.ai <- TRUE #default (F)
+pca.ai <- FALSE #default (F)
 
 
 #-----------------------------------------------------------------------------------------------

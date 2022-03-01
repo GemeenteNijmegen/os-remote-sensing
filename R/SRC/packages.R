@@ -41,7 +41,7 @@ packages <- c(
   #Relative paths
   'here',
   'scales',
-  'R.utils',
+  'R.utils','utils',
   'Rmisc',
   #Environment variables
   #'usethis',
