@@ -69,4 +69,4 @@ gdf_allpandenbuurt = gpd.clip(gdf_allpandenbuurt, gdf_buurt)
 gdf_allpandenbuurt = gdf_allpandenbuurt[gdf_allpandenbuurt.geom_type == 'Polygon']
 
 # Write panden-polygon to gpkg
-gdf_allpandenbuurt.to_file(gpkg_vector, driver='GPKG', layer='panden')
+gdf_allpandenbuurt.to_file(gpkg_vector, driver='GPKG', layer='panden', index=False)
