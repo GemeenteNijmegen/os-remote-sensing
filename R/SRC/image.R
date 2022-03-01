@@ -28,7 +28,9 @@ tiff.rdy
 #tif as a source (as input file)
 if(tiff.rdy==FALSE & tiff.as.source==TRUE) {
 
-input.tif <- list.files(ai.dir, pattern = "\\.tif$", full.names = TRUE)
+#input.tif <- list.files(ai.dir, pattern = "\\.tif$", full.names = TRUE)
+input.tif <- paste0(ai.dir,"/",neighbourhood,".tif")
+
 if(length(input.tif) != 0) {
 
 message("extract CIR aerial photo in TIF-format from AI directory")
@@ -99,11 +101,8 @@ if(tiff.as.source==TRUE) {
   ai <- raster::brick(output)
 }
 
-#Amersfoort projection
-#https://www.spatialreference.org/ref/epsg/amersfoort-rd-new/
-message("The projection of the aerial photo will be set to: Amersfoort EPSG 28992")
-raster::crs(ai) <- 28992
-
+message("The projection of the aerial photo will be set")
+raster::crs(ai) <- crs_sp
 
 #-----------------------------------------------------------------------------------------------
 #meta data
@@ -256,7 +255,6 @@ box(col = "white")
 aerial_rgb
 plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
 dev.off()
-
 
 #garbage collection
 gc()

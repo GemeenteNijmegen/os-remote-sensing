@@ -15,8 +15,8 @@ ndvi_subset@data@values[ndvi_subset@data@values < 0.2] <- NA
 ndvi_array <- getValues(ndvi_subset)
 
 # keep valid observations only
-i <- which(!is.na(ndvi_array))
-ndvi_valid_array <- ndvi_array[i]
+p <- which(!is.na(ndvi_array))
+ndvi_valid_array <- ndvi_array[p]
 
 # number of clusters
 k <- 5
