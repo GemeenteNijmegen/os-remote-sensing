@@ -44,4 +44,4 @@ if '20' in dfres.columns:
 dfres = dfres.loc[dfres['pGROEN'] * dfres['pGROEN'] != 0]
 
 # Write tuinen_stats-polygon to gpkg
-dfres.to_file(gpkg_vector, driver='GPKG', layer='daken_stats')
+dfres.to_file(gpkg_vector, driver='GPKG', layer='daken_stats', index=False)
