@@ -1,4 +1,5 @@
 #Load required Python libraries
+import pandas as pd
 import geopandas as gpd
 import shapely.speedups
 
@@ -37,14 +38,14 @@ gdf_pandenwoonfunctie = gdf_pandenwoonfunctie.loc[:, ['pand_identificatie', 'vbo
 gdf_laagbouw= gdf_pandenwoonfunctie[gdf_pandenwoonfunctie.groupby('pand_identificatie')['pand_identificatie'].transform('size') == 1]
 
 #Write panden selection to gpkg
-gdf_laagbouw.to_file(gpkg_vector, driver='GPKG', layer='laagbouw_woonfunctie')
+gdf_laagbouw.to_file(gpkg_vector, driver='GPKG', layer='laagbouw_woonfunctie', index=False)
 
 # Select parcels with minimum of 1 pand with woon- or logiesfunctie
 # Make panden a little smaller (negative buffer) in order to get the correct percelen. There are panden who cross the perceel-border
 gdf_laagbouw_small = gdf_laagbouw.copy()
 gdf_laagbouw_small['geometry'] = gdf_laagbouw_small.geometry.buffer(-1)
 
-gdf_laagbouw_small.to_file(gpkg_vector, driver='GPKG', layer='laagbouw_small')
+gdf_laagbouw_small.to_file(gpkg_vector, driver='GPKG', layer='laagbouw_small', index=False)
 
 #gdf_laagbouw_small.to_file(gpkg_vector, driver='GPKG', layer='laagbouw_small')
 
@@ -53,7 +54,7 @@ gdf_percelen_laagbouw = gpd.sjoin(gdf_percelen, gdf_laagbouw_small[['vbo_identif
 gdf_percelen_laagbouw = gdf_percelen_laagbouw[gdf_percelen_laagbouw['vbo_identificatie'].notnull()]
 gdf_percelen_laagbouw = gdf_percelen_laagbouw.drop_duplicates(subset=['identificatieLokaalID'])
 
-gdf_percelen_laagbouw.to_file(gpkg_vector, driver='GPKG', layer='laagbouw_percelen')
+gdf_percelen_laagbouw.to_file(gpkg_vector, driver='GPKG', layer='laagbouw_percelen', index=False)
 
 
 ### FLATS
@@ -68,12 +69,17 @@ gdf_percelen_flats = gpd.sjoin(gdf_percelen, gdf_flats_vo[['vbo_identificatie', 
 gdf_percelen_flats = gdf_percelen_flats[gdf_percelen_flats['vbo_identificatie'].notnull()]
 gdf_percelen_flats = gdf_percelen_flats.drop_duplicates(subset=['identificatieLokaalID'])
 
-gdf_percelen_flats.to_file(gpkg_vector, driver='GPKG', layer='flats_percelen')
+gdf_percelen_flats.to_file(gpkg_vector, driver='GPKG', layer='flats_percelen', index=False)
 
 ### PERCELEN WOONFUNCTIE
-gdf_percelenwoonfunctie_totaal = gdf_percelen_laagbouw.append(gdf_percelen_flats)
+#gdf_percelenwoonfunctie_totaal = gdf_percelen_laagbouw.append(gdf_percelen_flats)
 
-gdf_percelenwoonfunctie_totaal.to_file(gpkg_vector, driver='GPKG', layer='percelen_woonfunctie_totaal')
+# Make list of dataframes
+frames = [gdf_percelen_laagbouw, gdf_percelen_flats]
+# Concatenate dataframes
+gdf_percelenwoonfunctie_totaal = pd.concat(frames, sort=False)
+
+gdf_percelenwoonfunctie_totaal.to_file(gpkg_vector, driver='GPKG', layer='percelen_woonfunctie_totaal',  index=False)
 
 # Filter only features with geometry type 'polygon'
 gdf_percelenwoonfunctie_totaal = gdf_percelenwoonfunctie_totaal[gdf_percelenwoonfunctie_totaal.geom_type == 'Polygon']
@@ -102,7 +108,7 @@ tuinen = tuinen[tuinen['opp'] < large_tuinen]
 tuinen = tuinen[tuinen['perceelnummer'].notnull()]
 
 # Write garden to gpkg
-tuinen.to_file(gpkg_vector, driver='GPKG', layer='tuinen')
+tuinen.to_file(gpkg_vector, driver='GPKG', layer='tuinen', index=False)
 
 
 ######### Roof
@@ -123,4 +129,4 @@ daken_opp = daken_opp.round(2)
 #Voeg kolom aan tuinen DF toe
 daken['opp'] = daken_opp
 
-daken.to_file(gpkg_vector, driver='GPKG', layer='daken')
+daken.to_file(gpkg_vector, driver='GPKG', layer='daken', index=False)
