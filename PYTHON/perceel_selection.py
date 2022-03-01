@@ -4,7 +4,8 @@ import geopandas as gpd
 import requests
 from requests import Request
 from owslib.wfs import WebFeatureService
-import xml.etree.ElementTree as ET
+#import xml.etree.ElementTree as ET
+#import math
 
 # Load variables
 from start import gpkg_vector
@@ -55,4 +56,4 @@ gdf_allpercelenbuurt = gpd.clip(gdf_allpercelenbuurt, gdf_buurt)
 gdf_allpercelenbuurt = gdf_allpercelenbuurt[gdf_allpercelenbuurt.geom_type == 'Polygon']
 
 # Write percelen-polygon to gpkg
-gdf_allpercelenbuurt.to_file(gpkg_vector, driver='GPKG', layer='percelen')
+gdf_allpercelenbuurt.to_file(gpkg_vector, driver='GPKG', layer='percelen', index=False)
