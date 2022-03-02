@@ -87,10 +87,12 @@ raster::crs(ndvi) <- raster::crs(percelen_sf)
 #(Re)Classify - unsupervised
 #--------------------------------------------------
 
+if(unsup_cl==TRUE) {
 message("(Re)Classify NDVI unsupervised")
 
 #unsupervised boundary detection (NDVI classes)
 source(here::here('SRC/green_classes.R'))
+}
 
 #--------------------------------------------------
 #(Re)Classify - fixed

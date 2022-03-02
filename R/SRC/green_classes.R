@@ -18,8 +18,6 @@ ndvi_array <- getValues(ndvi_subset)
 p <- which(!is.na(ndvi_array))
 ndvi_valid_array <- ndvi_array[p]
 
-# number of clusters
-k <- 5
 km <- kmeans(ndvi_valid_array, centers = k, iter.max = 200,
              nstart = 5, algorithm = "Lloyd")
 

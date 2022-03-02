@@ -53,7 +53,7 @@ red_seq<-2
 crs_sp<-28992
 
 #Report on tuinen on woonpercelen, or all percelen wthin buurt)
-report_tuinen<-FALSE #default (T)
+report_tuinen<-TRUE #default (T)
 
 #-----------------------------------------------------------------------------------------------
 
@@ -62,7 +62,8 @@ report_tuinen<-FALSE #default (T)
 #-----------------------------------------------------------------------------------------------
 
 #default:
-#Normalized difference vegetation index (NDVI) <- metrics are calculated with NDVI
+#Normalized difference vegetation index (NDVI) <- metrics (area, coverage) are calculated based on
+# NDVI
 #Ratio vegetation index (RVI)
 
 #-----------------------------------------------------------------------------------------------
@@ -70,7 +71,6 @@ report_tuinen<-FALSE #default (T)
 # transformed normalized difference vegetation index (TNDVI)
 
 #-----------------------------------------------------------------------------------------------
-
 
 #TNDVI indicates a relation between the amount of green biomass that is found in a pixel.
 #It has always positive values and the variances of the ratio are proportional to mean values
@@ -86,7 +86,6 @@ tndvi_calc <- TRUE #default (F)
 
 #-----------------------------------------------------------------------------------------------
 
-
 #The Modified Soil Adjusted Vegetation Index (MSAVI2) method minimizes the effect of bare soil
 #on the SAVI.
 
@@ -101,7 +100,6 @@ msavi2_calc <- TRUE #default (F)
 
 #-----------------------------------------------------------------------------------------------
 
-
 #EVI2 has several advantages over NDVI including the ability to resolve differences
 #for vegetation with different background soil reflectance
 
@@ -112,7 +110,18 @@ evi2_calc <- TRUE #default (T)
 
 #-----------------------------------------------------------------------------------------------
 
-# Principal component analysis: summarize the information content of the CIR aerial photo
+# Unsupervised classification of NDVI
+
+#-----------------------------------------------------------------------------------------------
+
+unsup_cl <- FALSE #default (T)
+
+#number of clusters
+k <- 5
+
+#-----------------------------------------------------------------------------------------------
+
+# Principal component analysis: summarize the content of the CIR aerial photo
 
 #-----------------------------------------------------------------------------------------------
 

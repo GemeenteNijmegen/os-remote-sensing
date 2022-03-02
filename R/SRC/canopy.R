@@ -11,6 +11,7 @@ gc()
 #https://jean-romain.github.io/lidRbook/itd-its.html
 
 #use all threads for lidR
+#Default value 0 means to utilize all CPU available (you'll need it!)
 set_lidr_threads(0)
 #get_lidr_threads()
 

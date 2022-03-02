@@ -77,6 +77,7 @@ plot.nme = paste0('rs_ndvi_classes_fixed_',neighbourhood,'.png')
 plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=dpi)
 
+if(unsup_cl==TRUE) {
 # plot vegetation classes (unsupervised)
 mplot_veg_clus <- rasterVis::gplot(veg_clus) +
   geom_tile(aes(fill = as.factor(value))) +
@@ -89,6 +90,7 @@ mplot_veg_clus <- rasterVis::gplot(veg_clus) +
 plot.nme = paste0('rs_ndvi_classes_unsupervised_',neighbourhood,'.png')
 plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=dpi)
+}
 
 # plot substantial green
 mplot_veg_s <- rasterVis::gplot(veg_s) +
@@ -181,6 +183,7 @@ dev.off()
 brks <- seq(1, k, by=1)
 cols<- colorspace::sequential_hcl(max(brks), palette = "Viridis")
 
+if(unsup_cl==TRUE) {
 #plot rgb and classes (unsupervised)
 png(paste0(plots.loc,"rs_rgb_veg_classes_unsupervised_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
 par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
@@ -189,6 +192,7 @@ plot(veg_clus, add=TRUE, legend=TRUE, cex = 0.5, breaks=brks, lab.breaks=brks, c
 plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
 box(col = "white")
 dev.off()
+}
 
 #breaks NDVI grey to green
 brks <- seq(1, 5, by=1)

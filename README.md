@@ -2,7 +2,7 @@
 
 This repository contains the code for detecting vegetation in private gardens within dutch neighbourhoods. Vegetation detection is based on Color-infrared (CIR) aerial photography and the NDVI vegetation metric. 
 
-The objective of this repository is to provide a base for spatial distribution analysis of urban green-grey-blue spaces. You may use it for developing custom made remote sensing applications for vegetation detection in the urban environment. 
+The objective of this repository is to provide a base for spatial distribution analysis of urban green-grey-blue spaces. You may use it for developing custom made remote sensing applications. 
 
 This so-called Minimal Viable Product (MVP) is an 100-day experiment of the Expertise Group Data Science Dutch Municipalities and acts as a showcase. 
 
@@ -74,7 +74,7 @@ More information is available in the [presentation slides](https://datasciencevn
 
 Both the Python and R procedure result in geopackage (gpkg) files with multiples layers containing the results of the analysis. The geopackages can be deployed in QGIS or similar (commercial) GIS-software. 
 
-###R
+## R
 R: Open de Rproj-file in the R-directory to start the environment. Define the neighbourhood code(s) and municipality name in the neighbourhood.xlsx file. 
 You may either use your own color infrared (CIR) aerial photo (must include infrared-band) or extract the area from the main  aerial photo of the Netherlands*. You may use tif or ecw as file-format. 
 
@@ -84,7 +84,7 @@ Run the procedure via '00_init_batch_run.R'
 
 Output is served to DATA-directory (geopackages), PLOTS-directory and REPORT-directory (xls-sheets)
 
-###Python
+## Python
 Python: Define the neighbourhood code(s) in the neighbourhood.csv file.
 You may either use your own color infrared (CIR) aerial photo (must include infrared-band) or extract the region from the main aerial photo of the Netherlands*. You may
 use ecw as file-format. Please verify and adjust settings in

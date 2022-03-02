@@ -195,9 +195,9 @@ terra::plotRGB(ai_pca_img, r=1, b=2, g=3, stretch="lin", smooth=TRUE,main=paste0
 plot(percelen_sf$geometry, add=TRUE, col="transparent", legend=FALSE)
 plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
 dev.off()
-}
 
 rm(ai_pca,ai_pca_img)
+}
 
 #-----------------------------------------------------------------------------------------------
 #Plots
@@ -234,6 +234,7 @@ plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
 box(col = "white")
 dev.off()
 
+#grey image
 RStoolbox::ggR(ai_buurt, stretch = "lin") +
   theme_void()
 plot.nme = paste0('rs_grey_',neighbourhood,'.png')
