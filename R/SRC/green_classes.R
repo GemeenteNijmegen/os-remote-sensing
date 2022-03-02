@@ -40,7 +40,7 @@ gi_km <- ndvi_subset
 ## replace raster cell values with km$cluster
 # array
 gi_km[]  <- NA
-gi_km[i] <- km$cluster
+gi_km[p] <- km$cluster
 
 #-----------------------------------------------------------------------------------------------
 # boxplots

@@ -5,6 +5,8 @@
 
 #-----------------------------------------------------------------------------------------------
 
+#Please note, you must initiate the procedure, via the .proj file in the R directory!
+#then run this file
 
 #-----------------------------------------------------------------------------------------------
 
@@ -14,12 +16,10 @@
 
 #set working directory
 #setwd("") #default (de-activated)
+getwd()
 
 #Run in project environment (to avoid package conflicts)
 proj_env <- FALSE #default (F)
-
-#debug mode
-debug_mode <- FALSE #default (F)
 
 #packages
 source('SRC/packages.R')
@@ -34,7 +34,7 @@ source('SRC/packages.R')
 #make aerial photo available in AI-directory
 tiff.as.source <- TRUE #default (T)
 
-#year of the aerial photo
+#year of the aerial photo and polygons
 yr<-2020
 
 #position of near-infrared (NIR) and Red bands in Color-infrared photo
@@ -52,16 +52,6 @@ crs_sp<-28992
 
 #Report on tuinen on woonpercelen (FALSE for all percelen in buurt)
 report_tuinen<-TRUE #default (T)
-
-
-#-----------------------------------------------------------------------------------------------
-
-# 3D Panden
-
-#-----------------------------------------------------------------------------------------------
-
-#add 3D panden (TU Delft) as layer in (vector) geopackage
-buildings_3d <- FALSE #default (F)
 
 #-----------------------------------------------------------------------------------------------
 
@@ -125,6 +115,16 @@ evi2_calc <- TRUE #default (T)
 #-----------------------------------------------------------------------------------------------
 
 pca.ai <- FALSE #default (F)
+
+
+#-----------------------------------------------------------------------------------------------
+
+# 3D Panden
+
+#-----------------------------------------------------------------------------------------------
+
+#add 3D panden (TU Delft) as layer in (vector) geopackage
+buildings_3d <- FALSE #default (F)
 
 
 #-----------------------------------------------------------------------------------------------

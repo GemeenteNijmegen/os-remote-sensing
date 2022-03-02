@@ -42,15 +42,13 @@ mplot_evi2 <- rasterVis::gplot(evi2) +
   geom_tile(aes(fill = value)) +
   scale_fill_gradientn(colours = rev(terrain.colors(225)), na.value ="transparent") +
   #geom_sf(aes(st_sf(st_geometry(tuinen_sf)))) +
-  theme_minimal() +
+  theme_void() +
   coord_fixed() +
   theme(legend.position = "bottom") +
   labs(fill = "EVI2")
 plot.nme = paste0('rs_evi2_',neighbourhood,'.png')
 plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=dpi)
-
-
 }
 
 # plot RVI
@@ -286,7 +284,7 @@ plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=320)
 
 #Distribution of gardens over NDVI
-png(paste0(plots.loc,"rs_garden_distibution_ndvi_freq_",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio*2, height=png_height)
+png(paste0(plots.loc,"rs_garden_distribution_ndvi_freq_",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio*2, height=png_height)
 hist(tuinen_sf$ndvi_avg,
      #breaks=4,
      main = paste0("Distribution of gardens over NDVI ",neighbourhood),
@@ -303,13 +301,13 @@ ggplot(tuinen_sf, aes(x = ndvi_avg)) +
   #scale_x_continuous(breaks = seq(0.2,0.8,0.1))+
   labs(x = "NDVI", y = "%") +
   theme_light()
-plot.nme = paste0('rs_gardens_distibution_ndvi_',neighbourhood,'.png')
+plot.nme = paste0('rs_gardens_distribution_ndvi_',neighbourhood,'.png')
 plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=dpi)
 
 #green coverage of gardens
 ggplot(data = tuinen_sf) +
-  geom_sf(aes(fill = ndvi_cover)) +
+  geom_sf(aes(fill = green_cover)) +
   scale_fill_viridis_c(option = "viridis", direction = 1,name = "green cover proportion") +
   geom_point(size = 0.4, aes(x = coord_tuinen$X,y = coord_tuinen$Y), colour="white", shape = 15) +
   geom_text(
@@ -336,7 +334,7 @@ ggplot(tuinen_sf, aes(x = green_cover)) +
   #scale_x_continuous(breaks = seq(0.2,0.8,0.1))+
   labs(x = "% vegetation cover tuinen on woonperceel", y = "%") +
   theme_light()
-plot.nme = paste0('rs_gardens_distibution_vegetation_coverage_',neighbourhood,'.png')
+plot.nme = paste0('rs_gardens_distribution_vegetation_coverage_',neighbourhood,'.png')
 plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=dpi)
 
@@ -389,7 +387,7 @@ cntrd_panden <- st_centroid(st_geometry(panden_sf))
 coord_panden<-as.data.frame(st_coordinates(cntrd_panden))
 
 ggplot(data = panden_sf) +
-  geom_sf(aes(fill = ndvi_cover_panden)) +
+  geom_sf(aes(fill = green_cover)) +
   scale_fill_viridis_c(option = "viridis", direction = 1,name = "green cover proportion") +
   geom_point(size = 0.4, aes(x = coord_panden$X,y = coord_panden$Y), colour="white", shape = 15) +
   geom_text(
@@ -417,7 +415,7 @@ ggplot(panden_sf, aes(x = green_cover)) +
   #scale_x_continuous(breaks = seq(0.2,0.8,0.1))+
   labs(x = "% vegetation cover panden on woonperceel", y = "%") +
   theme_light()
-plot.nme = paste0('rs_woningen_distibution_vegetation_coverage_',neighbourhood,'.png')
+plot.nme = paste0('rs_woningen_distribution_vegetation_coverage_',neighbourhood,'.png')
 plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=dpi)
 

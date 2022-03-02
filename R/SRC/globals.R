@@ -7,6 +7,9 @@
 
 message("set globals and constants")
 
+#debug mode
+debug_mode <- FALSE #default (F)
+
 #seed
 set.seed(90210)
 
@@ -94,17 +97,17 @@ clear_locations <- c(plots.loc,data.loc, report.loc)
 f <- list.files(clear_locations, include.dirs = F, full.names = T, recursive = T)
 
 # remove the files
-file.remove(f)
+#file.remove(f)
 
 #location geopackages
 #vector layers (polygons buurt, percelen, panden, tuinen)
-gpkg_vector <- here::here(data.loc,"vector.gpkg")
+gpkg_vector <- paste0(data.loc,"/vector.gpkg")
 
 #raster data: aerial photo, NH3
-gpkg_raster <- here::here(data.loc,"raster.gpkg")
+gpkg_raster <- paste0(data.loc,"/raster.gpkg")
 
 #raster data: vegetation indices
-gpkg_indices <- here::here(data.loc,"green_indices.gpkg")
+gpkg_indices <- paste0(data.loc,"/green_indices.gpkg")
 
 #dimension and quality plots
 graph_height <- 6
