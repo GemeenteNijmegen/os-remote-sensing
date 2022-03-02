@@ -1,12 +1,14 @@
 
 #-----------------------------------------------------------------------------------------------
 
-# Remote Sensing: Green (private) urban spaces
+# Remote Sensing of green (private) urban spaces
 
 #-----------------------------------------------------------------------------------------------
 
-#Please note, you must initiate the procedure, via the .proj file in the R directory!
-#then run this file
+#Spatial distribution analysis of urban green-grey-blue spaces
+
+#!!Please note, you must initiate the procedure, via the .proj file in the R directory!
+#then run this file!!
 
 #-----------------------------------------------------------------------------------------------
 
@@ -50,8 +52,8 @@ red_seq<-2
 #https://www.spatialreference.org/ref/epsg/amersfoort-rd-new/
 crs_sp<-28992
 
-#Report on tuinen on woonpercelen (FALSE for all percelen in buurt)
-report_tuinen<-TRUE #default (T)
+#Report on tuinen on woonpercelen, or all percelen wthin buurt)
+report_tuinen<-FALSE #default (T)
 
 #-----------------------------------------------------------------------------------------------
 

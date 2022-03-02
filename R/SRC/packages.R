@@ -11,21 +11,21 @@ cat("\014")
 #garbage collection
 gc(verbose = FALSE, full = TRUE)
 
-#CPU cores (defaults to 1, we use 8)
-getOption("Ncpus", 1L)
-options(Ncpus = 8)
+#Ncpus: The number of parallel processes to use for a parallel install of more than one source package.
+getOption("Ncpus", 1L) #defaults to 1
+options(Ncpus = 8) #we use 8
 
 message("deploy packages")
 
 if(proj_env == TRUE) {
-  #  #containerized packages (in case you encounter issue with the current version of packages within your computing set-up)
+  #containerized packages (in case you encounter issue with the current version of packages within your computing set-up)
   if (!require("renv")) install.packages("renv")
   library("renv")
   renv::upgrade() # upgrades renv, if new version is available
   renv::update() # updates packages from CRAN and GitHub, within the project
   renv::hydrate(update = "all") # populates the renv cache with copies of-up-to-date packages
   renv::snapshot() # inspect the message before confirming to overwrite renv.lock
-  renv::init()
+  renv::init() #let's go!
 }
 
 #-----------------------------------------------------------------------------------------------
@@ -40,10 +40,11 @@ packages <- c(
   'rlang',
   #Relative paths
   'here',
+  #mics. utilities
   'scales',
   'R.utils','utils',
   'Rmisc',
-  #Environment variables
+  #environment variables
   #'usethis',
   #'tools',
   'rlist',
@@ -140,6 +141,8 @@ getOption("gdalUtils_gdalPath")[[1]]$version
 sf::sf_extSoftVersion()[1:3]
 #lwgeom version
 sf::sf_extSoftVersion()["lwgeom"]
+
+#-----------------------------------------------------------------------------------------------
 
 #review packages loaded (store active-packages set-up)
 sessionInfo() %>% capture.output(file="session_info.txt")

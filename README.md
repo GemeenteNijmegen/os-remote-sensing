@@ -1,10 +1,10 @@
-# Remote Sensing: Vegetation in private urban spaces
+# Remote Sensing of green (private) urban spaces
 
-This repository contains the code for detecting vegetation in private gardens within dutch neighbourhoods.
-Vegetation detection is based on Color-infrared (CIR) aerial photography and the NDVI vegetation metric. 
+This repository contains the code for detecting vegetation in private gardens within dutch neighbourhoods. Vegetation detection is based on Color-infrared (CIR) aerial photography and the NDVI vegetation metric. 
 
-The objective of this repository is to provide a base for developing custom made remote sensing applications for vegetation detection in the urban environment. 
-This so-called Minimal Viable Product is an 100-day experiment of the Expertise Group Data Science Dutch Municipalities and acts as a showcase. 
+The objective of this repository is to provide a base for spatial distribution analysis of urban green-grey-blue spaces. You may use it for developing custom made remote sensing applications for vegetation detection in the urban environment. 
+
+This so-called Minimal Viable Product (MVP) is an 100-day experiment of the Expertise Group Data Science Dutch Municipalities and acts as a showcase. 
 
 Currently the application is a beta version.
 
@@ -26,9 +26,10 @@ NDVI-ranges vegetation in this research:
        0.5 to 1: intensive vegetation, high vegetation, trees
 
 ## Open Data 
-The procedure extracts insights based on open data:
+The procedure generates insights based on open data:
 - PDOK, nationaalgeoregister.nl (vector data)
 - Aerial photo, opendata.beeldmateriaal.nl (raster data)
+- Actueel Hoogtebestand Nederland (AHN) (raster data) 
 
 ## Open Source
 The procedure is available in both Python and R programming language. 
@@ -71,22 +72,21 @@ More information is available in the [presentation slides](https://datasciencevn
 
 ## Instructions
 
-Both the Python and R procedure result in geopackage (gpkg) files with multiples layers containing the results of the analysis.
-The geopackages can be deployed in QGIS or similar (commercial) GIS-software. 
+Both the Python and R procedure result in geopackage (gpkg) files with multiples layers containing the results of the analysis. The geopackages can be deployed in QGIS or similar (commercial) GIS-software. 
 
-R: Open de REMOTESENSING.Rproj file to start the environment.
-Define the neighbourhood code(s) and municipality name in the neighbourhood.xlsx file. 
-You may either use your own color infrared (CIR) aerial photo (must include infrared-band) or extract the area from the main  aerail photo of the Netherlands*. You may use tif or ecw as file-format. 
+###R
+R: Open de Rproj-file in the R-directory to start the environment. Define the neighbourhood code(s) and municipality name in the neighbourhood.xlsx file. 
+You may either use your own color infrared (CIR) aerial photo (must include infrared-band) or extract the area from the main  aerial photo of the Netherlands*. You may use tif or ecw as file-format. 
 
 Please verify and adjust settings in '00_init_batch_run.R'
  
 Run the procedure via '00_init_batch_run.R'
 
-If you like to run the Python procedure from Rstudio, read the instructions in SRC>python.R
+Output is served to DATA-directory (geopackages), PLOTS-directory and REPORT-directory (xls-sheets)
 
+###Python
 Python: Define the neighbourhood code(s) in the neighbourhood.csv file.
-You may either use your own color infrared (CIR) aerial photo (must include infrared-band) or extract the region
-from the main aerial photo of the Netherlands*. You may
+You may either use your own color infrared (CIR) aerial photo (must include infrared-band) or extract the region from the main aerial photo of the Netherlands*. You may
 use ecw as file-format. Please verify and adjust settings in
 'start.py'
 
