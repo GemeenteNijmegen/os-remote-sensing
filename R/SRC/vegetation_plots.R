@@ -36,6 +36,8 @@ plot.nme = paste0('rs_ndvi_',neighbourhood,'.png')
 plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=dpi)
 
+
+
 if(evi2_calc==TRUE) {
 # plot EVI2
 mplot_evi2 <- rasterVis::gplot(evi2) +
@@ -296,6 +298,27 @@ hist(tuinen_sf$ndvi_avg,
      col = "steelblue")
 dev.off()
 
+
+#-----------------------------------------------------------------------------------------------------------
+
+#coverage of panden and tuinen (GGPLOT)
+
+#centroid panden
+cntrd_panden <- st_centroid(st_geometry(panden_sf))
+
+#extract coordinates
+coord_panden<-as.data.frame(st_coordinates(cntrd_panden))
+
+
+plotting_gg(tuinen_sf, "green_cover", "green cover proportion", "green_coverage_tuinen.png", "viridis" )
+plotting_gg(tuinen_sf, "water_cover", "water cover proportion", "water_coverage_tuinen.png", "plasma" )
+plotting_gg(tuinen_sf, "stone_cover", "stone cover proportion", "stone_coverage_tuinen.png", "inferno" )
+plotting_gg(panden_sf, "green_cover", "green cover proportion", "green_coverage_woningen.png", "viridis" )
+
+#-----------------------------------------------------------------------------------------------------------
+
+
+
 #distribution of gardens over NDVI
 ggplot(tuinen_sf, aes(x = ndvi_avg)) +
   geom_histogram(aes(y = (..count..)/sum(..count..)), binwidth = 0.08,color="lightblue", fill="steelblue") +
@@ -309,25 +332,6 @@ plot.nme = paste0('rs_gardens_distribution_ndvi_',neighbourhood,'.png')
 plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=dpi)
 
-#green coverage of gardens
-ggplot(data = tuinen_sf) +
-  geom_sf(aes(fill = green_cover)) +
-  scale_fill_viridis_c(option = "viridis", direction = 1,name = "green cover proportion") +
-  geom_point(size = 0.4, aes(x = coord_tuinen$X,y = coord_tuinen$Y), colour="white", shape = 15) +
-  geom_text(
-    aes(
-      label = tuinen_sf$green_cover,
-      x = coord_tuinen$X,
-      y = coord_tuinen$Y
-    ),
-    colour = "black",
-    size = 2.2,hjust = 0, nudge_x = 0.07
-  ) +
-  xlab("Longitude") + ylab("Latitude") +
-  theme_void()
-plot.nme = paste0('green_coverage_garden.png')
-plot.store <-paste0(plots.loc,plot.nme)
-ggsave(plot.store, dpi=320)
 
 #distribution of gardens over vegetation coverage
 ggplot(tuinen_sf, aes(x = green_cover)) +
@@ -342,72 +346,6 @@ plot.nme = paste0('rs_gardens_distribution_vegetation_coverage_',neighbourhood,'
 plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=dpi)
 
-#stoned coverage of gardens
-ggplot(data = tuinen_sf) +
-  geom_sf(aes(fill = stone_cover)) +
-  scale_fill_viridis_c(option = "inferno", direction = 1,name = "stone cover proportion") +
-  geom_point(size = 0.4, aes(x = coord_tuinen$X,y = coord_tuinen$Y), colour="white", shape = 15) +
-  geom_text(
-    aes(
-      label = tuinen_sf$stone_cover,
-      x = coord_tuinen$X,
-      y = coord_tuinen$Y
-    ),
-    colour = "black",
-    size = 2.2,hjust = 0, nudge_x = 0.07
-  ) +
-  xlab("Longitude") + ylab("Latitude") +
-  theme_minimal()
-plot.nme = paste0('stone_coverage_garden.png')
-plot.store <-paste0(plots.loc,plot.nme)
-ggsave(plot.store, dpi=320)
-
-#water coverage of gardens
-ggplot(data = tuinen_sf) +
-  geom_sf(aes(fill = water_cover)) +
-  scale_fill_viridis_c(option = "plasma", direction = -1,name = "water cover proportion") +
-  geom_point(size = 0.4, aes(x = coord_tuinen$X,y = coord_tuinen$Y), colour="white", shape = 15) +
-  geom_text(
-    aes(
-      label = tuinen_sf$water_cover,
-      x = coord_tuinen$X,
-      y = coord_tuinen$Y
-    ),
-    colour = "black",
-    size = 2.2,hjust = 0, nudge_x = 0.07
-  ) +
-  xlab("Longitude") + ylab("Latitude") +
-  theme_minimal()
-plot.nme = paste0('water_coverage_garden.png')
-plot.store <-paste0(plots.loc,plot.nme)
-ggsave(plot.store, dpi=320)
-
-#green coverage of panden
-
-#centroid panden
-cntrd_panden <- st_centroid(st_geometry(panden_sf))
-
-#extract coordinates
-coord_panden<-as.data.frame(st_coordinates(cntrd_panden))
-
-ggplot(data = panden_sf) +
-  geom_sf(aes(fill = green_cover)) +
-  scale_fill_viridis_c(option = "viridis", direction = 1,name = "green cover proportion") +
-  geom_point(size = 0.4, aes(x = coord_panden$X,y = coord_panden$Y), colour="white", shape = 15) +
-  geom_text(
-    aes(
-      label = panden_sf$green_cover,
-      x = coord_panden$X,
-      y = coord_panden$Y
-    ),
-    colour = "black",
-    size = 2.2,hjust = 0, nudge_x = 0.07
-  ) +
-  xlab("Longitude") + ylab("Latitude") +
-  theme_void()
-plot.nme = paste0('green_coverage_woningen.png')
-plot.store <-paste0(plots.loc,plot.nme)
-ggsave(plot.store, dpi=320)
 
 
 #distribution of woningen over vegetation coverage

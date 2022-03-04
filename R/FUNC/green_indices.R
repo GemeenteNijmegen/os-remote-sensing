@@ -91,6 +91,35 @@ class_func <- function(rast,bins) {
 
 
 
+#-----------------------------------------------------------------------------------------------
+
+# ggplot function
+
+#-----------------------------------------------------------------------------------------------
+
+plotting_gg <- function(input, xx, lab_nme, file_nme, col_scheme) {
+  ggplot(data = input) +
+    geom_sf(aes(fill = .data[[xx]])) +
+    scale_fill_viridis_c(option = col_scheme, direction = 1,name = lab_nme) +
+    geom_point(size = 0.4, aes(x = coord_panden$X,y = coord_panden$Y), colour="white", shape = 15) +
+    geom_text(
+      aes(
+        label = .data[[xx]],
+        x = coord_panden$X,
+        y = coord_panden$Y
+      ),
+      colour = "black",
+      size = 2.2,hjust = 0, nudge_x = 0.07
+    ) +
+    xlab("Longitude") + ylab("Latitude") +
+    theme_void()
+  plot.nme = file_nme
+  plot.store <-paste0(plots.loc,plot.nme)
+  ggsave(plot.store, dpi=320)
+
+}
+
+
 
 
 
