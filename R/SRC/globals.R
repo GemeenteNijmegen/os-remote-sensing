@@ -53,29 +53,36 @@ py_root <- here::here("Processing")
 #location data
 data.dir <- here::here("DATA")
 data.run <- here::here("DATA",neighbourhood)
-data.loc <- here::here("DATA",neighbourhood,yr)
+data.yr <- here::here("DATA",neighbourhood,yr)
 
 #location plots
 plots.dir <- here::here("PLOTS")
 plots.run <- here::here("PLOTS",neighbourhood)
 plots.yr <- here::here("PLOTS",neighbourhood,yr)
 
-if(report_tuinen==TRUE) {
-  plots.loc<-paste0(plots.yr,"/TUINEN/")
-} else {
-  plots.loc<-paste0(plots.yr,"/BUURT/")
-}
+
 #aerial photo (local source)
 ai.dir <- here::here("AI")
 
 #location data
 report.dir <- here::here("REPORT")
 report.run <- here::here("REPORT",neighbourhood)
-report.loc <- here::here("REPORT",neighbourhood,yr,"/")
+report.yr <- here::here("REPORT",neighbourhood,yr)
+
+if(report_tuinen==TRUE) {
+  plots.loc<-paste0(plots.yr,"/TUINEN/")
+  report.loc<-paste0(report.yr,"/TUINEN/")
+  data.loc<-paste0(data.yr,"/TUINEN/")
+} else {
+  plots.loc<-paste0(plots.yr,"/BUURT/")
+  report.loc<-paste0(report.yr,"/BUURT/")
+  data.loc<-paste0(data.yr,"/BUURT/")
+}
 
 #create locations if not exist
 locations <- c(data.dir,
                data.run,
+               data.yr,
                data.loc,
                plots.dir,
                plots.run,
@@ -84,6 +91,7 @@ locations <- c(data.dir,
                ai.dir,
                report.dir,
                report.run,
+               report.yr,
                report.loc)
 
 lapply(locations, function(x) {
@@ -101,13 +109,13 @@ f <- list.files(clear_locations, include.dirs = F, full.names = T, recursive = T
 
 #location geopackages
 #vector layers (polygons buurt, percelen, panden, tuinen)
-gpkg_vector <- paste0(data.loc,"/vector.gpkg")
+gpkg_vector <- paste0(data.loc,"vector.gpkg")
 
 #raster data: aerial photo, NH3
-gpkg_raster <- paste0(data.loc,"/raster.gpkg")
+gpkg_raster <- paste0(data.loc,"raster.gpkg")
 
 #raster data: vegetation indices
-gpkg_indices <- paste0(data.loc,"/green_indices.gpkg")
+gpkg_indices <- paste0(data.loc,"green_indices.gpkg")
 
 #dimension and quality plots
 graph_height <- 6
@@ -116,11 +124,6 @@ aspect_ratio <- 1
 dpi <- 180 #retina(320)
 sub_title<-''
 
-#Coordinate reference systems
-#crs_wgs84 <- st_crs(4326) # WGS84 has EPSG code 4326
-#crs_wgs84
-#cat(crs_wgs84$wkt)
-#crs_wgs84$epsg
 
 #store Stack credentials here and remove below
 #file.edit(file.path("~", ".Rprofile"))

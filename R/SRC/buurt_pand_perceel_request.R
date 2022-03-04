@@ -28,7 +28,7 @@
                       version = "1.0.0",
                       request = "GetFeature",
                       typename = layer,
-                      srsName  = "EPSG:28992",
+                      srsName  = crs_str,
                       filter=filter,
                       outputFormat='json')
     request <- build_url(url);request
@@ -75,7 +75,7 @@
                       version = "2.0.0",
                       request = "GetFeature",
                       typename = "bag:pand",
-                      srsName  = "EPSG:28992",
+                      srsName  = crs_str,
                       startindex = loop,
                       bbox = bbox,
                       outputFormat='json')
@@ -158,7 +158,7 @@
                       version = "2.0.0",
                       request = "GetFeature",
                       typename = "kadastralekaartv4:perceel",
-                      srsName  = "EPSG:28992",
+                      srsName  = crs_str,
                       startindex = loop,
                       bbox = bbox,
                       outputFormat='json')
@@ -200,7 +200,7 @@
                       version = "2.0.0",
                       request = "GetFeature",
                       typename = "bag:verblijfsobject",
-                      srsName  = "EPSG:28992",
+                      srsName  = crs_str,
                       startindex = loop,
                       bbox = bbox,
                       outputFormat='json')

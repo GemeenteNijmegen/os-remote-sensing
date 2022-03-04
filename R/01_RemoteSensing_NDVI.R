@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------------------------
 
 # date created: 2021-05-11
-# date modified: 2022-02-10
+# date modified: 2022-03-04
 
 #-----------------------------------------------------------------------------------------------
 
@@ -58,13 +58,15 @@ if(report_tuinen==TRUE) {
 
 message("calculate vegetation indices")
 
+#load functions for calculating green indices
+source(here::here('FUNC/green_indices.R'))
+
+
 #-----------------------------------------------------------------------------------------------
 
 # Normalized difference vegetation index (NDVI)
 
 #-----------------------------------------------------------------------------------------------
-
-message("calculate Normalized difference vegetation index (NDVI)")
 
 #NDVI indicates amount of vegetation, distinguishes vegetation from soil, minimizes topographic effects
 #NDVI is chlorophyll sensitive, emphasizing the green color of a healthy plant.
@@ -77,7 +79,9 @@ message("calculate Normalized difference vegetation index (NDVI)")
 #        0.3 to 0.5: low to medium vegetation (substantial vegetation)
 #        0.5 to 1: intensive vegetation, high vegetation, trees
 
-ndvi <- raster::overlay(red, nir, fun = function(x, y) { (y-x) / (y+x) })
+message("calculate Normalized difference vegetation index (NDVI)")
+
+ndvi <- raster::overlay(x=red, y=nir, fun = ndvi_func)
 names(ndvi) <- "ndvi"
 
 #apply projection
@@ -110,7 +114,7 @@ ndvi_class<-c(-1,-0.1,1, #water
               0.5,1,5 #dense (healthy) vegetation, trees
 )
 
-veg_c <- raster::reclassify(ndvi,ndvi_class)
+veg_c <- class_func(ndvi,ndvi_class)
 
 #--------------------------------------------------
 #vegetation binary
@@ -126,7 +130,8 @@ reclass_binary_m <- matrix(reclass_binary,
                            ncol = 3,
                            byrow = TRUE)
 
-veg_g <- raster::reclassify(ndvi,reclass_binary_m)
+veg_g <- class_func(ndvi,reclass_binary_m)
+
 
 #contour lines vegetation
 veg_contour <- raster::rasterToContour(veg_g)
@@ -138,32 +143,43 @@ sf::st_write(veg_polygon, dsn=gpkg_vector, layer='vegetation_contour',layer_opti
 
 #for mean green
 #create new raster and remove NDVI value below 0.2.
-reclass_value <- c(-1, 0.2, NA)
+reclass_dich <- c(-1, 0.2, NA)
 
-ndvi_above_threshold <- raster::reclassify(ndvi,reclass_value)
+ndvi_above_threshold <- class_func(ndvi,reclass_dich)
 
 #--------------------------------------------------
 #Vegetation substantial
 
 #substantial green (fixed boundary at 0.3)
 #reclassifying nvdi (all values between negative infinity and 0.3 be NAs)
-veg_s <- raster::reclassify(ndvi, cbind(-1, 0.3, NA))
+
+reclass_dich <- c(-1, 0.3, NA)
+
+veg_s <- class_func(ndvi,reclass_dich)
 
 #--------------------------------------------------
 #Stone/sand binary
 #NDVI -0.1 to 0.2: Zand/Grond/Rots
-stone_d <- raster::reclassify(ndvi, c(-1,-0.1,0, #water
-                                    -0.1,0.2,1, #stone, sand/earth
-                                    0.2,1,0 #vegetation
-))
+
+stone_class <- c(-1,-0.1,0, #water
+                 -0.1,0.2,1, #stone, sand/earth
+                 0.2,1,0 #vegetation
+                  )
+
+stone_d <- class_func(ndvi,stone_class)
+
 
 #--------------------------------------------------
 #Water binary
 #NDVI < -0.1 : Water
-water_d <- raster::reclassify(ndvi, c(-1,-0.1,1, #water
-                                      -0.1,0.2,0, #stone, sand/earth
-                                      0.2,1,0 #vegetation
-))
+
+water_class<-c(-1,-0.1,1, #water
+               -0.1,0.2,0, #stone, sand/earth
+               0.2,1,0 #vegetation
+              )
+
+water_d <- class_func(ndvi,water_class)
+
 
 #-----------------------------------------------------------------------------------------------
 
@@ -177,7 +193,7 @@ water_d <- raster::reclassify(ndvi, c(-1,-0.1,1, #water
 if(tndvi_calc==TRUE) {
 message("calculate Transformed Normalized Difference Vegetation Index (TNDVI)")
 
-tndvi <- raster::overlay(ndvi, fun = function(x) { sqrt(x + 0.5) })
+tndvi <- raster::overlay(ndvi, fun = tndvi_func)
 names(tndvi) <- "tndvi"
 }
 
@@ -193,14 +209,8 @@ names(tndvi) <- "tndvi"
 if(msavi2_calc==TRUE) {
 message("calculate Modified Soil Adjusted Vegetation Index (MSAVI2)")
 
-        #funMSAVI2<-function(red, nir){
-        #        msavi<-(2*nir+1-sqrt((2*nir+1)^2-8*(nir-red)))/2
-        #        return(msavi)
-        #}
-
-        msavi2 <- raster::overlay(red, nir, fun = function(x, y) { (2*y+1-sqrt((2*y+1)^2-8*(y-x)))/2 })
-        names(msavi2) <- "msavi2"
-
+msavi2 <- raster::overlay(x=red, y=nir, fun = msavi2_func)
+names(msavi2) <- "msavi2"
 }
 
 #-----------------------------------------------------------------------------------------------
@@ -209,12 +219,13 @@ message("calculate Modified Soil Adjusted Vegetation Index (MSAVI2)")
 
 #-----------------------------------------------------------------------------------------------
 
+#EVI2 has several advantages over NDVI including the ability to resolve differences
+#for vegetation with different background soil reflectance
+
 if(evi2_calc==TRUE) {
 message("calculate Enhanced vegetation index - Two-band (EVI2)")
 
-#EVI2 has several advantages over NDVI including the ability to resolve differences
-#for vegetation with different background soil reflectance
-evi2 <- raster::overlay(red, nir, fun = function(x, y) { 2.5*((y-x) / (y+2.4*x+1)) })
+evi2 <- raster::overlay(x=red, y=nir, fun = evi2_func)
 names(evi2) <- "evi2"
 }
 
@@ -224,10 +235,11 @@ names(evi2) <- "evi2"
 
 #-----------------------------------------------------------------------------------------------
 
+#Reduces the effects of atmosphere and topography
+
 message("calculate Ratio vegetation index (RVI)")
 
-#Reduces the effects of atmosphere and topography
-rvi <- raster::overlay(red, nir, fun = function(x, y) { (y) / (x) })
+rvi <- raster::overlay(red, nir, fun = rvi_func)
 names(rvi) <- "rvi"
 
 #-----------------------------------------------------------------------------------------------
@@ -570,7 +582,9 @@ source(here::here('SRC/vegetation_plots.R'))
 
 #-----------------------------------------------------------------------------------------------
 
+if(unsup_cl==TRUE) {
 source(here::here('SRC/green_classes_metrics.R'))
+}
 
 #-----------------------------------------------------------------------------------------------
 

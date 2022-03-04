@@ -70,11 +70,13 @@ stone_d %>%
   write_stars(gpkg_indices,
               driver = "GPKG", options = c("RASTER_TABLE=sand_stone","APPEND_SUBDATASET=YES"))
 
+if(evi2_calc==TRUE) {
 #EVI2 (value)
 evi2 %>%
   st_as_stars %>% # convert the RasterLayer to a stars object
   write_stars(gpkg_indices,
               driver = "GPKG",options = c("RASTER_TABLE=evi2","APPEND_SUBDATASET=YES"))
+}
 
 #RVI (value)
 rvi %>%

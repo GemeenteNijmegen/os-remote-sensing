@@ -51,6 +51,7 @@ red_seq<-2
 #Amersfoort projection (28992)
 #https://www.spatialreference.org/ref/epsg/amersfoort-rd-new/
 crs_sp<-28992
+crs_str<-paste0("EPSG:",crs_sp)
 
 #Report on tuinen on woonpercelen, or all percelen wthin buurt)
 report_tuinen<-TRUE #default (T)
@@ -61,10 +62,27 @@ report_tuinen<-TRUE #default (T)
 
 #-----------------------------------------------------------------------------------------------
 
-#default:
-#Normalized difference vegetation index (NDVI) <- metrics (area, coverage) are calculated based on
-# NDVI
-#Ratio vegetation index (RVI)
+#Defualt : NDVI
+
+#-----------------------------------------------------------------------------------------------
+
+# Normalized difference vegetation index (NDVI)
+
+#-----------------------------------------------------------------------------------------------
+
+#metrics (area, coverage) are calculated based on NDVI
+
+#NDVI = (NIR–R/NIR+R)
+
+
+#-----------------------------------------------------------------------------------------------
+
+# #Ratio vegetation index (RVI)
+
+#-----------------------------------------------------------------------------------------------
+
+#rvi = NIR/RED
+
 
 #-----------------------------------------------------------------------------------------------
 
@@ -91,7 +109,7 @@ tndvi_calc <- TRUE #default (F)
 
 #MSAVI2 = (0.5)*(2*(NIR + 1) - sqrt((2*NIR + 1)2 - 8*(NIR–R)))
 
-msavi2_calc <- TRUE #default (F)
+msavi2_calc <- FALSE #default (F)
 
 
 #-----------------------------------------------------------------------------------------------
@@ -105,7 +123,7 @@ msavi2_calc <- TRUE #default (F)
 
 #EVI2 = 2.5 * ( NIR - RED) / ( NIR + 2.4 * RED + 1.0 ).
 
-evi2_calc <- TRUE #default (T)
+evi2_calc <- FALSE #default (T)
 
 
 #-----------------------------------------------------------------------------------------------
@@ -145,7 +163,7 @@ buildings_3d <- FALSE #default (F)
 #-----------------------------------------------------------------------------------------------
 
 #apply height of objects
-ahn_calc <-TRUE #default (T)
+ahn_calc <-FALSE #default (T)
 
 
 #-----------------------------------------------------------------------------------------------

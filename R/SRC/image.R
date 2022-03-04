@@ -33,7 +33,7 @@ input.tif <- paste0(ai.dir,"/",neighbourhood,".tif")
 
 if(length(input.tif) != 0) {
 
-message("extract CIR aerial photo in TIF-format from AI directory")
+#message("extract CIR aerial photo in TIF-format from AI directory")
 #move to output folder
 file.copy(from = input.tif,
           to   = output)
