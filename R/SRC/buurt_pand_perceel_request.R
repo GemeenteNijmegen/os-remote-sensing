@@ -338,10 +338,16 @@ cntrd_tuinen <- st_centroid(st_geometry(tuinen_sf))
 #extract coordinates tuinen
 coord_tuinen<-as.data.frame(st_coordinates(cntrd_tuinen))
 
+#centroid panden
+cntrd_panden <- st_centroid(st_geometry(panden_sf))
+
+#extract coordinates panden
+coord_panden<-as.data.frame(st_coordinates(cntrd_panden))
+
 #-----------------------------------------------------------------------------------------------
 
-png(paste0(plots.loc,"rs_tuinen_",neighbourhood,".png"), bg="white", height=1280,width=1280,res=180,units="px")
-plot(st_geometry(tuinen_sf))
-dev.off()
+#png(paste0(plots.loc,"rs_tuinen_",neighbourhood,".png"), bg="white", height=1280,width=1280,res=180,units="px")
+#plot(st_geometry(tuinen_sf))
+#dev.off()
 
 rm(percelenwoonfunctie_sf,pandenwoonperceel_sf)

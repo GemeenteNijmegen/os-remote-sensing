@@ -97,30 +97,73 @@ class_func <- function(rast,bins) {
 
 #-----------------------------------------------------------------------------------------------
 
-plotting_gg <- function(input, xx, lab_nme, file_nme, col_scheme) {
+plotting_gg <- function(input, xx, lab_nme, file_slug, col_scheme, coord) {
   ggplot(data = input) +
     geom_sf(aes(fill = .data[[xx]])) +
     scale_fill_viridis_c(option = col_scheme, direction = 1,name = lab_nme) +
-    geom_point(size = 0.4, aes(x = coord_panden$X,y = coord_panden$Y), colour="white", shape = 15) +
+    #geom_point(size = 0.4, aes(x = coord_panden$X,y = coord_panden$Y), colour="white", shape = 15) +
     geom_text(
       aes(
         label = .data[[xx]],
-        x = coord_panden$X,
-        y = coord_panden$Y
+        x = coord$X,
+        y = coord$Y
       ),
       colour = "black",
       size = 2.2,hjust = 0, nudge_x = 0.07
     ) +
     xlab("Longitude") + ylab("Latitude") +
     theme_void()
-  plot.nme = file_nme
-  plot.store <-paste0(plots.loc,plot.nme)
+  plot.store <-paste0(plots.loc,file_slug,"_",neighbourhood,".png")
   ggsave(plot.store, dpi=320)
-
 }
 
+#-----------------------------------------------------------------------------------------------
 
+# rastervis plot function
 
+#-----------------------------------------------------------------------------------------------
 
+plotting_rst <- function(rast, lab_nme, file_slug) {
+  rasterVis::gplot(rast) +
+    geom_tile(aes(fill = value)) +
+    scale_fill_gradientn(colours = rev(terrain.colors(225)), na.value ="transparent") +
+    #geom_sf(aes(st_sf(st_geometry(tuinen_sf)))) +
+    theme_void() +
+    coord_fixed() +
+    theme(legend.position = "bottom") +
+    labs(fill = lab_nme)
+  plot.store <- paste0(plots.loc,file_slug, "_",neighbourhood,".png")
+  ggsave(plot.store, dpi=dpi)
+}
 
+#-----------------------------------------------------------------------------------------------
 
+# terra function
+
+#-----------------------------------------------------------------------------------------------
+
+plotting_terra <- function(ai,rast, lab_nme, file_slug,brks,brks_lab,cols) {
+png(paste0(plots.loc,file_slug, "_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
+par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
+terra::plotRGB(ai, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0(lab_nme, " ", neighbourhood))
+plot(rast, add=TRUE, legend=TRUE,  breaks=brks, lab.breaks=brks_lab, cex = 0.5, col=cols, na.value ="transparent")
+plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
+box(col = "white")
+dev.off()
+}
+
+#-----------------------------------------------------------------------------------------------
+
+# base function
+
+#-----------------------------------------------------------------------------------------------
+
+plotting_base <- function(ai,rast, lab_nme, file_slug,brks,brks_lab,cols) {
+png(paste0(plots.loc,file_slug,"_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
+par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
+raster::plotRGB(ai, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("RVI ", neighbourhood))
+plot(rast, add=TRUE, legend=TRUE, cex = 0.5, breaks=brks, lab.breaks=brks_lab, col=cols,na.value ="transparent")
+plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
+box(col = "white")
+dev.off()
+}

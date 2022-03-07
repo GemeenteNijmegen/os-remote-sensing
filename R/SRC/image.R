@@ -203,9 +203,9 @@ rm(ai_pca,ai_pca_img)
 #Plots
 
 #plot of aerial image bands
-png(paste0(plots.loc,"rs_cir_bands_",neighbourhood,".png"), height = 1280,width=1280,res=180,units = "px")
-plot(ai_tuinen)
-dev.off()
+#png(paste0(plots.loc,"rs_cir_bands_",neighbourhood,".png"), height = 1280,width=1280,res=180,units = "px")
+#plot(ai_tuinen)
+#dev.off()
 
 #Relationship bands NIR and red
 
@@ -213,9 +213,9 @@ dev.off()
 #reflects very highly in the NIR range than red and creates the upper corner close to NIR (y) axis. Water absorbs energy
 #from all the bands and occupies the location close to origin. The furthest corner is created due to highly reflecting
 #surface features like bright soil or concrete.
-png(paste0(plots.loc,"rs_nir_red_relationship_",neighbourhood,".png"), bg="white")
-terra::pairs(ai_buurt[[2:1]], main = "Red vs NIR")
-dev.off()
+#png(paste0(plots.loc,"rs_nir_red_relationship_",neighbourhood,".png"), bg="white")
+#terra::pairs(ai_buurt[[2:1]], main = "Red vs NIR")
+#dev.off()
 
 #buurt
 png(paste0(plots.loc,"rs_rgb_",neighbourhood,".png"), bg="white", height=1280,width=1280,res=180,units="px")

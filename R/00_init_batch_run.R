@@ -53,7 +53,7 @@ red_seq<-2
 crs_sp<-28992
 crs_str<-paste0("EPSG:",crs_sp)
 
-#Report on tuinen on woonpercelen, or all percelen wthin buurt)
+#Report tuinen on woonpercelen, or all percelen within buurt)
 report_tuinen<-TRUE #default (T)
 
 #-----------------------------------------------------------------------------------------------
@@ -132,7 +132,7 @@ evi2_calc <- FALSE #default (T)
 
 #-----------------------------------------------------------------------------------------------
 
-unsup_cl <- FALSE #default (T)
+unsup_cl <- TRUE #default (T)
 
 #number of clusters
 k <- 5
@@ -143,7 +143,7 @@ k <- 5
 
 #-----------------------------------------------------------------------------------------------
 
-pca.ai <- FALSE #default (F)
+pca.ai <- TRUE #default (F)
 
 
 #-----------------------------------------------------------------------------------------------
