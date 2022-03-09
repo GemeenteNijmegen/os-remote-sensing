@@ -1,7 +1,7 @@
 
 #-----------------------------------------------------------------------------------------------
 
-# Buurt, pand and perceel polygons
+# Buurt, pand, perceel and tuin polygons
 
 #-----------------------------------------------------------------------------------------------
 
@@ -92,7 +92,7 @@
 
   #subset panden within buurt
   panden_sf <- sf::st_intersection(buurt_sf, panden_sf) %>% #clip with buurt
-    sf::st_make_valid() %>% #repair
+    sf::st_make_valid() %>% #repair where needed
     sf::st_collection_extract("POLYGON") %>% #polygons
     group_by(identificatie) %>% #unique
     slice(1) %>%
@@ -136,7 +136,7 @@
 
     #subset 3d panden within buurt
     panden3d_sf <- sf::st_intersection(buurt_sf, panden3d_sf) %>% #clip with buurt
-      sf::st_make_valid() %>% #repair
+      sf::st_make_valid() %>% #repair where needed
       sf::st_collection_extract("POLYGON") %>% #polygons
       group_by(identificatie) %>% #unique
       slice(1)
@@ -218,8 +218,11 @@
   #subset verblijfsobjecten within buurt
   verblijfsobjecten_sf <- verblijfsobjecten_sf[buurt_sf$geom,] #containing
   verblijfsobjecten_sf <- sf::st_intersection(buurt_sf, verblijfsobjecten_sf) %>%
-    group_by(gid) %>% slice(1)#clipping
-  verblijfsobjecten_sf <- verblijfsobjecten_sf %>% dplyr::select(one_of(verblijfsobjecten_cols)) #relevant vbo features
+    group_by(gid) %>%
+    slice(1) %>%
+    dplyr::select(one_of(verblijfsobjecten_cols)) #relevant vbo features
+
+  #verblijfsobjecten_sf <- verblijfsobjecten_sf %>% dplyr::select(one_of(verblijfsobjecten_cols)) #relevant vbo features
 
 #-----------------------------------------------------------------------------------------------
 
@@ -229,7 +232,7 @@
 
   message("build tuinen " , neighbourhood)
 
-  #tuinen within percelen with object woonfunctie
+  #tuinen within percelen with objective 'woonfunctie'
 
 
   #verblijfsobjecten with status 'in gebruik' or 'verbouwing'
@@ -284,7 +287,7 @@
   sf::st_write(buurt_sf, dsn=gpkg_vector, layer='buurt',layer_options = "OVERWRITE=YES",append=FALSE)
   sf::st_write(panden_sf, dsn=gpkg_vector, layer='panden',layer_options = "OVERWRITE=YES",append=FALSE)
   sf::st_write(percelen_sf, dsn=gpkg_vector, layer='percelen',layer_options = "OVERWRITE=YES",append=FALSE)
-  sf::st_write(verblijfsobjecten_sf, dsn=gpkg_vector, layer='verblijfsobjecten',layer_options = "OVERWRITE=YES",append=FALSE)
+  #sf::st_write(verblijfsobjecten_sf, dsn=gpkg_vector, layer='verblijfsobjecten',layer_options = "OVERWRITE=YES",append=FALSE)
   sf::st_write(woningen_sf, dsn=gpkg_vector, layer='woningen',layer_options = "OVERWRITE=YES",append=FALSE)
   sf::st_write(tuinen_sf, dsn=gpkg_vector, layer='tuinen',layer_options = "OVERWRITE=YES",append=FALSE)
   sf::st_write(percelenwoonfunctie_sf, dsn=gpkg_vector, layer='percelenwoonfunctie',layer_options = "OVERWRITE=YES",append=FALSE)
@@ -297,17 +300,14 @@
   sf::st_layers(gpkg_vector)
 
   #GEOJSON
-  percelenwoonfunctie_sf %>%
-    st_write("DATA/percelenwoonfunctie.geojson",
-             layer_options = "RFC7946=YES", delete_dsn = TRUE)
+ # percelenwoonfunctie_sf %>%
+  #  st_write("DATA/percelenwoonfunctie.geojson",layer_options = "RFC7946=YES", delete_dsn = TRUE)
 
-  tuinen_sf %>%
-    st_write("DATA/tuinen.geojson",
-             layer_options = "RFC7946=YES", delete_dsn = TRUE)
-
-
+  # tuinen_sf %>%
+  #   st_write("DATA/tuinen.geojson",layer_options = "RFC7946=YES", delete_dsn = TRUE)
 
 #-----------------------------------------------------------------------------------------------
+
 #surface area buurt, tuinen
 buurt_sf$oppervlakte_buurt_unit <- st_area(buurt_sf$geometry) #keep for unit translations
 #change data type to numeric (from 'S3: units' with m^2 suffix)

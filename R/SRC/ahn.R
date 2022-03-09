@@ -7,10 +7,6 @@
 
 #AHN3, 0.5 m resolution based on Digital Surface Model (DSM) and Digital Terrain Model (DTM)
 
-#nationaalgeoregister.nl as direct source (aka not being package rAHNextract)
-ngr_source <- FALSE #FALSE (default), is faster
-ahn_points <- FALSE #FALSE (default), TRUE for canopy height based on points cloud #under construction
-
 #raster
 if(ngr_source==FALSE) {
 #request via R-package
@@ -28,13 +24,6 @@ ahn_dtm_raster <- rAHNextract::ahn_area(name = "BBOX rs", bbox = c(xmin, ymin, x
                                         resolution = 0.5)
 
 
-if(ahn_points==TRUE) {
-#points cloud
-#UNDER CONSTRUCTION
-#warning: drains hardware resources!!
-
-source(here::here('SRC/canopy.R'))
-}
 
 } else {
 #request directly via nationaalgeoregister.nl
@@ -74,19 +63,20 @@ ahn_dtm_raster <- as(stars::read_stars(request), "Raster")
 names(ahn_dtm_raster) <- "BBOXrs_rAHN3_05m_DTM"
 }
 
-#digital surface model minus digital terrain model to obtain height of objects
+#height of objects = digital surface model - digital terrain model
 ahn_raster <- raster::overlay(ahn_dsm_raster, ahn_dtm_raster, fun = function(x, y) { (x) - (y) })
 names(ahn_raster) <- "height_objects"
 
-rm(ahn_dsm_raster,ahn_dtm_raster)
+#rm(ahn_dsm_raster,ahn_dtm_raster)
 
 #adjust resolution (0.5) (to match aerial image) (0.25)
 #ahn_raster_hr <- terra::disaggregate(ahn_raster, fact=4)
 ahn_raster_hr <- raster::disaggregate(ahn_raster, fact=4)
 
-ahn_raster_hr<-ahn_raster
+#ahn_raster_hr<-ahn_raster
 
-#resample to match dimension, resolution and extent with nearest neighbor as method (we do not want to change values as with bilinear method)
+#resample to match dimension, resolution and extent with nearest neighbor as method
+#we do not want to change values as with bilinear method
 ahn_raster_hr_rs <- terra::resample(ahn_raster_hr,ndvi, method = 'ngb')
 
 #mask rasters
@@ -94,7 +84,7 @@ ahn_buurt <- terra::mask(ahn_raster_hr_rs, buurt_sf)
 ahn_tuinen <- terra::mask(ahn_raster_hr_rs, tuinen_sf)
 ahn_panden <- terra::mask(ahn_raster_hr_rs, panden_sf)
 
-rm(ahn_raster,ahn_raster_hr, ahn_raster_hr_rs)
+rm(ahn_raster,ahn_raster_hr)
 
 #-----------------------------------------------------------------------------------------------
 #Update geopackage
@@ -123,6 +113,7 @@ ahn_panden %>% #RasterLayer
               )
   )
 
+
 #-----------------------------------------------------------------------------------------------
 #Plots
 
@@ -130,36 +121,21 @@ ahn_panden %>% #RasterLayer
 #plot(ahn_tuinen, xlab = "X", ylab = "Y", main = "AHN Elevation tuinen (m)")
 #plot(ahn_panden, xlab = "X", ylab = "Y", main = "AHN Elevation panden (m)")
 
+
+cols_ahn<-rev(hcl.colors(20, "YlOrRd"))
+
 #buurt
-png(paste0(plots.loc,"rs_ahn_buurt_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180, units="px")
-par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
-aerial_rgb <- terra::plotRGB(ai_buurt,
-                              r = 1, g = 2, b = 3,
-                              stretch = "lin",
-                              alpha=0,#hide (0), show(255)
-                              axes = TRUE,
-                              main = paste0("AHN buurt (m) ", neighbourhood))
-plot(ahn_buurt, add=TRUE, legend=TRUE, col= rev(hcl.colors(12, "YlOrRd")))
-plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
-box(col = "white")
-aerial_rgb
-plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
-dev.off()
+plotting_terra(ai_buurt,ahn_buurt,"AHN buurt (m)","rs_ahn_buurt",NULL,NULL,cols_ahn,alpha)
 
 #tuinen
-png(paste0(plots.loc,"rs_ahn_tuinen_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180, units="px")
-par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
-aerial_rgb <- terra::plotRGB(ai_buurt,
-                              r = 1, g = 2, b = 3,
-                              stretch = "lin",
-                              alpha=0,#hide (0), show(255)
-                              axes = TRUE,
-                              main = paste0("AHN tuinen (m) ", neighbourhood))
-plot(ahn_tuinen, add=TRUE, legend=TRUE, col= rev(hcl.colors(12, "YlOrRd")))
-plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
-box(col = "white")
-aerial_rgb
-plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
-dev.off()
+plotting_terra(ai_buurt,ahn_tuinen,"AHN tuinen (m)","rs_ahn_tuinen",NULL,NULL,cols_ahn,alpha)
 
-rm(ai_buurt)
+#-----------------------------------------------------------------------------------------------
+
+#Crowns and tree tops
+
+#-----------------------------------------------------------------------------------------------
+
+source(here::here('SRC/canopy.R'))
+
+#rm(ai_buurt)

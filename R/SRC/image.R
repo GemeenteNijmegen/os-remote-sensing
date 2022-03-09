@@ -32,7 +32,6 @@ if(tiff.rdy==FALSE & tiff.as.source==TRUE) {
 input.tif <- paste0(ai.dir,"/",neighbourhood,".tif")
 
 if(length(input.tif) != 0) {
-
 #message("extract CIR aerial photo in TIF-format from AI directory")
 #move to output folder
 file.copy(from = input.tif,
@@ -92,7 +91,7 @@ if(tiff.rdy==FALSE) {
 if(tiff.as.source==TRUE) {
   #TIFF as source
   #info on TIFF
-  GDALinfo(output)
+  #GDALinfo(output)
 
   ai <- as(stars::read_stars(output), "Raster")
   #rm(tif)
@@ -101,14 +100,14 @@ if(tiff.as.source==TRUE) {
   ai <- raster::brick(output)
 }
 
-message("The projection of the aerial photo will be set")
+message("The projection of the aerial photo will be set to", crs_sp)
 raster::crs(ai) <- crs_sp
 
 #-----------------------------------------------------------------------------------------------
 #meta data
 
 #structure
-str(ai)
+#str(ai)
 
 #layers
 nlayer<-nlayers(ai)
@@ -126,13 +125,14 @@ names(ai)
 
 #set correct layer names
 #https://www.mngeo.state.mn.us/chouse/airphoto/cir.html
-names(ai) <- c("nir","red","green")
+names(ai) <- band_nms
 
 #-----------------------------------------------------------------------------------------------
 #cropping and masking
 
 #crop neighbourhood
 ai_crop <- raster::crop(ai, buurt_sf)
+
 rm(ai)
 
 #mask buurt
@@ -141,7 +141,7 @@ ai_buurt <- raster::mask(ai_crop, buurt_sf)
 #mask tuinen
 ai_tuinen <- raster::mask(ai_crop, tuinen_sf)
 
-rm(ai, ai_crop)
+rm(ai_crop)
 
 #-----------------------------------------------------------------------------------------------
 #Geopackage raster data
@@ -190,11 +190,8 @@ ai_pca$model
 
 ai_pca_img <- stack(ai_pca$map)
 
-png(paste0(plots.loc,"rs_pca_",neighbourhood,".png"), bg="white", height=1280,width=1280,res=180,units="px")
-terra::plotRGB(ai_pca_img, r=1, b=2, g=3, stretch="lin", smooth=TRUE,main=paste0("PCA ", neighbourhood))
-plot(percelen_sf$geometry, add=TRUE, col="transparent", legend=FALSE)
-plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
-dev.off()
+#plot PCA
+plotting_terra(ai_pca_img,percelen_sf$geometry,"PCA","rs_pca",NULL,NULL,NULL)
 
 rm(ai_pca,ai_pca_img)
 }
@@ -213,26 +210,18 @@ rm(ai_pca,ai_pca_img)
 #reflects very highly in the NIR range than red and creates the upper corner close to NIR (y) axis. Water absorbs energy
 #from all the bands and occupies the location close to origin. The furthest corner is created due to highly reflecting
 #surface features like bright soil or concrete.
+
 #png(paste0(plots.loc,"rs_nir_red_relationship_",neighbourhood,".png"), bg="white")
 #terra::pairs(ai_buurt[[2:1]], main = "Red vs NIR")
 #dev.off()
 
-#buurt
-png(paste0(plots.loc,"rs_rgb_",neighbourhood,".png"), bg="white", height=1280,width=1280,res=180,units="px")
-par(col.axis = "white", col.lab = "white", tck = 0,mar = c(1,1,1,1))
-aerial_rgb <- terra::plotRGB(ai_buurt,
-                              r = 1, g = 2, b = 3,
-                              #stretch the values to increase the contrast of the image
-                              stretch = "lin",
-                              smooth=TRUE,
-                              axes = TRUE
-                             # ,main = paste0("RGB stack neighbourhood ", neighbourhood)
-                             )
-aerial_rgb
-plot(percelen_sf$geometry, add=TRUE, col="transparent", legend=FALSE)
-plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
-box(col = "white")
-dev.off()
+#RGB plot buurt
+plotting_terra(ai_buurt,percelen_sf$geometry,NULL,"rs_rgb_buurt",NULL,NULL,NULL)
+
+if(report_tuinen==TRUE) {
+#RGB plot tuinen in buurt
+plotting_terra(ai_tuinen,percelen_sf$geometry,NULL,"rs_rgb_tuinen",NULL,NULL,NULL)
+}
 
 #grey image
 RStoolbox::ggR(ai_buurt, stretch = "lin") +
@@ -240,22 +229,6 @@ RStoolbox::ggR(ai_buurt, stretch = "lin") +
 plot.nme = paste0('rs_grey_',neighbourhood,'.png')
 plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=dpi)
-
-#tuinen in buurt
-png(paste0(plots.loc,"rs_rgb_",neighbourhood,"_tuinen.png"), bg="white", height=1280,width=1280,res=180,units="px")
-par(col.axis = "white", col.lab = "white", tck = 0,mar = c(1,1,1,1))
-aerial_rgb <- terra::plotRGB(ai_tuinen,
-                              r = 1, g = 2, b = 3,
-                              #stretch the values to increase the contrast of the image
-                              stretch = "lin",
-                              axes = TRUE,
-                              main = paste0("RGB stack ", neighbourhood)
-                             )
-plot(percelen_sf$geometry, add=TRUE, col="transparent", legend=FALSE)
-box(col = "white")
-aerial_rgb
-plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
-dev.off()
 
 #garbage collection
 gc()

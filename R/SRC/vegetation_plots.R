@@ -18,25 +18,25 @@ brks_ndvi <- seq(ndvi_min, ndvi_max, by=0.1)
 cols_terrain <- rev(terrain.colors((length(brks_ndvi)-1)))
 
 #-----------------------------------------------------------------------------------------------
-
+alpha<-255
 #plot ndvi
-plotting_terra(ai_tuinen,ndvi,"NDVI","rs_ndvi",brks_ndvi,brks_ndvi,cols_terrain)
+plotting_terra(ai_tuinen,ndvi,"NDVI","rs_ndvi",brks_ndvi,brks_ndvi,cols_terrain,alpha)
 
 #plot vegetation
-plotting_terra(ai_tuinen,veg_g,"vegetation","rs_vegetation",NULL,NULL,cols_terrain)
+plotting_terra(ai_tuinen,veg_g,"vegetation","rs_vegetation",NULL,NULL,cols_terrain,alpha)
 
 #plot substantial vegetation
 brks_sv <- seq(0.3, ndvi_max, by=0.1)
 cols_green<- rev(colorspace::sequential_hcl((length(brks_sv) - 1), palette = "Greens"))
 
-plotting_terra(ai_tuinen,veg_s,"substantial vegetation","rs_vegetation_substantial",brks_sv,brks_sv,cols_green)
+plotting_terra(ai_tuinen,veg_s,"substantial vegetation","rs_vegetation_substantial",brks_sv,brks_sv,cols_green,alpha)
 
 #plot unsupervised clusters
 if(unsup_cl==TRUE) {
   brks_clu <- seq(1, k, by=1)
   cols_viridis<- colorspace::sequential_hcl(max(brks_clu), palette = "Viridis")
 
-  plotting_terra(ai_tuinen,veg_clus,"NDVI classes (unsupervised)","rs_vegetation_class_unsupervised",brks_clu,brks_clu,cols_viridis)
+  plotting_terra(ai_tuinen,veg_clus,"NDVI classes (unsupervised)","rs_vegetation_class_unsupervised",brks_clu,brks_clu,cols_viridis,alpha)
 }
 
 #plot fixed classes
@@ -44,7 +44,7 @@ brks_clf <- seq(1, 5, by=1)
 cols_viridis<- colorspace::sequential_hcl(max(brks_clf), palette = "Viridis")
 labels_clf=c("water","sand/stone","grasses/weed","low veg.","dense veg.")
 
-plotting_terra(ai_tuinen,veg_c,"NDVI classes (fixed)","rs_vegetation_class_fixed",brks_clf,labels_clf,cols_viridis)
+plotting_terra(ai_tuinen,veg_c,"NDVI classes (fixed)","rs_vegetation_class_fixed",brks_clf,labels_clf,cols_viridis,alpha)
 
 #plot ndvi and vegetation contour
 png(paste0(plots.loc,"rs_ndvi_vegetation_contours_",neighbourhood,".png"), height = 1280, width = 1280, res = 180, units = "px")
@@ -59,6 +59,7 @@ dev.off()
 #-----------------------------------------------------------------------------------------------
 
 #plot rvi
+if(rvi_calc==TRUE) {
 rvi_min <- round(rvi@data@min,1)
 rvi_max <- round(rvi@data@max,1)
 
@@ -66,6 +67,7 @@ brks_rvi <- seq(rvi_min, rvi_max, by=0.5)
 cols_terrain <- rev(terrain.colors((length(brks_rvi)-1)))
 
 plotting_terra(ai_tuinen,rvi,"RVI","rs_rvi",brks_rvi,brks_rvi,cols_terrain)
+}
 
 #-----------------------------------------------------------------------------------------------
 
@@ -106,11 +108,12 @@ if(evi2_calc==TRUE) {
 #-----------------------------------------------------------------------------------------------
 
 if(ahn_calc==TRUE) {
+
 #vegetation (3m and above)
-plotting_terra(ai_tuinen,veg_t3,"3m+ vegetation","rs_rgb_veg_3m",NULL,NULL,cols_terrain)
+plotting_terra(ai_tuinen,veg_t3,"3m+ vegetation","rs_rgb_veg_3m",NULL,NULL,cols_terrain,255)
 
 #trees (5m and above)
-plotting_terra(ai_tuinen,veg_t5,"5m+ vegetation","rs_rgb_veg_5m",NULL,NULL,cols_terrain)
+plotting_terra(ai_tuinen,veg_t5,"5m+ vegetation","rs_rgb_veg_5m",NULL,NULL,cols_terrain,255)
 }
 
 #Distribution of gardens over NDVI
@@ -126,7 +129,6 @@ dev.off()
 #-----------------------------------------------------------------------------------------------------------
 
 #coverage of panden and tuinen (GGPLOT)
-
 plotting_gg(tuinen_sf, "ndvi_green_avg", "mean NDVI", "rs_ndvi_mean_tuinen", "turbo", coord_tuinen )
 plotting_gg(tuinen_sf, "green_cover", "green cover (%)", "rs_green_cover_tuinen", "viridis", coord_tuinen )
 plotting_gg(tuinen_sf, "water_cover", "water cover (%)", "rs_water_cover_tuinen", "plasma", coord_tuinen )

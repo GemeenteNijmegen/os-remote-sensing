@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------------------------
 
 # date created: 2021-05-11
-# date modified: 2022-03-04
+# date modified: 2022-03-08
 
 #-----------------------------------------------------------------------------------------------
 
@@ -57,9 +57,6 @@ if(report_tuinen==TRUE) {
 #-----------------------------------------------------------------------------------------------
 
 message("calculate vegetation indices")
-
-#load functions for calculating green indices
-source(here::here('FUNC/green_indices.R'))
 
 
 #-----------------------------------------------------------------------------------------------
@@ -168,7 +165,6 @@ stone_class <- c(-1,-0.1,0, #water
 
 stone_d <- class_func(ndvi,stone_class)
 
-
 #--------------------------------------------------
 #Water binary
 #NDVI < -0.1 : Water
@@ -179,7 +175,6 @@ water_class<-c(-1,-0.1,1, #water
               )
 
 water_d <- class_func(ndvi,water_class)
-
 
 #-----------------------------------------------------------------------------------------------
 
@@ -237,10 +232,12 @@ names(evi2) <- "evi2"
 
 #Reduces the effects of atmosphere and topography
 
+if(rvi_calc==TRUE) {
 message("calculate Ratio vegetation index (RVI)")
 
 rvi <- raster::overlay(red, nir, fun = rvi_func)
 names(rvi) <- "rvi"
+}
 
 #-----------------------------------------------------------------------------------------------
 
@@ -259,6 +256,8 @@ source(here::here('SRC/ahn.R'))
 # Garden above xmeter
 
 #-----------------------------------------------------------------------------------------------
+
+
 
 #height 3m and above
 reclass_binary <- c(-Inf, 3, 0,

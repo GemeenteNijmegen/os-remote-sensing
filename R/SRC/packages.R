@@ -81,8 +81,10 @@ packages <- c(
   'mapview',
   #unsupervised segmentation
   'cluster',
-  #Tools for Remote Sensing Data Analysis
+  #tools for Remote Sensing Data Analysis
   'RStoolbox',
+  #functions to analyze remotely sensed forest data
+  'ForestTools',
   #satellite images processing and functions
   #'RGISTools',
   #quantify landscape configuration

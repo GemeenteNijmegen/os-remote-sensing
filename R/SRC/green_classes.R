@@ -11,7 +11,7 @@ ndvi_subset <- ndvi
 # NDVI scores greater than or equal to 0.2 are considered vegetation
 ndvi_subset@data@values[ndvi_subset@data@values < 0.2] <- NA
 
-# convert the RasterLAyer to array
+# convert the RasterLayer to array
 ndvi_array <- getValues(ndvi_subset)
 
 # keep valid observations only

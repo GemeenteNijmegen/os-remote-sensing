@@ -90,7 +90,6 @@ class_func <- function(rast,bins) {
 }
 
 
-
 #-----------------------------------------------------------------------------------------------
 
 # ggplot function
@@ -142,10 +141,10 @@ plotting_rst <- function(rast, lab_nme, file_slug) {
 
 #-----------------------------------------------------------------------------------------------
 
-plotting_terra <- function(ai,rast, lab_nme, file_slug,brks,brks_lab,cols) {
+plotting_terra <- function(ai,rast,lab_nme,file_slug,brks,brks_lab,cols,alpha) {
 png(paste0(plots.loc,file_slug, "_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
 par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
-terra::plotRGB(ai, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0(lab_nme, " ", neighbourhood))
+terra::plotRGB(ai, r=1, g=2, b=3, axes=TRUE, stretch="lin", alpha=alpha,colNA='transparent',main=paste0(lab_nme, " ", neighbourhood))
 plot(rast, add=TRUE, legend=TRUE,  breaks=brks, lab.breaks=brks_lab, cex = 0.5, col=cols, na.value ="transparent")
 plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
 box(col = "white")
@@ -158,10 +157,10 @@ dev.off()
 
 #-----------------------------------------------------------------------------------------------
 
-plotting_base <- function(ai,rast, lab_nme, file_slug,brks,brks_lab,cols) {
+plotting_base <- function(ai,rast,lab_nme,file_slug,brks,brks_lab,cols) {
 png(paste0(plots.loc,file_slug,"_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
 par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
-raster::plotRGB(ai, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0("RVI ", neighbourhood))
+raster::plotRGB(ai, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0(lab_nme, " ", neighbourhood))
 plot(rast, add=TRUE, legend=TRUE, cex = 0.5, breaks=brks, lab.breaks=brks_lab, col=cols,na.value ="transparent")
 plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
 box(col = "white")

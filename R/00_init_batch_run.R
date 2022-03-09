@@ -18,13 +18,16 @@
 
 #set working directory
 #setwd("") #default (de-activated)
-getwd()
+#getwd()
 
 #Run in project environment (to avoid package conflicts)
 proj_env <- FALSE #default (F)
 
 #packages
 source('SRC/packages.R')
+
+#load functions for calculating and plotting green indices
+source(here::here('FUNC/green_indices.R'))
 
 #-----------------------------------------------------------------------------------------------
 
@@ -39,7 +42,8 @@ tiff.as.source <- TRUE #default (T)
 #year of the aerial photo and polygons
 yr<-2020
 
-#position of near-infrared (NIR) and Red bands in Color-infrared photo
+#position of near-infrared (NIR) and Red bands in Color-infrared (CIR) photo
+#make sure your photo is a CIR photo
 
 #Near-infrared resides in band:
 nir_seq<-1
@@ -47,14 +51,20 @@ nir_seq<-1
 #color red resides in band:
 red_seq<-2
 
+#band names
+band_nms <- c("nir","red","green")
+
 #Coordinate Reference System
 #Amersfoort projection (28992)
 #https://www.spatialreference.org/ref/epsg/amersfoort-rd-new/
 crs_sp<-28992
 crs_str<-paste0("EPSG:",crs_sp)
 
-#Report tuinen on woonpercelen, or all percelen within buurt)
-report_tuinen<-TRUE #default (T)
+#Report woonpercelen, or all percelen within buurt)
+report_tuinen<-FALSE #default (T)
+
+#foto as base image for (raster) plots yes=255, no=0
+alpha<-255
 
 #-----------------------------------------------------------------------------------------------
 
@@ -62,7 +72,6 @@ report_tuinen<-TRUE #default (T)
 
 #-----------------------------------------------------------------------------------------------
 
-#Defualt : NDVI
 
 #-----------------------------------------------------------------------------------------------
 
@@ -82,6 +91,7 @@ report_tuinen<-TRUE #default (T)
 #-----------------------------------------------------------------------------------------------
 
 #rvi = NIR/RED
+rvi_calc <- FALSE #default (F)
 
 
 #-----------------------------------------------------------------------------------------------
@@ -95,7 +105,7 @@ report_tuinen<-TRUE #default (T)
 
 #TNDVI = sqrt((NIR–R/NIR+R) +0.5)
 
-tndvi_calc <- TRUE #default (F)
+tndvi_calc <- FALSE #default (F)
 
 
 #-----------------------------------------------------------------------------------------------
@@ -132,10 +142,11 @@ evi2_calc <- FALSE #default (T)
 
 #-----------------------------------------------------------------------------------------------
 
-unsup_cl <- TRUE #default (T)
+unsup_cl <- FALSE #default (T)
 
 #number of clusters
 k <- 5
+
 
 #-----------------------------------------------------------------------------------------------
 
@@ -143,7 +154,7 @@ k <- 5
 
 #-----------------------------------------------------------------------------------------------
 
-pca.ai <- TRUE #default (F)
+pca.ai <- FALSE #default (F)
 
 
 #-----------------------------------------------------------------------------------------------
@@ -163,7 +174,12 @@ buildings_3d <- FALSE #default (F)
 #-----------------------------------------------------------------------------------------------
 
 #apply height of objects
-ahn_calc <-FALSE #default (T)
+ahn_calc <-TRUE #default (T)
+
+#nationaalgeoregister.nl as direct source (aka not being package rAHNextract)
+ngr_source <- FALSE #FALSE (default), is faster
+
+ahn_points <- FALSE #FALSE (default), TRUE for canopy height based on points cloud
 
 
 #-----------------------------------------------------------------------------------------------

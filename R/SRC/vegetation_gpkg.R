@@ -78,11 +78,13 @@ evi2 %>%
               driver = "GPKG",options = c("RASTER_TABLE=evi2","APPEND_SUBDATASET=YES"))
 }
 
+if(rvi_calc==TRUE) {
 #RVI (value)
 rvi %>%
   st_as_stars %>% # convert the RasterLayer to a stars object
   write_stars(gpkg_indices,
               driver = "GPKG", options = c("RASTER_TABLE=rvi","APPEND_SUBDATASET=YES"))
+}
 
 #review green indices raster layers in gpkg-file
 gdalUtils::gdalinfo(gpkg_indices) %>%

@@ -60,7 +60,6 @@ plots.dir <- here::here("PLOTS")
 plots.run <- here::here("PLOTS",neighbourhood)
 plots.yr <- here::here("PLOTS",neighbourhood,yr)
 
-
 #aerial photo (local source)
 ai.dir <- here::here("AI")
 

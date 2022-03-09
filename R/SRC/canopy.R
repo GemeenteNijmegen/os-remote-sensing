@@ -1,14 +1,80 @@
 
 #-----------------------------------------------------------------------------------------------
 
-#Canopy and tree tops
+#Crowns and tree tops
 
 #-----------------------------------------------------------------------------------------------
 
-gc()
 
-#UNDER CONSTRUCTION
-#https://jean-romain.github.io/lidRbook/itd-its.html
+#-----------------------------------------------------------------------------------------------
+
+#Raster version
+
+#-----------------------------------------------------------------------------------------------
+
+#
+reclass_chm <- c(-Inf, 5, NA,
+                  40,Inf, NA)
+
+reclass_chm_m <- matrix(reclass_chm,
+                    ncol = 3,
+                    byrow = TRUE)
+
+chm_5m <- class_func(ahn_buurt,reclass_chm_m)
+
+raster::crs(chm_5m) <- raster::crs(percelen_sf)
+
+
+#canopy height model (vegetation within 5-40m)
+chm_5mveg <- veg_g * chm_5m
+
+#sp class
+ttops <- lidR::find_trees(chm_5mveg, lmf(ws=7))
+
+#number of trees
+trees_n<-max(ttops$treeID)
+trees_n
+
+#canopy segmentation
+#defaults to raster
+crowns <- ForestTools::mcws(treetops = ttops, CHM = chm_5m, minHeight = 2, verbose = FALSE)
+
+#polygon version
+#crowns_polygon <- mcws(treetops = ttops, CHM = chm_5m, format = "polygons", minHeight = 2, verbose = FALSE)
+#sp_summarise(crowns_polygon, variables = c("crownArea", "height"))
+
+#plot tree tops
+png(paste0(plots.loc,"rs_trees_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180, units="px")
+par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
+aerial_rgb <- terra::plotRGB(ai_buurt,
+                             r = 1, g = 2, b = 3,
+                             stretch = "lin",
+                             alpha=alpha,#hide (0), show(255)
+                             axes = TRUE,
+                             main = paste0("AHN buurt (m) and tree tops (5m+) ", neighbourhood))
+plot(ahn_buurt, add=TRUE, legend=TRUE, col= cols_ahn)
+plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
+plot(ttops, add=TRUE, legend=FALSE)
+box(col = "white")
+aerial_rgb
+plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
+dev.off()
+
+# Plot crowns
+cols_rainbow<- sample(rainbow(50), length(unique(crowns[])), replace = TRUE)
+plotting_base(ai_buurt,crowns, "tree crowns", "rs_crown_tops",NULL,NULL,cols_rainbow)
+
+
+#-----------------------------------------------------------------------------------------------
+
+#LAS-version
+
+#-----------------------------------------------------------------------------------------------
+
+
+if(ahn_points==TRUE) {
+
+gc()
 
 #use all threads for lidR
 #Default value 0 means to utilize all CPU available (you'll need it!)
@@ -19,37 +85,39 @@ set_lidr_threads(0)
 las.dir <- paste0(r_root,"/AHN_sheets/AHN2/PC/")
 las.loc <- paste0(las.dir,"g45en1.laz")
 
-#-----------------------------------------------------------------------------------------------
-
-#Reading LiDAR data
-
-#-----------------------------------------------------------------------------------------------
-
 #check existence laz
 ahn.pc.rdy <- list.files(las.dir, pattern = "\\.laz$", full.names = TRUE)
-if(length(ahn.pc.rdy) != 0) {
+if(length(ahn.pc.rdy) == 0) {
 
 #AHN point clouds
 rAHNextract::ahn_pc(name = "BBOX pc", bbox = c(xmin, ymin, xmax, ymax), AHN = "AHN2", gefilterd = TRUE)
 }
 
-#filter height within 4 to 40m
-las <- lidR::readLAS(las.loc,select = "xyzr", filter = "-keep_first -drop_z_below 4 -drop_z_above 40")
-las_check(las)
+#filter height within 5 to 20m
+las <- lidR::readLAS(las.loc,select = "xyzr", filter = "-keep_first -drop_z_below 5 -drop_z_above 20")
+#las_check(las)
 #plot(las)
 
 #-----------------------------------------------------------------------------------------------
 
-#Canopy height model
+#Canopy height model, tree tops
 
 #-----------------------------------------------------------------------------------------------
 
-#thr <- c(0,2,5,10,15)
-#edg <- c(0, 1.5)
+thr <- c(0,2,5,10,15)
+edg <- c(0, 1.5)
 
-#chm <- lidR::grid_canopy(las, 1, pitfree(thr, edg))
-#chm <- grid_canopy(las, 0.5, pitfree(subcircle = 0.2))
+chm <- lidR::grid_canopy(las, 1, pitfree(thr, edg))
 #plot(chm, bg = "white", size = 4)
+
+#chm = raster("file/to/a/chm/")
+
+ttops <- lidR::find_trees(chm, lmf(4, 2))
+last   <- lidR::segment_trees(las, dalponte2016(chm, ttops))
+
+col <- pastel.colors(200)
+plot(last, color = "treeID", colorPalette = col)
+
 
 #-----------------------------------------------------------------------------------------------
 
@@ -62,19 +130,11 @@ las_check(las)
 #windows size of ws = 5 meters meaning that for a given point the algorithm looks to the neigbourhood points within
 #a 2.5 radius circle to figure out if the point is the local highest.
 #tree tops
-ttops <- find_trees(las, lmf(ws = 5))
-plot(ttops)
+#ttops <- lidR::find_trees(las, lmf(ws = 5), uniqueness = "incremental")
+#plot(ttops)
 
-x <- plot(las, bg = "white", size = 4)
-add_treetops3d(x, ttops)
+#x <- plot(las, bg = "white", size = 4)
+#add_treetops3d(x, ttops)
 
-#-----------------------------------------------------------------------------------------------
 
-#Tree tops
-
-#-----------------------------------------------------------------------------------------------
-
-tree_tops <- lidR::find_trees(las, lmf(ws = 5), uniqueness = "incremental")
-
-#x = plot(las)
-#add_treetops3d(x, tree_tops)
+}
