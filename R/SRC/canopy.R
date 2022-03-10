@@ -24,9 +24,11 @@ chm_5m <- class_func(ahn_buurt,reclass_chm_m)
 
 raster::crs(chm_5m) <- raster::crs(percelen_sf)
 
-
-#canopy height model (vegetation within 5-40m)
+#canopy height model (chm) : vegetation within 5-40m
 chm_5mveg <- veg_g * chm_5m
+
+if(tree_trace==TRUE) {
+#detect trees
 
 #sp class
 ttops <- lidR::find_trees(chm_5mveg, lmf(ws=7))
@@ -36,17 +38,36 @@ trees_n<-max(ttops$treeID)
 trees_n
 
 message("number of trees ", trees_n)
-
-#canopy segmentation
-#defaults to raster
-crowns <- ForestTools::mcws(treetops = ttops, CHM = chm_5m, minHeight = 2, verbose = FALSE)
-
+}
 
 if(crowns_trace==TRUE) {
+#detect crowns
+
+  #canopy segmentation
+  #tree tops are located above 5m, tree crowns above 2m
+  #defaults to raster
+  #crowns <- ForestTools::mcws(treetops = ttops, CHM = chm_5mveg, minHeight = 2, verbose = FALSE)
+
   #polygon version
-  crowns_polygon <- mcws(treetops = ttops, CHM = chm_5m, format = "polygons", minHeight = 2, verbose = FALSE)
+  crowns_polygon <- ForestTools::mcws(treetops = ttops, CHM = chm_5mveg, format = "polygons", minHeight = 2, verbose = FALSE)
+
+
+  # Compute average crown diameter
+  crowns_polygon[["crownDiameter"]] <- sqrt(crowns_polygon[["crownArea"]]/ pi) * 2
+
+  # Mean crown diameter
+  mean(crowns_polygon$crownDiameter)
+
+  plot(crowns_polygon)
+
+  if(crown_stats==TRUE) {
+  #ompute statistics of the trees’ attributes
   #sp_summarise(crowns_polygon, variables = c("crownArea", "height"))
+  }
+
+  #create sf object
   crowns_polygon <- st_as_sf(crowns_polygon)
+  #write to polygon geopackage
   sf::st_write(crowns_polygon, dsn=gpkg_vector, layer='crowns',layer_options = "OVERWRITE=YES",append=FALSE)
 
   # Plot crowns

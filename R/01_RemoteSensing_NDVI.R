@@ -38,6 +38,8 @@ source(here::here('SRC/image.R'))
 
 #assign bands (CIR)
 
+
+
 if(report_tuinen==TRUE) {
         #near-infrared band from aerial photo masked/clipped tuinen (which vegetation strongly reflects)
         nir <- ai_tuinen[[nir_seq]]
@@ -48,6 +50,11 @@ if(report_tuinen==TRUE) {
         nir <- ai_buurt[[nir_seq]]
         #red light from aerial photo masked/clipped buurt (which vegetation absorbs)
         red <- ai_buurt[[red_seq]]
+}
+
+
+plotting_gg_dist <- function(input, xx, lab_nme, file_slug, bin_width) {
+
 }
 
 #-----------------------------------------------------------------------------------------------
@@ -239,6 +246,11 @@ rvi <- raster::overlay(red, nir, fun = rvi_func)
 names(rvi) <- "rvi"
 }
 
+
+#-----------------------------------------------------------------------------------------------
+#garbage collection
+rm(red,nir)
+
 #-----------------------------------------------------------------------------------------------
 
 # AHN
@@ -295,13 +307,6 @@ rm(reclass_binary, reclass_binary_m)
 
 }
 
-#Distribution of raster cell NDVI values
-png(paste0(plots.loc,"rs_ndvi_distibution_raster_cell_",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio*2, height=png_height)
-hist(ndvi,
-     main = paste0("Distribution NDVI values over raster cells ",neighbourhood),
-     xlab = "ndvi", ylab = "cells",
-     col = "steelblue")
-dev.off()
 
 #-----------------------------------------------------------------------------------------------
 
@@ -363,7 +368,7 @@ water_cover_all<-exactextractr::exact_extract(water_d,buurt_sf,
 buurt_sf$water_cover_all<-round(water_cover_all*100,1)
 
 if(crowns_trace==TRUE) {
-#mean ndvi per polygon element (tuin)
+#mean ndvi per polygon element (crown)
 ndvi_crowns_avg<-exactextractr::exact_extract(ndvi,crowns_polygon,
                                        fun ='mean',
                                        force_df =FALSE)

@@ -110,10 +110,10 @@ if(evi2_calc==TRUE) {
 if(ahn_calc==TRUE) {
 
 #vegetation (3m and above)
-plotting_terra(ai_tuinen,veg_t3,"3m+ vegetation","rs_rgb_veg_3m",NULL,NULL,cols_terrain,255)
+plotting_terra(ai_tuinen,veg_t3,"3m+ vegetation","rs_vegetation_3m",NULL,NULL,cols_terrain,255)
 
 #trees (5m and above)
-plotting_terra(ai_tuinen,veg_t5,"5m+ vegetation","rs_rgb_veg_5m",NULL,NULL,cols_terrain,255)
+plotting_terra(ai_tuinen,veg_t5,"5m+ vegetation","rs_vegetation_5m",NULL,NULL,cols_terrain,255)
 }
 
 #Distribution of gardens over NDVI
@@ -169,6 +169,13 @@ plotting_gg_dist(tuinen_sf, "green_cover", "% vegetation cover tuinen on woonper
 plotting_gg_dist(panden_sf, "green_cover", "% vegetation cover panden on woonperceel", "rs_woningen_distribution_vegetation_coverage", 20)
 
 
+#Distribution of raster cell NDVI values
+#png(paste0(plots.loc,"rs_ndvi_distibution_raster_cell_",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio*2, height=png_height)
+#hist(ndvi,main = paste0("Distribution NDVI values over raster cells ",neighbourhood),
+#     xlab = "ndvi", ylab = "cells",col = "steelblue")
+#dev.off()
+
+
 #-----------------------------------------------------------------------------------------------------------
 
 cols_ahn<-rev(hcl.colors(20, "YlOrRd"))
@@ -179,6 +186,7 @@ plotting_terra(ai_buurt,ahn_buurt,"AHN buurt (m)","rs_ahn_buurt",NULL,NULL,cols_
 #ahn tuinen
 plotting_terra(ai_buurt,ahn_tuinen,"AHN tuinen (m)","rs_ahn_tuinen",NULL,NULL,cols_ahn,alpha)
 
+#-----------------------------------------------------------------------------------------------------------
 
 #tree tops
 png(paste0(plots.loc,"rs_trees_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180, units="px")

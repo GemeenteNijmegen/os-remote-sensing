@@ -13,7 +13,6 @@ NDVI-range 'verstening'
 #NDVI patches
 
 
-
 garden_surface_sum (tuinen)	
 totaal areaal tuin (m2)
 
@@ -76,3 +75,12 @@ Landscape division index (versnippering)
 
 pd (buurt)
 patch density
+
+#-----------------------------------------------------------------------------------------------
+#tree crowns
+
+trees_n 
+Number of trees
+
+ndvi_avg
+gemiddelde NDVI waarde boomkroon

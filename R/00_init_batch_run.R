@@ -63,8 +63,8 @@ crs_str<-paste0("EPSG:",crs_sp)
 #Report woonpercelen, or all percelen within buurt)
 report_tuinen<-FALSE #default (T)
 
-#foto as base image for (raster) plots yes=255, no=0
-alpha<-255
+#foto as base image for (raster) plots
+alpha<-255 # 255 is visible, 0 is invisible
 
 #-----------------------------------------------------------------------------------------------
 
@@ -175,8 +175,15 @@ ngr_source <- FALSE #FALSE (default), is faster
 ahn_points <- FALSE #FALSE (default), TRUE for canopy height based on points cloud
 #please note that this takes quite some time....
 
-#tree crowns and cown health
+#tree tops
+tree_trace <- TRUE
+
+#tree crowns and crown health
+#only makes sense when computing stats for entire buurt (report_tuinen<-FALSE) and tree_trace<-TRUE
 crowns_trace <- FALSE #FALSE (default)
+
+#tree crown statistics
+crown_stats <- FALSE
 
 #-----------------------------------------------------------------------------------------------
 

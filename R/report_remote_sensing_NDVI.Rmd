@@ -21,7 +21,7 @@ shhh <- suppressPackageStartupMessages
 
 yr<-2020
 neighbourhood <- "BU08280002"
-report_tuinen<-TRUE
+report_tuinen<-FALSE
 proj_env <- FALSE
 
 # set directories
@@ -39,50 +39,11 @@ options(warn=-1)
 In dit rapport worden de resultaten van de analyse -op hoofdlijnen- getoond. De volgende onderdelen komen aan de orde: 
 
 
-
-## rs_tuinen:
-```{r pl2, echo=FALSE, fig.cap=" ", out.width = '100%'}
-
-graph.find <- list.files(path = plots.loc, 
-                         pattern = paste0("rs_tuinen_", neighbourhood, ".png"), full.names = TRUE)
-
-knitr::include_graphics(graph.find)
-```
-
-
-## rs_cir_bands:
-```{r pl3, echo=FALSE, fig.cap=" ", out.width = '100%'}
-
-graph.find <- list.files(path = plots.loc, 
-                         pattern = paste0("rs_cir_bands_", neighbourhood, ".png"), full.names = TRUE)
-
-knitr::include_graphics(graph.find)
-```
-
-
-## rs_nir_red_relationship:
-```{r pl4, echo=FALSE, fig.cap=" ", out.width = '100%'}
-
-graph.find <- list.files(path = plots.loc, 
-                         pattern = paste0("rs_nir_red_relationship_", neighbourhood, ".png"), full.names = TRUE)
-
-knitr::include_graphics(graph.find)
-```
-
 ## rs_rgb:
 ```{r pl5, echo=FALSE, fig.cap=" ", out.width = '100%'}
 
 graph.find <- list.files(path = plots.loc, 
-                         pattern = paste0("rs_rgb_", neighbourhood, ".png"), full.names = TRUE)
-
-knitr::include_graphics(graph.find)
-```
-
-## rs_rgb_BU03990502_tuinen: <FIXME>
-```{r pl6, echo=FALSE, fig.cap=" ", out.width = '100%'}
-
-graph.find <- list.files(path = plots.loc, 
-                         pattern = paste0("rs_rgb_", neighbourhood, "_tuinen.png"), full.names = TRUE)
+                         pattern = paste0("rs_rgb_buurt_", neighbourhood, ".png"), full.names = TRUE)
 
 knitr::include_graphics(graph.find)
 ```
@@ -92,7 +53,7 @@ knitr::include_graphics(graph.find)
 ```{r pl7, echo=FALSE, fig.cap=" ", out.width = '100%'}
 
 graph.find <- list.files(path = plots.loc, 
-                         pattern = paste0("rs_ndvi_raw_vegetation_contours_", neighbourhood, ".png"), full.names = TRUE)
+                         pattern = paste0("rs_ndvi_vegetation_contours_", neighbourhood, ".png"), full.names = TRUE)
 
 knitr::include_graphics(graph.find)
 ```
@@ -118,21 +79,11 @@ knitr::include_graphics(graph.find)
 ```
 
 
-## rs_ndvi_levelplot:
-```{r pl11, echo=FALSE, fig.cap=" ", out.width = '100%'}
-
-graph.find <- list.files(path = plots.loc, 
-                         pattern = paste0("rs_ndvi_levelplot_", neighbourhood, ".png"), full.names = TRUE)
-
-knitr::include_graphics(graph.find)
-```
-
-
 ## rs_rgb_ndvi:
 ```{r pl18, echo=FALSE, fig.cap=" ", out.width = '100%'}
 
 graph.find <- list.files(path = plots.loc, 
-                         pattern = paste0("rs_rgb_ndvi_", neighbourhood, ".png"), 
+                         pattern = paste0("rs_ndvi_", neighbourhood, ".png"), 
                          full.names = TRUE)
 
 knitr::include_graphics(graph.find)
@@ -142,7 +93,7 @@ knitr::include_graphics(graph.find)
 ```{r pl19, echo=FALSE, fig.cap=" ", out.width = '100%'}
 
 graph.find <- list.files(path = plots.loc, 
-                         pattern = paste0("rs_rgb_vegetation_", neighbourhood, ".png"), 
+                         pattern = paste0("rs_vegetation_", neighbourhood, ".png"), 
                          full.names = TRUE)
 
 knitr::include_graphics(graph.find)
@@ -152,7 +103,7 @@ knitr::include_graphics(graph.find)
 ```{r pl20, echo=FALSE, fig.cap=" ", out.width = '100%'}
 
 graph.find <- list.files(path = plots.loc, 
-                         pattern = paste0("rs_rgb_veg_substantial_", neighbourhood, ".png"), 
+                         pattern = paste0("rs_vegetation_substantial_", neighbourhood, ".png"), 
                          full.names = TRUE)
 
 knitr::include_graphics(graph.find)
@@ -162,7 +113,7 @@ knitr::include_graphics(graph.find)
 ```{r pl21, echo=FALSE, fig.cap=" ", out.width = '100%'}
 
 graph.find <- list.files(path = plots.loc, 
-                         pattern = paste0("rs_rgb_veg_classes_unsupervised_", neighbourhood, ".png"), 
+                         pattern = paste0("rs_vegetation_class_unsupervised_", neighbourhood, ".png"), 
                          full.names = TRUE)
 
 knitr::include_graphics(graph.find)
@@ -172,7 +123,7 @@ knitr::include_graphics(graph.find)
 ```{r pl22, echo=FALSE, fig.cap=" ", out.width = '100%'}
 
 graph.find <- list.files(path = plots.loc, 
-                         pattern = paste0("rs_rgb_veg_classes_fixed_", neighbourhood, ".png"), 
+                         pattern = paste0("rs_vegetation_classes_fixed_", neighbourhood, ".png"), 
                          full.names = TRUE)
 
 knitr::include_graphics(graph.find)
@@ -182,7 +133,7 @@ knitr::include_graphics(graph.find)
 ```{r pl23, echo=FALSE, fig.cap=" ", out.width = '100%'}
 
 graph.find <- list.files(path = plots.loc, 
-                         pattern = paste0("rs_rgb_veg_3m_", neighbourhood, ".png"), 
+                         pattern = paste0("rs_vegetation_3m_", neighbourhood, ".png"), 
                          full.names = TRUE)
 
 knitr::include_graphics(graph.find)
@@ -192,7 +143,7 @@ knitr::include_graphics(graph.find)
 ```{r pl24, echo=FALSE, fig.cap=" ", out.width = '100%'}
 
 graph.find <- list.files(path = plots.loc, 
-                         pattern = paste0("rs_rgb_veg_5m_", neighbourhood, ".png"), 
+                         pattern = paste0("rs_vegetation_5m_", neighbourhood, ".png"), 
                          full.names = TRUE)
 
 knitr::include_graphics(graph.find)
@@ -202,7 +153,7 @@ knitr::include_graphics(graph.find)
 ```{r pl25, echo=FALSE, fig.cap=" ", out.width = '100%'}
 
 graph.find <- list.files(path = plots.loc, 
-                         pattern = paste0("NDVI_mean_garden", ".png"), 
+                         pattern = paste0("rs_ndvi_mean_tuinen_", neighbourhood, ".png"), 
                          full.names = TRUE)
 
 knitr::include_graphics(graph.find)
@@ -213,7 +164,7 @@ knitr::include_graphics(graph.find)
 ```{r pl26, echo=FALSE, fig.cap=" ", out.width = '100%'}
 
 graph.find <- list.files(path = plots.loc, 
-                         pattern = paste0("NDVI_mean_vegetation_garden", ".png"), 
+                         pattern = paste0("rs_ndvi_mean_tuinen_", neighbourhood, ".png"), 
                          full.names = TRUE)
 
 knitr::include_graphics(graph.find)
@@ -223,7 +174,7 @@ knitr::include_graphics(graph.find)
 ```{r pl27, echo=FALSE, fig.cap=" ", out.width = '100%'}
 
 graph.find <- list.files(path = plots.loc, 
-                         pattern = paste0("rs_gardens_distribution_ndvi_freq_", neighbourhood, ".png"), 
+                         pattern = paste0("rs_garden_distribution_ndvi_freq_", neighbourhood, ".png"), 
                          full.names = TRUE)
 
 knitr::include_graphics(graph.find)
@@ -243,7 +194,7 @@ knitr::include_graphics(graph.find)
 ```{r pl29, echo=FALSE, fig.cap=" ", out.width = '100%'}
 
 graph.find <- list.files(path = plots.loc, 
-                         pattern = paste0("green_coverage_garden", ".png"), 
+                         pattern = paste0("rs_green_cover_tuinen_", neighbourhood, ".png"), 
                          full.names = TRUE)
 
 knitr::include_graphics(graph.find)
@@ -262,7 +213,7 @@ knitr::include_graphics(graph.find)
 ```{r pl31, echo=FALSE, fig.cap=" ", out.width = '100%'}
 
 graph.find <- list.files(path = plots.loc, 
-                         pattern = paste0("stone_coverage_garden", ".png"), 
+                         pattern = paste0("rs_stone_cover_tuinen_", neighbourhood, ".png"), 
                          full.names = TRUE)
 
 knitr::include_graphics(graph.find)
@@ -272,7 +223,7 @@ knitr::include_graphics(graph.find)
 ```{r pl310, echo=FALSE, fig.cap=" ", out.width = '100%'}
 
 graph.find <- list.files(path = plots.loc, 
-                         pattern = paste0("water_coverage_garden", ".png"), 
+                         pattern = paste0("rs_water_cover_garden", neighbourhood, ".png"), 
                          full.names = TRUE)
 
 knitr::include_graphics(graph.find)
@@ -283,7 +234,7 @@ knitr::include_graphics(graph.find)
 ## green_coverage_woningen:
 ```{r pl32, echo=FALSE, fig.cap=" ", out.width = '100%'}
 graph.find <- list.files(path = plots.loc, 
-                         pattern = paste0("green_coverage_woningen", ".png"), 
+                         pattern = paste0("rs_green_cover_woningen", neighbourhood, ".png"), 
                          full.names = TRUE)
 
 knitr::include_graphics(graph.find)

@@ -14,7 +14,7 @@
 
 #this procedure checks the AI directory first, then checks for a clipping on the VNG stack
 
-#name of output file (TIF)
+#location of output file (TIF)
 output <- paste0(data.loc,"/",neighbourhood,".tif")
 
 #local TIF exists? (from previous run (as output file))
@@ -28,6 +28,7 @@ tiff.rdy
 #tif as a source (as input file)
 if(tiff.rdy==FALSE & tiff.as.source==TRUE) {
 
+#location of input file
 #input.tif <- list.files(ai.dir, pattern = "\\.tif$", full.names = TRUE)
 input.tif <- paste0(ai.dir,"/",neighbourhood,".tif")
 

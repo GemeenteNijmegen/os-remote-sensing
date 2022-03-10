@@ -84,7 +84,7 @@ ahn_buurt <- terra::mask(ahn_raster_hr_rs, buurt_sf)
 ahn_tuinen <- terra::mask(ahn_raster_hr_rs, tuinen_sf)
 ahn_panden <- terra::mask(ahn_raster_hr_rs, panden_sf)
 
-rm(ahn_raster,ahn_raster_hr)
+rm(ahn_raster,ahn_raster_hr,ahn_dtm_raster,ahn_dsm_raster)
 
 #-----------------------------------------------------------------------------------------------
 #Update geopackage

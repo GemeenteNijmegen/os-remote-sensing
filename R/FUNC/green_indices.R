@@ -98,7 +98,7 @@ class_func <- function(rast,bins) {
 
 plotting_gg <- function(input, xx, lab_nme, file_slug, col_scheme, coord) {
   ggplot(data = input) +
-    geom_sf(aes(fill = .data[[xx]]),size = 0.002) +
+    geom_sf(aes(fill = .data[[xx]]),size = 0.001) +
     scale_fill_viridis_c(option = col_scheme, direction = 1,name = lab_nme) +
     #geom_point(size = 0.4, aes(x = coord_panden$X,y = coord_panden$Y), colour="white", shape = 15) +
     geom_text(
@@ -119,14 +119,14 @@ plotting_gg <- function(input, xx, lab_nme, file_slug, col_scheme, coord) {
 #without label
 plotting_gg_clean <- function(input, xx, lab_nme, file_slug, col_scheme) {
   ggplot(data = input) +
-    geom_sf(aes(fill = .data[[xx]]),size = 0.002) +
+    geom_sf(aes(fill = .data[[xx]]),size = 0.001) +
     scale_fill_viridis_c(option = col_scheme, direction = 1,name = lab_nme) +
     theme_void()
   plot.store <-paste0(plots.loc,file_slug,"_",neighbourhood,".png")
   ggsave(plot.store, dpi=320)
 }
 
-
+#distribution plot
 plotting_gg_dist <- function(input, xx, lab_nme, file_slug, bin_width) {
 ggplot(input, aes(x = .data[[xx]])) +
   geom_histogram(aes(y = (..count..)/sum(..count..)), binwidth = bin_width,color="lightblue", fill="steelblue") +
