@@ -135,6 +135,12 @@ plotting_gg(tuinen_sf, "water_cover", "water cover (%)", "rs_water_cover_tuinen"
 plotting_gg(tuinen_sf, "stone_cover", "stone cover (%)", "rs_stone_cover_tuinen", "inferno", coord_tuinen )
 plotting_gg(panden_sf, "green_cover", "green cover (%)", "rs_green_cover_woningen", "viridis", coord_panden )
 
+#NDVI of crowns
+if(crowns_trace==TRUE) {
+plotting_gg_clean(crowns_polygon, "ndvi_avg", "mean NDVI", "rs_ndvi_mean_crowns", "turbo")
+}
+
+
 #-----------------------------------------------------------------------------------------------------------
 
 #NDVI distribution
@@ -151,43 +157,46 @@ print(mplot_p2)
 dev.off()
 
 #distribution of gardens over NDVI
-ggplot(tuinen_sf, aes(x = ndvi_avg)) +
-  geom_histogram(aes(y = (..count..)/sum(..count..)), binwidth = 0.08,color="lightblue", fill="steelblue") +
-  stat_bin(aes(y=(..count..)/sum(..count..),
-               label=paste0(round((..count..)/sum(..count..)*100,1),"%")),
-           geom="text", size=4, binwidth = 0.08, vjust=-1.5) +
-  #scale_x_continuous(breaks = seq(0.2,0.8,0.1))+
-  labs(x = "NDVI", y = "%") +
-  theme_light()
-plot.nme = paste0('rs_gardens_distribution_ndvi_',neighbourhood,'.png')
-plot.store <-paste0(plots.loc,plot.nme)
-ggsave(plot.store, dpi=dpi)
+plotting_gg_dist(tuinen_sf, "ndvi_avg", "NDVI", "rs_gardens_distribution_ndvi",0.08)
+
+#distribution of crowns over NDVI
+plotting_gg_dist(crowns_polygon, "ndvi_avg", "NDVI", "rs_crowns_distribution_ndvi",0.08)
 
 #distribution of gardens over vegetation coverage
-ggplot(tuinen_sf, aes(x = green_cover)) +
-  geom_histogram(aes(y = (..count..)/sum(..count..)), binwidth = 20,color="lightblue", fill="steelblue") +
-  stat_bin(aes(y=(..count..)/sum(..count..),
-               label=paste0(round((..count..)/sum(..count..)*100,1),"%")),
-           geom="text", size=4, binwidth = 20, vjust=-1.5) +
-  #scale_x_continuous(breaks = seq(0.2,0.8,0.1))+
-  labs(x = "% vegetation cover tuinen on woonperceel", y = "%") +
-  theme_light()
-plot.nme = paste0('rs_gardens_distribution_vegetation_coverage_',neighbourhood,'.png')
-plot.store <-paste0(plots.loc,plot.nme)
-ggsave(plot.store, dpi=dpi)
+plotting_gg_dist(tuinen_sf, "green_cover", "% vegetation cover tuinen on woonperceel", "rs_gardens_distribution_vegetation_coverage",20)
 
 #distribution of woningen over vegetation coverage
-ggplot(panden_sf, aes(x = green_cover)) +
-  geom_histogram(aes(y = (..count..)/sum(..count..)), binwidth = 20,color="lightblue", fill="steelblue") +
-  stat_bin(aes(y=(..count..)/sum(..count..),
-               label=paste0(round((..count..)/sum(..count..)*100,1),"%")),
-           geom="text", size=4, binwidth = 20, vjust=-1.5) +
-  #scale_x_continuous(breaks = seq(0.2,0.8,0.1))+
-  labs(x = "% vegetation cover panden on woonperceel", y = "%") +
-  theme_light()
-plot.nme = paste0('rs_woningen_distribution_vegetation_coverage_',neighbourhood,'.png')
-plot.store <-paste0(plots.loc,plot.nme)
-ggsave(plot.store, dpi=dpi)
+plotting_gg_dist(panden_sf, "green_cover", "% vegetation cover panden on woonperceel", "rs_woningen_distribution_vegetation_coverage", 20)
+
+
+#-----------------------------------------------------------------------------------------------------------
+
+cols_ahn<-rev(hcl.colors(20, "YlOrRd"))
+
+#ahn buurt
+plotting_terra(ai_buurt,ahn_buurt,"AHN buurt (m)","rs_ahn_buurt",NULL,NULL,cols_ahn,alpha)
+
+#ahn tuinen
+plotting_terra(ai_buurt,ahn_tuinen,"AHN tuinen (m)","rs_ahn_tuinen",NULL,NULL,cols_ahn,alpha)
+
+
+#tree tops
+png(paste0(plots.loc,"rs_trees_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180, units="px")
+par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
+aerial_rgb <- terra::plotRGB(ai_buurt,
+                             r = 1, g = 2, b = 3,
+                             stretch = "lin",
+                             alpha=alpha,#hide (0), show(255)
+                             axes = TRUE,
+                             main = paste0("AHN buurt (m) and tree tops (5m+) ", neighbourhood))
+plot(ahn_buurt, add=TRUE, legend=FALSE, col= cols_ahn)
+plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
+#plot(crowns_polygon, add=TRUE, legend=FALSE, col=cols_viridis)
+plot(ttops, add=TRUE, legend=TRUE)
+box(col = "white")
+aerial_rgb
+plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
+dev.off()
 
 rm(list=ls(pattern="^mplot_"))
 rm(list=setdiff(ls(pattern = "^mplot_"), lsf.str()))

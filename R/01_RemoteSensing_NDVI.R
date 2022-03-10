@@ -362,7 +362,16 @@ water_cover_all<-exactextractr::exact_extract(water_d,buurt_sf,
 
 buurt_sf$water_cover_all<-round(water_cover_all*100,1)
 
+if(crowns_trace==TRUE) {
+#mean ndvi per polygon element (tuin)
+ndvi_crowns_avg<-exactextractr::exact_extract(ndvi,crowns_polygon,
+                                       fun ='mean',
+                                       force_df =FALSE)
+
+crowns_polygon$ndvi_avg<-round(ndvi_crowns_avg,1)
 }
+}
+
 
 #-----------------------------------------------------------------------------------------------
 #indices tuinen
@@ -491,11 +500,6 @@ buurt_garden_stats <- tuinen_sf %>%
                   #gemiddelde NDVI waarde vegetatie
                   ndvi_green_avg = round(mean(ndvi_green_avg,na.rm = TRUE),1)
                   )
-
-
-
-
-
 
 buurt_garden_stats <- cbind(buurt_sf,buurt_garden_stats) %>% rename(geom_tuinen=geometry.1)
 

@@ -35,34 +35,25 @@ ttops <- lidR::find_trees(chm_5mveg, lmf(ws=7))
 trees_n<-max(ttops$treeID)
 trees_n
 
+message("number of trees ", trees_n)
+
 #canopy segmentation
 #defaults to raster
 crowns <- ForestTools::mcws(treetops = ttops, CHM = chm_5m, minHeight = 2, verbose = FALSE)
 
-#polygon version
-#crowns_polygon <- mcws(treetops = ttops, CHM = chm_5m, format = "polygons", minHeight = 2, verbose = FALSE)
-#sp_summarise(crowns_polygon, variables = c("crownArea", "height"))
 
-#plot tree tops
-png(paste0(plots.loc,"rs_trees_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180, units="px")
-par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
-aerial_rgb <- terra::plotRGB(ai_buurt,
-                             r = 1, g = 2, b = 3,
-                             stretch = "lin",
-                             alpha=alpha,#hide (0), show(255)
-                             axes = TRUE,
-                             main = paste0("AHN buurt (m) and tree tops (5m+) ", neighbourhood))
-plot(ahn_buurt, add=TRUE, legend=TRUE, col= cols_ahn)
-plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
-plot(ttops, add=TRUE, legend=FALSE)
-box(col = "white")
-aerial_rgb
-plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
-dev.off()
+if(crowns_trace==TRUE) {
+  #polygon version
+  crowns_polygon <- mcws(treetops = ttops, CHM = chm_5m, format = "polygons", minHeight = 2, verbose = FALSE)
+  #sp_summarise(crowns_polygon, variables = c("crownArea", "height"))
+  crowns_polygon <- st_as_sf(crowns_polygon)
+  sf::st_write(crowns_polygon, dsn=gpkg_vector, layer='crowns',layer_options = "OVERWRITE=YES",append=FALSE)
 
-# Plot crowns
-cols_rainbow<- sample(rainbow(50), length(unique(crowns[])), replace = TRUE)
-plotting_base(ai_buurt,crowns, "tree crowns", "rs_crown_tops",NULL,NULL,cols_rainbow)
+  # Plot crowns
+  cols_rainbow<- sample(rainbow(50), length(unique(crowns[])), replace = TRUE)
+  plotting_base(ai_buurt,crowns, "tree crowns", "rs_crown_tops",NULL,NULL,cols_rainbow)
+
+  }
 
 
 #-----------------------------------------------------------------------------------------------

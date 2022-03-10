@@ -122,14 +122,6 @@ ahn_panden %>% #RasterLayer
 #plot(ahn_panden, xlab = "X", ylab = "Y", main = "AHN Elevation panden (m)")
 
 
-cols_ahn<-rev(hcl.colors(20, "YlOrRd"))
-
-#buurt
-plotting_terra(ai_buurt,ahn_buurt,"AHN buurt (m)","rs_ahn_buurt",NULL,NULL,cols_ahn,alpha)
-
-#tuinen
-plotting_terra(ai_buurt,ahn_tuinen,"AHN tuinen (m)","rs_ahn_tuinen",NULL,NULL,cols_ahn,alpha)
-
 #-----------------------------------------------------------------------------------------------
 
 #Crowns and tree tops

@@ -47,24 +47,43 @@ More information is available in the [presentation slides](https://datasciencevn
 	│
 	├── 00_init_batch_run.R  	 		<- run procedure
 	│
-	├── README.md       
+	├── 01_RemoteSensing_NDVI      		<- main procedure
 	│
-	...
-
-├── PYTHON
-     │
-	 ├── start.py  	 	<- run procedure
-	 │
-	 ...
+	├── AI				  				<- input (aerial image)
+	│
+	├── DATA			  				<- output (TIFF, geopackages)
+	│
+	├── REPORT            				<- output (metrics)
+	│
+	├── PLOTS             				<- output (visualisations) 
+	│	
+	├── SRC               				<- dedicated procedures
+	│
+	├── FUNC 							<- functions
+	│
+	├── report_remote_sensing_NDVI.Rmd 	<- report template
+	
 
 ```
 
-## Instructions
+## Output
+Geopackages:
+The R procedure result in geopackage (gpkg) files with multiples layers containing the results of the analysis. The geopackages can be deployed in QGIS or similar (commercial) GIS-software. 
 
-Both the Python and R procedure result in geopackage (gpkg) files with multiples layers containing the results of the analysis. The geopackages can be deployed in QGIS or similar (commercial) GIS-software. 
+Plots:
+Green Indices: NDVI TNDVI, RVI, MSAVI2, EVI2
+Calculations: unsupervised classification of NDVI, principal component analysis of aerial photo, canopy height model, tree tops, tree crowns, tree health
+
+Metrics:
+see: metrics_definition.txt
+all metrics are stored in sheets in the REPORT directory.
+
+
+## Instructions
 
 ## R
 R: Open de Rproj-file in the R-directory to start the environment. Define the neighbourhood code(s) and municipality name in the neighbourhood.xlsx file. 
+
 You may either use your own color infrared (CIR) aerial photo (must include infrared-band) or extract the area from the main  aerial photo of the Netherlands*. You may use tif or ecw as file-format. 
 
 Please verify and adjust settings in '00_init_batch_run.R'
@@ -72,16 +91,6 @@ Please verify and adjust settings in '00_init_batch_run.R'
 Run the procedure via '00_init_batch_run.R'
 
 Output is served to DATA-directory (geopackages), PLOTS-directory (images) and REPORT-directory (xls-sheets)
-
-For more information see README in the R-directory.
-
-## Python
-Python: Define the neighbourhood code(s) in the neighbourhood.csv file.
-You may either use your own color infrared (CIR) aerial photo (must include infrared-band) or extract the region from the main aerial photo of the Netherlands*. You may
-use ecw as file-format. Please verify and adjust settings in
-'start.py'
-
-Run the procedure via 'start.py'
 
 *)
 https://datasciencevng.nl/s/ztnYabpulASJakHR (119GB), photo 2020 (early summer)
@@ -100,9 +109,6 @@ Rstudio 1.2.5<,
 Rtools 4<
 https://cran.r-project.org/bin/windows/Rtools/
 update Rccp-package 
-
-Python:
-Python or Anaconda 
 
 For development : Git and Gitlab
 Repo : https://gitlab.com/datasciencehub/remote-sensing.git

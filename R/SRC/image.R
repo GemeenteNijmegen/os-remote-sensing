@@ -100,7 +100,7 @@ if(tiff.as.source==TRUE) {
   ai <- raster::brick(output)
 }
 
-message("The projection of the aerial photo will be set to", crs_sp)
+message("The projection of the aerial photo will be set to ", crs_sp)
 raster::crs(ai) <- crs_sp
 
 #-----------------------------------------------------------------------------------------------

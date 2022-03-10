@@ -93,7 +93,6 @@ alpha<-255
 #rvi = NIR/RED
 rvi_calc <- FALSE #default (F)
 
-
 #-----------------------------------------------------------------------------------------------
 
 # transformed normalized difference vegetation index (TNDVI)
@@ -106,7 +105,6 @@ rvi_calc <- FALSE #default (F)
 #TNDVI = sqrt((NIR–R/NIR+R) +0.5)
 
 tndvi_calc <- FALSE #default (F)
-
 
 #-----------------------------------------------------------------------------------------------
 
@@ -121,7 +119,6 @@ tndvi_calc <- FALSE #default (F)
 
 msavi2_calc <- FALSE #default (F)
 
-
 #-----------------------------------------------------------------------------------------------
 
 # Enhanced vegetation index - Two-band (EVI2)
@@ -135,7 +132,6 @@ msavi2_calc <- FALSE #default (F)
 
 evi2_calc <- FALSE #default (T)
 
-
 #-----------------------------------------------------------------------------------------------
 
 # Unsupervised classification of NDVI
@@ -147,7 +143,6 @@ unsup_cl <- FALSE #default (T)
 #number of clusters
 k <- 5
 
-
 #-----------------------------------------------------------------------------------------------
 
 # Principal component analysis: summarize the content of the CIR aerial photo
@@ -155,7 +150,6 @@ k <- 5
 #-----------------------------------------------------------------------------------------------
 
 pca.ai <- FALSE #default (F)
-
 
 #-----------------------------------------------------------------------------------------------
 
@@ -165,7 +159,6 @@ pca.ai <- FALSE #default (F)
 
 #add 3D panden (TU Delft) as layer in (vector) geopackage
 buildings_3d <- FALSE #default (F)
-
 
 #-----------------------------------------------------------------------------------------------
 
@@ -180,7 +173,10 @@ ahn_calc <-TRUE #default (T)
 ngr_source <- FALSE #FALSE (default), is faster
 
 ahn_points <- FALSE #FALSE (default), TRUE for canopy height based on points cloud
+#please note that this takes quite some time....
 
+#tree crowns and cown health
+crowns_trace <- FALSE #FALSE (default)
 
 #-----------------------------------------------------------------------------------------------
 

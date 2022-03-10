@@ -98,7 +98,7 @@ class_func <- function(rast,bins) {
 
 plotting_gg <- function(input, xx, lab_nme, file_slug, col_scheme, coord) {
   ggplot(data = input) +
-    geom_sf(aes(fill = .data[[xx]])) +
+    geom_sf(aes(fill = .data[[xx]]),size = 0.002) +
     scale_fill_viridis_c(option = col_scheme, direction = 1,name = lab_nme) +
     #geom_point(size = 0.4, aes(x = coord_panden$X,y = coord_panden$Y), colour="white", shape = 15) +
     geom_text(
@@ -114,6 +114,30 @@ plotting_gg <- function(input, xx, lab_nme, file_slug, col_scheme, coord) {
     theme_void()
   plot.store <-paste0(plots.loc,file_slug,"_",neighbourhood,".png")
   ggsave(plot.store, dpi=320)
+}
+
+#without label
+plotting_gg_clean <- function(input, xx, lab_nme, file_slug, col_scheme) {
+  ggplot(data = input) +
+    geom_sf(aes(fill = .data[[xx]]),size = 0.002) +
+    scale_fill_viridis_c(option = col_scheme, direction = 1,name = lab_nme) +
+    theme_void()
+  plot.store <-paste0(plots.loc,file_slug,"_",neighbourhood,".png")
+  ggsave(plot.store, dpi=320)
+}
+
+
+plotting_gg_dist <- function(input, xx, lab_nme, file_slug, bin_width) {
+ggplot(input, aes(x = .data[[xx]])) +
+  geom_histogram(aes(y = (..count..)/sum(..count..)), binwidth = bin_width,color="lightblue", fill="steelblue") +
+  stat_bin(aes(y=(..count..)/sum(..count..),
+               label=paste0(round((..count..)/sum(..count..)*100,1),"%")),
+           geom="text", size=4, binwidth = bin_width, vjust=-1.5) +
+  #scale_x_continuous(breaks = seq(0.2,0.8,0.1))+
+  labs(x = lab_nme, y = "%") +
+  theme_light()
+plot.store <-paste0(plots.loc,file_slug,"_",neighbourhood,".png")
+ggsave(plot.store, dpi=dpi)
 }
 
 #-----------------------------------------------------------------------------------------------
