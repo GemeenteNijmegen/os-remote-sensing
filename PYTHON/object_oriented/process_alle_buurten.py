@@ -36,7 +36,7 @@ if __name__ == "__main__":
     )
 
     # Transform into percentages
-    result = result.apply(lambda row: row/row.sum(), axis=1)
+    result = result.apply(lambda row: row / row.sum(), axis=1)
 
     # add buurtcode
     result["Buurtcode"] = buurt_df["buurtcode"]
