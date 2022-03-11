@@ -17,7 +17,7 @@
 #location of output file (TIF)
 output <- paste0(data.loc,"/",neighbourhood,".tif")
 
-#local TIF exists? (from previous run (as output file))
+#does local TIF exist? (from previous run (as output file))
 tiff.rdy <- FALSE
 tiff.rdy <- file.exists(output)
 tiff.rdy
@@ -26,7 +26,7 @@ tiff.rdy
 #Check for Aerial image in AI-directory (TIF-format)
 
 #tif as a source (as input file)
-if(tiff.rdy==FALSE & tiff.as.source==TRUE) {
+if(tiff.as.source==TRUE & tiff.rdy==FALSE) {
 
 #location of input file
 #input.tif <- list.files(ai.dir, pattern = "\\.tif$", full.names = TRUE)
@@ -38,6 +38,7 @@ if(length(input.tif) != 0) {
 file.copy(from = input.tif,
           to   = output)
 
+#reset status
 tiff.rdy <- file.exists(output)
 }
 
@@ -49,7 +50,7 @@ tiff.rdy <- file.exists(output)
 
 if(tiff.as.source==TRUE & tiff.rdy==FALSE) {
 
-  message("extract CIR aerial photo in TIF-format from VNG Stack")
+  message("\nextract CIR aerial photo in TIF-format from VNG Stack")
 
   #remote TIFF (input)
   path_tif <- paste0("https://datasciencevng.nl/remote.php/webdav/Data/cir2020perbuurt/",neighbourhood,".tif")
@@ -70,13 +71,13 @@ if(tiff.as.source==FALSE & tiff.rdy==FALSE) {
   input.ecw <- list.files(ai.dir, pattern = "\\.ecw$", full.names = TRUE)
   if(length(input.ecw) != 0) {
 
-    message("extract CIR aerial photo in ECW-format from AI directory")
+    message("\nextract CIR aerial photo in ECW-format from AI directory")
 
     gdalUtils::gdal_translate(src_dataset=input.ecw, dst_dataset=output, of="GTiff", overwrite=T, verbose=TRUE)
 
     tiff.rdy <- file.exists(output)
   } else {
-    message("no aerial photo in ECW-format available in AI directory")
+    message("\nno aerial photo in ECW-format available in AI directory")
   }
 
 }
@@ -84,23 +85,14 @@ if(tiff.as.source==FALSE & tiff.rdy==FALSE) {
 #-----------------------------------------------------------------------------------------------
 
 if(tiff.rdy==FALSE) {
-  message("No (valid) CIR aerial photo available in AI directory")
-  stop("procedure terminated")
+  message("\nNo (valid) CIR aerial photo available in AI directory")
+  stop("\nprocedure terminated")
 }
 
-#create RasterBrick
-if(tiff.as.source==TRUE) {
-  #TIFF as source
-  #info on TIFF
-  #GDALinfo(output)
+#we use stars package as it is much faster than raster and terra
+ai <- as(stars::read_stars(output), "Raster")
 
-  ai <- as(stars::read_stars(output), "Raster")
-  #rm(tif)
-} else {
-  #ECW as source
-  ai <- raster::brick(output)
-}
-
+#set projection of the raster
 message("The projection of the aerial photo will be set to ", crs_sp)
 raster::crs(ai) <- crs_sp
 
@@ -115,14 +107,14 @@ nlayer<-nlayers(ai)
 nlayer
 
 if(nlayer<3) {
-  stop("Number of bands in the aerial image is less than 3")
+  stop("\nNumber of bands in the aerial image is less than three : ", nlayer)
 }
 
 #extent
-extent(ai)
+#extent(ai)
 
 #layer names
-names(ai)
+#names(ai)
 
 #set correct layer names
 #https://www.mngeo.state.mn.us/chouse/airphoto/cir.html

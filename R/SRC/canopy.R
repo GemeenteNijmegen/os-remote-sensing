@@ -27,6 +27,8 @@ raster::crs(chm_5m) <- raster::crs(percelen_sf)
 #canopy height model (chm) : vegetation within 5-40m
 chm_5mveg <- veg_g * chm_5m
 
+rm(chm_5m)
+
 if(tree_trace==TRUE) {
 #detect trees
 
@@ -47,6 +49,7 @@ if(crowns_trace==TRUE) {
   #tree tops are located above 5m, tree crowns above 2m
   #defaults to raster
   #crowns <- ForestTools::mcws(treetops = ttops, CHM = chm_5mveg, minHeight = 2, verbose = FALSE)
+  message("\ncrown detection\n")
 
   #polygon version
   crowns <- ForestTools::mcws(treetops = ttops, CHM = chm_5mveg, format = "polygons", minHeight = 2, verbose = FALSE)
@@ -76,7 +79,6 @@ if(crowns_trace==TRUE) {
 
 
 if(ahn_points==TRUE) {
-
 
 
 #use all threads for lidR

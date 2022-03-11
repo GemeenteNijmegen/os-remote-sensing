@@ -117,10 +117,10 @@ plotting_terra(ai_tuinen,veg_t5,"5m+ vegetation","rs_vegetation_5m",NULL,NULL,co
 }
 
 #Distribution of gardens over NDVI
-png(paste0(plots.loc,"rs_garden_distribution_ndvi_freq_",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio*2, height=png_height)
+png(paste0(plots.loc,"rs_tuinen_distribution_ndvi_freq_",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio*2, height=png_height)
 hist(tuinen_sf$ndvi_avg,
      #breaks=4,
-     main = paste0("Distribution of gardens over NDVI ",neighbourhood),
+     main = paste0("Distribution of tuinen over NDVI ",neighbourhood),
      xlab = "ndvi", ylab = "freq",
      col = "steelblue")
 dev.off()
@@ -160,16 +160,16 @@ print(mplot_p2)
 dev.off()
 
 #distribution of gardens over NDVI
-plotting_gg_dist(tuinen_sf, "ndvi_avg", "NDVI", "rs_gardens_distribution_ndvi",0.08)
+plotting_gg_dist(tuinen_sf, "ndvi_avg", "NDVI", "rs_tuinen_distribution_ndvi",0.08)
 
 #distribution of crowns over NDVI
 plotting_gg_dist(crowns_polygon, "ndvi_avg", "NDVI", "rs_crowns_distribution_ndvi",0.08)
 
 if(report_tuinen==TRUE) {
 #distribution of gardens over vegetation coverage
-plotting_gg_dist(tuinen_sf, "green_cover", "% vegetation cover tuinen on woonperceel", "rs_gardens_distribution_vegetation_coverage",20)
+plotting_gg_dist(tuinen_sf, "green_cover", "% vegetation cover tuinen on woonperceel", "rs_tuinen_distribution_vegetation_coverage",20)
 } else {
-plotting_gg_dist(buurt_sf, "green_cover", "% vegetation buert", "rs_buurt_distribution_vegetation_coverage",20)
+plotting_gg_dist(buurt_sf, "green_cover", "% vegetation buurt", "rs_buurt_distribution_vegetation_coverage",20)
 }
 #distribution of woningen over vegetation coverage
 plotting_gg_dist(panden_sf, "green_cover", "% vegetation cover panden on woonperceel", "rs_woningen_distribution_vegetation_coverage", 20)
@@ -208,7 +208,7 @@ aerial_rgb <- terra::plotRGB(ai_buurt,
                              main = paste0("AHN buurt (m) and tree tops (5m+) ", neighbourhood))
 plot(ahn_buurt, add=TRUE, legend=FALSE, col= cols_ahn)
 plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
-#plot(crowns_polygon, add=TRUE, legend=FALSE, col=cols_viridis)
+#plot(crowns, add=TRUE, legend=FALSE, col=cols_viridis)
 plot(ttops, add=TRUE, legend=TRUE)
 box(col = "white")
 #aerial_rgb

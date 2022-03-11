@@ -22,9 +22,6 @@ ahn_dtm_raster <- rAHNextract::ahn_area(name = "BBOX rs", bbox = c(xmin, ymin, x
                                         AHN = "AHN3",
                                         dem = "DTM",
                                         resolution = 0.5)
-
-
-
 } else {
 #request directly via nationaalgeoregister.nl
 
@@ -84,7 +81,7 @@ ahn_buurt <- terra::mask(ahn_raster_hr_rs, buurt_sf)
 ahn_tuinen <- terra::mask(ahn_raster_hr_rs, tuinen_sf)
 ahn_panden <- terra::mask(ahn_raster_hr_rs, panden_sf)
 
-rm(ahn_raster,ahn_raster_hr,ahn_dtm_raster,ahn_dsm_raster)
+rm(ahn_raster,ahn_raster_hr,ahn_dtm_raster,ahn_dsm_raster,ahn_raster_hr_rs)
 
 #-----------------------------------------------------------------------------------------------
 #Update geopackage

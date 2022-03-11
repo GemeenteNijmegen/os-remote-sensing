@@ -137,6 +137,7 @@ veg_g <- class_func(ndvi,reclass_binary_m)
 
 #contour lines vegetation
 veg_contour <- raster::rasterToContour(veg_g)
+
 #transform to polygon
 veg_polygon <- veg_contour %>% st_as_sf() %>% st_polygonize()
 veg_polygon$oppervlakte <- st_area(veg_polygon$geometry)
@@ -359,7 +360,7 @@ stone_cover_all<-exactextractr::exact_extract(stone_d,buurt_sf,
 
 buurt_sf$stone_cover_all<-round(stone_cover_all*100,1)
 
-#water cover per polygon element (tuin)
+#water cover per polygon element (buurt)
 #NOTE: all water in neighbourhood
 water_cover_all<-exactextractr::exact_extract(water_d,buurt_sf,
                                           fun ='mean',
@@ -602,7 +603,7 @@ source(here::here('SRC/green_classes_metrics.R'))
 
 #-----------------------------------------------------------------------------------------------
 
-message("exiting procedure for neighbourhood ", neighbourhood)
+message("\nexiting procedure for neighbourhood ", neighbourhood)
 
 end_time <- Sys.time()
 performance = end_time - start_time

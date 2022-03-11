@@ -5,6 +5,8 @@
 
 #-----------------------------------------------------------------------------------------------
 
+message("\nunsupervised classification of NDVI")
+
 ndvi_subset <- ndvi
 #class(ndvi_subset)
 

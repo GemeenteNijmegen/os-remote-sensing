@@ -15,7 +15,7 @@
 # Setup environment
 
 #-----------------------------------------------------------------------------------------------
-gc()
+
 #set working directory
 #setwd("") #default (de-activated)
 #getwd()
@@ -26,7 +26,7 @@ proj_env <- FALSE #default (F)
 #packages
 source('SRC/packages.R')
 
-#load functions for calculating and plotting green indices
+#functions for calculating and plotting green indices
 source(here::here('FUNC/green_indices.R'))
 
 #-----------------------------------------------------------------------------------------------
@@ -182,8 +182,8 @@ ahn_points <- FALSE #FALSE (default), TRUE for canopy height based on points clo
 tree_trace <- TRUE
 
 #tree crowns and crown health
-#only makes sense when computing stats for entire buurt (report_tuinen<-FALSE) and tree_trace<-TRUE
-crowns_trace <- TRUE #FALSE (default)
+#only makes sense when computing stats for entire buurt (report_tuinen<-FALSE and tree_trace<-TRUE)
+crowns_trace <- FALSE #FALSE (default)
 
 #tree crown statistics
 crown_stats <- FALSE
