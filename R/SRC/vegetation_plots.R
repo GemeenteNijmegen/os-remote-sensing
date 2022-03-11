@@ -5,7 +5,7 @@
 
 #-----------------------------------------------------------------------------------------------
 
-message("vegetation plots")
+message("\nvegetation plots")
 #plot function resides in FUNC>green indices
 
 #-----------------------------------------------------------------------------------------------
@@ -140,7 +140,7 @@ plotting_gg(panden_sf, "green_cover", "green cover (%)", "rs_green_cover_woninge
 
 #NDVI of crowns
 if(crowns_trace==TRUE) {
-plotting_gg_clean(crowns_polygon, "ndvi_avg", "mean NDVI", "rs_ndvi_mean_crowns", "turbo")
+plotting_gg_clean(crowns, "ndvi_avg", "mean NDVI", "rs_ndvi_mean_crowns", "turbo")
 }
 
 
@@ -196,6 +196,7 @@ plotting_terra(ai_buurt,ahn_tuinen,"AHN tuinen (m)","rs_ahn_tuinen",NULL,NULL,co
 
 #-----------------------------------------------------------------------------------------------------------
 
+if(tree_trace==TRUE) {
 #tree tops
 png(paste0(plots.loc,"rs_trees_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180, units="px")
 par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
@@ -210,9 +211,11 @@ plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
 #plot(crowns_polygon, add=TRUE, legend=FALSE, col=cols_viridis)
 plot(ttops, add=TRUE, legend=TRUE)
 box(col = "white")
-aerial_rgb
+#aerial_rgb
 plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
+text(1.5, 150, paste("Tree count = ", trees_n), pos = 4)
 dev.off()
+}
 
 rm(list=ls(pattern="^mplot_"))
 rm(list=setdiff(ls(pattern = "^mplot_"), lsf.str()))

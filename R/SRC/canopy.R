@@ -51,15 +51,6 @@ if(crowns_trace==TRUE) {
   #polygon version
   crowns <- ForestTools::mcws(treetops = ttops, CHM = chm_5mveg, format = "polygons", minHeight = 2, verbose = FALSE)
 
-
-  # Compute average crown diameter
-  #crowns[["crownDiameter"]] <- sqrt(crowns_polygon[["crownArea"]]/ pi) * 2
-
-  # Mean crown diameter
-  #mean(crowns$crownDiameter)
-
-  #plot(crowns)
-
   if(crown_stats==TRUE) {
   #ompute statistics of the trees’ attributes
   #sp_summarise(crowns_polygon, variables = c("crownArea", "height"))
@@ -67,7 +58,7 @@ if(crowns_trace==TRUE) {
 
   #create sf object
   crowns <- st_as_sf(crowns)
-  #write to polygon geopackage
+  #write to vector geopackage
   sf::st_write(crowns, dsn=gpkg_vector, layer='crowns',layer_options = "OVERWRITE=YES",append=FALSE)
 
   # Plot crowns
@@ -75,7 +66,6 @@ if(crowns_trace==TRUE) {
   plotting_base(ai_buurt,crowns, "tree crowns", "rs_crown_tops",NULL,NULL,cols_rainbow)
 
   }
-
 
 
 #-----------------------------------------------------------------------------------------------

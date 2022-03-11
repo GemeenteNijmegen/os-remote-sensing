@@ -10,7 +10,7 @@
 
 #-----------------------------------------------------------------------------------------------
 
-message("start procedure for ", neighbourhood)
+message("\nstart procedure for ", neighbourhood)
 
 #-----------------------------------------------------------------------------------------------
 
@@ -61,7 +61,7 @@ plotting_gg_dist <- function(input, xx, lab_nme, file_slug, bin_width) {
 
 #-----------------------------------------------------------------------------------------------
 
-message("calculate vegetation indices")
+message("\ncalculate vegetation indices")
 
 
 #-----------------------------------------------------------------------------------------------
@@ -81,7 +81,7 @@ message("calculate vegetation indices")
 #        0.3 to 0.5: low to medium vegetation (substantial vegetation)
 #        0.5 to 1: intensive vegetation, high vegetation, trees
 
-message("calculate Normalized difference vegetation index (NDVI)")
+message("\ncalculate Normalized difference vegetation index (NDVI)")
 
 ndvi <- raster::overlay(x=red, y=nir, fun = ndvi_func)
 names(ndvi) <- "ndvi"
@@ -94,7 +94,7 @@ raster::crs(ndvi) <- raster::crs(percelen_sf)
 #--------------------------------------------------
 
 if(unsup_cl==TRUE) {
-message("(Re)Classify NDVI unsupervised")
+message("\n(Re)Classify NDVI unsupervised")
 
 #unsupervised boundary detection (NDVI classes)
 source(here::here('SRC/green_classes.R'))
@@ -104,7 +104,7 @@ source(here::here('SRC/green_classes.R'))
 #(Re)Classify - fixed
 #--------------------------------------------------
 
-message("(Re)Classify NDVI fixed classes")
+message("\n(Re)Classify NDVI fixed classes")
 
 #--------------------------------------------------
 #NDVI classes
@@ -191,7 +191,7 @@ water_d <- class_func(ndvi,water_class)
 #It has always positive values and the variances of the ratio are proportional to mean values
 
 if(tndvi_calc==TRUE) {
-message("calculate Transformed Normalized Difference Vegetation Index (TNDVI)")
+message("\ncalculate Transformed Normalized Difference Vegetation Index (TNDVI)")
 
 tndvi <- raster::overlay(ndvi, fun = tndvi_func)
 names(tndvi) <- "tndvi"
@@ -207,7 +207,7 @@ names(tndvi) <- "tndvi"
 #on the SAVI.
 
 if(msavi2_calc==TRUE) {
-message("calculate Modified Soil Adjusted Vegetation Index (MSAVI2)")
+message("\ncalculate Modified Soil Adjusted Vegetation Index (MSAVI2)")
 
 msavi2 <- raster::overlay(x=red, y=nir, fun = msavi2_func)
 names(msavi2) <- "msavi2"
@@ -223,7 +223,7 @@ names(msavi2) <- "msavi2"
 #for vegetation with different background soil reflectance
 
 if(evi2_calc==TRUE) {
-message("calculate Enhanced vegetation index - Two-band (EVI2)")
+message("\ncalculate Enhanced vegetation index - Two-band (EVI2)")
 
 evi2 <- raster::overlay(x=red, y=nir, fun = evi2_func)
 names(evi2) <- "evi2"
@@ -238,7 +238,7 @@ names(evi2) <- "evi2"
 #Reduces the effects of atmosphere and topography
 
 if(rvi_calc==TRUE) {
-message("calculate Ratio vegetation index (RVI)")
+message("\ncalculate Ratio vegetation index (RVI)")
 
 rvi <- raster::overlay(red, nir, fun = rvi_func)
 names(rvi) <- "rvi"
@@ -256,7 +256,7 @@ rm(red,nir)
 #-----------------------------------------------------------------------------------------------
 
 if(ahn_calc==TRUE) {
-message("apply Actueel Hoogtebestand Nederland (AHN)")
+message("\napply Actueel Hoogtebestand Nederland (AHN)")
 
 source(here::here('SRC/ahn.R'))
 
@@ -312,7 +312,7 @@ rm(reclass_binary, reclass_binary_m)
 
 #-----------------------------------------------------------------------------------------------
 
-message("store green indices in geopackage")
+message("\nstore green indices in geopackage")
 
 #store green indices in geopackage
 source(here::here('SRC/vegetation_gpkg.R'))
@@ -341,6 +341,8 @@ green_indices
 
 if(report_tuinen==FALSE) {
 
+message("\ncalculate green coverage buurt")
+
 #vegetation cover per polygon element (buurt)
 #NOTE: all green in neighbourhood
 ndvi_cover_all<-exactextractr::exact_extract(veg_g,buurt_sf,
@@ -367,11 +369,11 @@ buurt_sf$water_cover_all<-round(water_cover_all*100,1)
 
 if(crowns_trace==TRUE) {
 #mean ndvi per polygon element (crown)
-ndvi_crowns_avg<-exactextractr::exact_extract(ndvi,crowns_polygon,
+ndvi_crowns_avg<-exactextractr::exact_extract(ndvi,crowns,
                                        fun ='mean',
                                        force_df =FALSE)
 
-crowns_polygon$ndvi_avg<-round(ndvi_crowns_avg,1)
+crowns$ndvi_avg<-round(ndvi_crowns_avg,1)
 }
 }
 
@@ -379,7 +381,7 @@ crowns_polygon$ndvi_avg<-round(ndvi_crowns_avg,1)
 #-----------------------------------------------------------------------------------------------
 #indices tuinen
 
-message("calculate green coverage tuinen")
+message("\ncalculate green coverage tuinen")
 
 # Number of cells covered by the polygon (raster values are ignored)
 cells_cnt <- exactextractr::exact_extract(ndvi, tuinen_sf, function(values, coverage_fraction)
@@ -514,7 +516,7 @@ write.csv(buurt_garden_stats,file=paste(report.loc,"Buurt_tuinen_statistieken_",
 
 #-----------------------------------------------------------------------------------------------
 
-message("calculate green coverage panden on perceel with woonfunctie")
+message("\ncalculate green coverage panden on perceel with woonfunctie")
 
 #Mean value (NDVI) of cells that intersect the polygon, weighted by the percent of the cell that is covered.
 #mean ndvi per polygon element (panden)
@@ -580,7 +582,9 @@ write.csv(buurt_sf,file=paste(report.loc,"Buurt_vollediggebeid_statistieken_",ne
 
 #-----------------------------------------------------------------------------------------------
 
+if(plots_create==TRUE) {
 source(here::here('SRC/vegetation_plots.R'))
+}
 
 #-----------------------------------------------------------------------------------------------
 
