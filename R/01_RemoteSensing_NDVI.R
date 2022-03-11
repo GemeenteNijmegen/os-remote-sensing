@@ -38,8 +38,6 @@ source(here::here('SRC/image.R'))
 
 #assign bands (CIR)
 
-
-
 if(report_tuinen==TRUE) {
         #near-infrared band from aerial photo masked/clipped tuinen (which vegetation strongly reflects)
         nir <- ai_tuinen[[nir_seq]]

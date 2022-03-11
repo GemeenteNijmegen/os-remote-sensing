@@ -2,22 +2,6 @@
 
 This repository contains the code for detecting vegetation in private gardens within dutch neighbourhoods. Vegetation detection is based on Color-infrared (CIR) aerial photography and the NDVI vegetation metric. 
 
-The objective of this repository is to provide a base for spatial distribution analysis of urban green-grey-blue spaces. You may use it for developing custom made remote sensing applications. 
-
-This so-called Minimal Viable Product (MVP) is an 100-day experiment of the Expertise Group Data Science Dutch Municipalities and acts as a showcase. 
-
-Currently the application is a beta version.
-
-You may test it and use it under the condition that you provide the project with feedback, improvements or extension. See Creative Commons licence below. 
-
-## Normalized Difference Vegetation Index (NDVI)
-Spectral indices dedicated to vegetation analysis are developed based on the principle that the healthy vegetation reflects strongly in the near-infrared (NIR) spectrum, while absorbing strongly in the visible red.
-
-Normalized Difference Vegetation Index (NDVI) quantifies vegetation by measuring the difference between near-infrared and visible red light. It distinguishes vegetation from soil, minimizes topographic effects
-NDVI is chlorophyll sensitive, emphasizing the green color of a healthy plant.
-
-![NDVI](https://eo4geo.sbg.ac.at/IGIK/Sentinel2_Data_and_Vegetation_Indices/NDVI_trees.png)
-
 NDVI-ranges vegetation in this research: 
        -1 to -0.1: water
        -0.1 to 0.2: sand/stone
@@ -84,7 +68,7 @@ all metrics are stored in sheets in the REPORT directory.
 ## R
 R: Open de Rproj-file in the R-directory to start the environment. Define the neighbourhood code(s) and municipality name in the neighbourhood.xlsx file. 
 
-You may either use your own color infrared (CIR) aerial photo (must include infrared-band) or extract the area from the main  aerial photo of the Netherlands*. You may use tif or ecw as file-format. 
+You may either use your own color infrared (CIR) aerial photo (must include infrared-band) or extract the area from the main  aerial photo of the Netherlands*. You may use tif or ecw as file-format. Make sure the aerial photo covers the neighbourhoods.  
 
 Please verify and adjust settings in '00_init_batch_run.R'
  
@@ -119,7 +103,7 @@ https://gitlab.com/datasciencehub/remote-sensing/-/issues
 
 ## Contact
 For technical assistance and other questions, please contact
-Mark Gremmen, mark.gremmen@vng.nl (project, R language), or Stefan van der Hoorn, s.vanderhoorn@apeldoorn.nl (Python language)
+Mark Gremmen, mark.gremmen@vng.nl (project, R language).
 
 ## Expertise group data science
 This procedure is a joined effort of VNG, several dutch municipalities and public organisations: Amsterdam, Apeldoorn, Utrecht, Nijmegen, Omgevingsdienst Midden- en West Brabant, and GGD West Brabant

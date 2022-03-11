@@ -58,6 +58,8 @@ band_nms <- c("nir","red","green")
 #Amersfoort projection (28992)
 #https://www.spatialreference.org/ref/epsg/amersfoort-rd-new/
 crs_sp<-28992
+
+#projection
 crs_str<-paste0("EPSG:",crs_sp)
 
 #Report woonpercelen, or all percelen within buurt)
@@ -180,7 +182,7 @@ tree_trace <- TRUE
 
 #tree crowns and crown health
 #only makes sense when computing stats for entire buurt (report_tuinen<-FALSE) and tree_trace<-TRUE
-crowns_trace <- FALSE #FALSE (default)
+crowns_trace <- TRUE #FALSE (default)
 
 #tree crown statistics
 crown_stats <- FALSE

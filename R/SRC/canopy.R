@@ -49,16 +49,16 @@ if(crowns_trace==TRUE) {
   #crowns <- ForestTools::mcws(treetops = ttops, CHM = chm_5mveg, minHeight = 2, verbose = FALSE)
 
   #polygon version
-  crowns_polygon <- ForestTools::mcws(treetops = ttops, CHM = chm_5mveg, format = "polygons", minHeight = 2, verbose = FALSE)
+  crowns <- ForestTools::mcws(treetops = ttops, CHM = chm_5mveg, format = "polygons", minHeight = 2, verbose = FALSE)
 
 
   # Compute average crown diameter
-  crowns_polygon[["crownDiameter"]] <- sqrt(crowns_polygon[["crownArea"]]/ pi) * 2
+  #crowns[["crownDiameter"]] <- sqrt(crowns_polygon[["crownArea"]]/ pi) * 2
 
   # Mean crown diameter
-  mean(crowns_polygon$crownDiameter)
+  #mean(crowns$crownDiameter)
 
-  plot(crowns_polygon)
+  #plot(crowns)
 
   if(crown_stats==TRUE) {
   #ompute statistics of the trees’ attributes
@@ -66,15 +66,16 @@ if(crowns_trace==TRUE) {
   }
 
   #create sf object
-  crowns_polygon <- st_as_sf(crowns_polygon)
+  crowns <- st_as_sf(crowns)
   #write to polygon geopackage
-  sf::st_write(crowns_polygon, dsn=gpkg_vector, layer='crowns',layer_options = "OVERWRITE=YES",append=FALSE)
+  sf::st_write(crowns, dsn=gpkg_vector, layer='crowns',layer_options = "OVERWRITE=YES",append=FALSE)
 
   # Plot crowns
   cols_rainbow<- sample(rainbow(50), length(unique(crowns[])), replace = TRUE)
   plotting_base(ai_buurt,crowns, "tree crowns", "rs_crown_tops",NULL,NULL,cols_rainbow)
 
   }
+
 
 
 #-----------------------------------------------------------------------------------------------
@@ -86,7 +87,7 @@ if(crowns_trace==TRUE) {
 
 if(ahn_points==TRUE) {
 
-gc()
+
 
 #use all threads for lidR
 #Default value 0 means to utilize all CPU available (you'll need it!)
@@ -150,3 +151,6 @@ plot(last, color = "treeID", colorPalette = col)
 
 
 }
+
+#garbage collection
+gc()

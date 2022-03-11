@@ -135,6 +135,9 @@ plotting_gg(tuinen_sf, "water_cover", "water cover (%)", "rs_water_cover_tuinen"
 plotting_gg(tuinen_sf, "stone_cover", "stone cover (%)", "rs_stone_cover_tuinen", "inferno", coord_tuinen )
 plotting_gg(panden_sf, "green_cover", "green cover (%)", "rs_green_cover_woningen", "viridis", coord_panden )
 
+#buurt
+#plotting_gg_clean(buurt_sf, "green_cover_all", "green cover (%)", "rs_green_cover_buurt", "viridis")
+
 #NDVI of crowns
 if(crowns_trace==TRUE) {
 plotting_gg_clean(crowns_polygon, "ndvi_avg", "mean NDVI", "rs_ndvi_mean_crowns", "turbo")
@@ -144,10 +147,10 @@ plotting_gg_clean(crowns_polygon, "ndvi_avg", "mean NDVI", "rs_ndvi_mean_crowns"
 #-----------------------------------------------------------------------------------------------------------
 
 #NDVI distribution
-png(paste0(plots.loc,"rs_ndvi_density_distribution_",neighbourhood,".png"))
-mplot_p1<-rasterVis::densityplot(ndvi)
-print(mplot_p1)
-dev.off()
+#png(paste0(plots.loc,"rs_ndvi_density_distribution_",neighbourhood,".png"))
+#mplot_p1<-rasterVis::densityplot(ndvi)
+#print(mplot_p1)
+#dev.off()
 
 #lattice-style levelplot NDVI
 png(paste0(plots.loc,"rs_ndvi_levelplot_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
@@ -162,9 +165,12 @@ plotting_gg_dist(tuinen_sf, "ndvi_avg", "NDVI", "rs_gardens_distribution_ndvi",0
 #distribution of crowns over NDVI
 plotting_gg_dist(crowns_polygon, "ndvi_avg", "NDVI", "rs_crowns_distribution_ndvi",0.08)
 
+if(report_tuinen==TRUE) {
 #distribution of gardens over vegetation coverage
 plotting_gg_dist(tuinen_sf, "green_cover", "% vegetation cover tuinen on woonperceel", "rs_gardens_distribution_vegetation_coverage",20)
-
+} else {
+plotting_gg_dist(buurt_sf, "green_cover", "% vegetation buert", "rs_buurt_distribution_vegetation_coverage",20)
+}
 #distribution of woningen over vegetation coverage
 plotting_gg_dist(panden_sf, "green_cover", "% vegetation cover panden on woonperceel", "rs_woningen_distribution_vegetation_coverage", 20)
 
@@ -183,8 +189,10 @@ cols_ahn<-rev(hcl.colors(20, "YlOrRd"))
 #ahn buurt
 plotting_terra(ai_buurt,ahn_buurt,"AHN buurt (m)","rs_ahn_buurt",NULL,NULL,cols_ahn,alpha)
 
+if(report_tuinen==TRUE) {
 #ahn tuinen
 plotting_terra(ai_buurt,ahn_tuinen,"AHN tuinen (m)","rs_ahn_tuinen",NULL,NULL,cols_ahn,alpha)
+}
 
 #-----------------------------------------------------------------------------------------------------------
 
