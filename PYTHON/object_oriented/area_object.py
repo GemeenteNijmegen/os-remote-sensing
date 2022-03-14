@@ -2,6 +2,7 @@
 import os
 
 import geopandas as gpd
+import matplotlib.pyplot as plt
 import numpy as np
 from osgeo import gdal
 from rasterio import Affine
@@ -45,11 +46,6 @@ class Buurt:
         if not os.path.exists(self.output_directory):
             os.makedirs(self.output_directory)
 
-        # load dotenv for the username and password
-        # see the file ".env_example" on how to store the WEBDAV username and password in a
-        # ".env" file. Make sure the ".env" file is excluded from versioning.
-        load_dotenv()
-
     def get_boundaries(self):
         """
         :return: returns geometric boundary of the buurt
@@ -66,8 +62,13 @@ class Buurt:
             filename = os.path.join(self.output_directory, "raw_" + self.buurtcode + ".tif")
             if not os.path.exists(filename):
                 # Download using api
-                # The username and password are stored in the ".env" file. See ".env_example" for
-                # how to do so.
+
+                # load dotenv for the username and password
+                load_dotenv()
+
+                # The username and password are stored in the ".env" file. See the file
+                # ".env_example" on how to store the WEBDAV username and password in a
+                # ".env" file. Make sure the ".env" file is excluded from versioning.
                 options = {
                     'webdav_hostname': "https://datasciencevng.nl/remote.php/webdav/",
                     'webdav_login': os.getenv("WEBDAV_USERNAME"),
@@ -104,7 +105,8 @@ class Buurt:
         ndvi = np.divide(
             nir-red,
             nir+red,
-            out=np.zeros_like(nir+red, dtype=float),
+            # out=np.zeros_like(nir+red, dtype=float),
+            out=np.full_like(nir+red, fill_value=np.nan, dtype=float),
             where=(nir+red) != 0
         )
 
@@ -138,3 +140,22 @@ class Buurt:
         )
 
         return zs
+
+    def save_ndvi_image(self):
+        """
+        Saves NDVI image
+        :return:
+        """
+        fig, ax = plt.subplots(1, 1)
+        pos = ax.imshow(self.get_NDVI(), cmap="summer_r")
+        ax.set_title("NDVI {}".format(self.buurtcode))
+        ax.set_axis_off()
+
+        # add the colorbar using the figure's method,
+        # telling which mappable we're talking about and
+        # which axes object it should be near
+        fig.colorbar(pos, ax=ax)
+        plt.savefig(os.path.join(self.output_directory, "ndvi_" + self.buurtcode + ".tif"))
+
+        # close current figure
+        plt.close()
