@@ -35,8 +35,8 @@ url$query <- list(SERVICE = "WCS",
                   CRS = "EPSG:28992",
                   BBOX = bbox,
                   FORMAT="GEOTIFF_FLOAT32",
-                  WIDTH=701.765000000014, #why?
-                  HEIGHT=604.097200000077 #why?
+                  WIDTH=880.906,
+                  HEIGHT=716.5
                   )
 request <- build_url(url);request
 ahn_dsm_raster <- as(stars::read_stars(request), "Raster")
@@ -52,8 +52,8 @@ url$query <- list(SERVICE = "WCS",
                   CRS = "EPSG:28992",
                   BBOX = bbox,
                   FORMAT="GEOTIFF_FLOAT32",
-                  WIDTH=701.765000000014, #why?
-                  HEIGHT=604.097200000077 #why?
+                  WIDTH=880.9064,
+                  HEIGHT=716.5
 )
 request <- build_url(url);request
 ahn_dtm_raster <- as(stars::read_stars(request), "Raster")

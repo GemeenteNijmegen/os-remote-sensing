@@ -12,28 +12,28 @@
 
 #-----------------------------------------------------------------------------------------------
 
-#
-reclass_chm <- c(-Inf, 5, NA,
-                  40,Inf, NA)
+#reclassify tree range
+reclass_chm <- c(-Inf, tree_lb, NA,
+                  tree_up,Inf, NA)
 
 reclass_chm_m <- matrix(reclass_chm,
                     ncol = 3,
                     byrow = TRUE)
 
-chm_5m <- class_func(ahn_buurt,reclass_chm_m)
+chm_m <- class_func(ahn_buurt,reclass_chm_m)
 
-raster::crs(chm_5m) <- raster::crs(percelen_sf)
+raster::crs(chm_m) <- raster::crs(percelen_sf)
 
 #canopy height model (chm) : vegetation within 5-40m
-chm_5mveg <- veg_g * chm_5m
+chm_mveg <- veg_g * chm_m
 
-rm(chm_5m)
+rm(chm_m)
 
 if(tree_trace==TRUE) {
 #detect trees
 
 #sp class
-ttops <- lidR::find_trees(chm_5mveg, lmf(ws=7))
+ttops <- lidR::find_trees(chm_mveg, lmf(ws=7))
 
 #number of trees
 trees_n<-max(ttops$treeID)
@@ -48,11 +48,11 @@ if(crowns_trace==TRUE) {
   #canopy segmentation
   #tree tops are located above 5m, tree crowns above 2m
   #defaults to raster
-  #crowns <- ForestTools::mcws(treetops = ttops, CHM = chm_5mveg, minHeight = 2, verbose = FALSE)
+  #crowns <- ForestTools::mcws(treetops = ttops, CHM = chm_mveg, minHeight = 2, verbose = FALSE)
   message("\ncrown detection\n")
 
   #polygon version
-  crowns <- ForestTools::mcws(treetops = ttops, CHM = chm_5mveg, format = "polygons", minHeight = 2, verbose = FALSE)
+  crowns <- ForestTools::mcws(treetops = ttops, CHM = chm_mveg, format = "polygons", minHeight = crown_lb, verbose = FALSE)
 
   if(crown_stats==TRUE) {
   #ompute statistics of the trees’ attributes
@@ -61,12 +61,7 @@ if(crowns_trace==TRUE) {
 
   #create sf object
   crowns <- st_as_sf(crowns)
-  #write to vector geopackage
-  sf::st_write(crowns, dsn=gpkg_vector, layer='crowns',layer_options = "OVERWRITE=YES",append=FALSE)
 
-  # Plot crowns
-  cols_rainbow<- sample(rainbow(50), length(unique(crowns[])), replace = TRUE)
-  plotting_base(ai_buurt,crowns, "tree crowns", "rs_crown_tops",NULL,NULL,cols_rainbow)
 
   }
 
@@ -98,8 +93,8 @@ if(length(ahn.pc.rdy) == 0) {
 rAHNextract::ahn_pc(name = "BBOX pc", bbox = c(xmin, ymin, xmax, ymax), AHN = "AHN2", gefilterd = TRUE)
 }
 
-#filter height within 5 to 20m
-las <- lidR::readLAS(las.loc,select = "xyzr", filter = "-keep_first -drop_z_below 5 -drop_z_above 20")
+#filter height within 5 to 40m
+las <- lidR::readLAS(las.loc,select = "xyzr", filter = "-keep_first -drop_z_below 5 -drop_z_above 40")
 #las_check(las)
 #plot(las)
 

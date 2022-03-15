@@ -12,7 +12,6 @@ NDVI-range 'verstening'
 #-----------------------------------------------------------------------------------------------
 #NDVI patches
 
-
 garden_surface_sum (tuinen)	
 totaal areaal tuin (m2)
 
@@ -77,10 +76,16 @@ pd (buurt)
 patch density
 
 #-----------------------------------------------------------------------------------------------
-#tree crowns
+#crowns
 
-trees_n 
-Number of trees
+Z
+hoogte boom (m)
 
-ndvi_avg
-gemiddelde NDVI waarde boomkroon
+crownArea
+oppervlakte kroon (m2)
+
+treeID
+number of trees 
+
+ndvi_avg (crown)           
+gemiddelde NDVI waarde kroon

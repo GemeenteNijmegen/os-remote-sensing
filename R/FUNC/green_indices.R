@@ -4,6 +4,8 @@
 
 #-----------------------------------------------------------------------------------------------
 
+##Normalized Difference Vegetation Index (NDVI) quantifies vegetation by measuring the difference
+#between near-infrared (which vegetation strongly reflects) and red light (which vegetation absorbs).
 #NDVI indicates amount of vegetation, distinguishes vegetation from soil, minimizes topographic effects
 #NDVI is chlorophyll sensitive, emphasizing the green color of a healthy plant.
 #NDVI is slightly distorted by factors including shadowing, air moisture, and variations in the soil

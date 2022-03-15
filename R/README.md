@@ -1,22 +1,12 @@
 # Remote Sensing of green (private) urban spaces
 
-This repository contains the code for detecting vegetation in private gardens within dutch neighbourhoods. Vegetation detection is based on Color-infrared (CIR) aerial photography and the NDVI vegetation metric. 
-
-NDVI-ranges vegetation in this research: 
-       -1 to -0.1: water
-       -0.1 to 0.2: sand/stone
-       0.2 to 0.3: grasses, weed
-       0.3 to 0.5: low to medium vegetation (substantial vegetation)
-       0.5 to 1: intensive vegetation, high vegetation, trees
+This repository contains the R-code for detecting vegetation in neighbourhoods and private gardens. Vegetation detection is based on Color-infrared (CIR) aerial photography and the NDVI vegetation metric. 
 
 ## Open Data 
 The procedure generates insights based on open data:
 - PDOK, nationaalgeoregister.nl (vector data)
 - Aerial photo, opendata.beeldmateriaal.nl (raster data)
 - Actueel Hoogtebestand Nederland (AHN) (raster data) 
-
-## Open Source
-The procedure is available in both Python and R programming language. 
 
 ## Methodology
 More information is available in the [presentation slides](https://datasciencevng.nl/s/fp97uFYyVmACYZuB)
@@ -25,23 +15,22 @@ More information is available in the [presentation slides](https://datasciencevn
 
 ```
 ├── LICENSE
-├── DESCRIPTION
-├── README.md         					<- README
+├── README.md         				 <- README
 ├── R
 	│
-	├── 00_init_batch_run.R  	 		<- run procedure
+	├── 00_init_batch_run.R  	 	 <- run procedure
 	│
-	├── 01_RemoteSensing_NDVI      		<- main procedure
+	├── 01_RemoteSensing_NDVI    <- main procedure
 	│
-	├── AI				  				<- input (aerial image)
+	├── AI				  			<- input (aerial image)
 	│
-	├── DATA			  				<- output (TIFF, geopackages)
+	├── DATA			  			<- output (TIFF, geopackages)
 	│
-	├── REPORT            				<- output (metrics)
+	├── REPORT            <- output (metrics)
 	│
-	├── PLOTS             				<- output (visualisations) 
+	├── PLOTS             <- output (visualisations) 
 	│	
-	├── SRC               				<- dedicated procedures
+	├── SRC               <- dedicated procedures
 	│
 	├── FUNC 							<- functions
 	│
@@ -55,18 +44,16 @@ Geopackages:
 The R procedure result in geopackage (gpkg) files with multiples layers containing the results of the analysis. The geopackages can be deployed in QGIS or similar (commercial) GIS-software. 
 
 Plots:
-Green Indices: NDVI TNDVI, RVI, MSAVI2, EVI2
+Green Indices: NDVI TNDVI, RVI, MSAVI2, EVI2 
 Calculations: unsupervised classification of NDVI, principal component analysis of aerial photo, canopy height model, tree tops, tree crowns, tree health
 
 Metrics:
-see: metrics_definition.txt
+see: metrics_definition.txt 
 all metrics are stored in sheets in the REPORT directory.
 
 
 ## Instructions
-
-## R
-R: Open de Rproj-file in the R-directory to start the environment. Define the neighbourhood code(s) and municipality name in the neighbourhood.xlsx file. 
+Open de Rproj-file in the R-directory to start the environment. Define the neighbourhood code(s) and municipality name in the neighbourhood.xlsx file. 
 
 You may either use your own color infrared (CIR) aerial photo (must include infrared-band) or extract the area from the main  aerial photo of the Netherlands*. You may use tif or ecw as file-format. Make sure the aerial photo covers the neighbourhoods.  
 
@@ -80,7 +67,7 @@ Output is served to DATA-directory (geopackages), PLOTS-directory (images) and R
 https://datasciencevng.nl/s/ztnYabpulASJakHR (119GB), photo 2020 (early summer)
 
 ## Requirements
-Hardware : CPU I7 (or similar processor), minimal 16GB RAM 
+Hardware : CPU I7 (or similar processor), minimal 16GB RAM (32GB for larger areas like municipalities)
 
 QGIS
 https://www.qgis.org/en/

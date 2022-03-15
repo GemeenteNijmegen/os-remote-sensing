@@ -375,6 +375,13 @@ ndvi_crowns_avg<-exactextractr::exact_extract(ndvi,crowns,
                                        force_df =FALSE)
 
 crowns$ndvi_avg<-round(ndvi_crowns_avg,1)
+
+
+#write to vector geopackage
+sf::st_write(crowns, dsn=gpkg_vector, layer='crowns',layer_options = "OVERWRITE=YES",append=FALSE)
+
+write.csv(crowns,file=paste(report.loc,"Crown_statistieken_",neighbourhood,".csv"))
+
 }
 }
 

@@ -16,10 +16,6 @@
 
 #-----------------------------------------------------------------------------------------------
 
-#set working directory
-#setwd("") #default (de-activated)
-#getwd()
-
 #Run in project environment (to avoid package conflicts)
 proj_env <- FALSE #default (F)
 
@@ -81,6 +77,12 @@ plots_create<-TRUE
 # Normalized difference vegetation index (NDVI)
 
 #-----------------------------------------------------------------------------------------------
+
+##Normalized Difference Vegetation Index (NDVI) quantifies vegetation by measuring the difference
+#between near-infrared (which vegetation strongly reflects) and red light (which vegetation absorbs).
+#NDVI indicates amount of vegetation, distinguishes vegetation from soil, minimizes topographic effects
+#NDVI is chlorophyll sensitive, emphasizing the green color of a healthy plant.
+#NDVI is slightly distorted by factors including shadowing, air moisture, and variations in the soil
 
 #metrics (area, coverage) are calculated based on NDVI
 
@@ -178,12 +180,25 @@ ngr_source <- FALSE #FALSE (default), is faster
 ahn_points <- FALSE #FALSE (default), TRUE for canopy height based on points cloud
 #please note that this takes quite some time....
 
+#-----------------------------------------------------------------------------------------------
+
+#Trees and crowns
+
+#-----------------------------------------------------------------------------------------------
+
 #tree tops
 tree_trace <- TRUE
 
+#tree lower and upper bound (m)
+tree_lb<-5
+tree_up<-50
+
 #tree crowns and crown health
 #only makes sense when computing stats for entire buurt (report_tuinen<-FALSE and tree_trace<-TRUE)
-crowns_trace <- FALSE #FALSE (default)
+crowns_trace <- TRUE #FALSE (default)
+
+#crown lower bound
+crown_lb<-2
 
 #tree crown statistics
 crown_stats <- FALSE
