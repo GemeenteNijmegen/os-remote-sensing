@@ -1,6 +1,6 @@
 # Remote Sensing of green (private) urban spaces
 
-This repository contains the R-code for detecting vegetation in neighbourhoods and private gardens. Vegetation detection is based on Color-infrared (CIR) aerial photography and the NDVI vegetation metric. 
+This repository contains the R-code for detecting vegetation, trees and tree crowns in neighbourhoods and private gardens. Vegetation detection is based on Color-infrared (CIR) aerial imagery and the NDVI vegetation metric. Individual tree-crown delineation and treetop detection is supported by airborne LiDAR data.
 
 ## Open Data 
 The procedure generates insights based on open data:
@@ -51,6 +51,8 @@ Metrics:
 see: metrics_definition.txt 
 all metrics are stored in sheets in the REPORT directory.
 
+![vegetation represented by NDVI](DOCS/rs_ndvi_BU15810004.png)
+![Tree crown deliniation and crown health](DOCS/rs_ndvi_mean_crowns_BU15810004.png)
 
 ## Instructions
 Open de Rproj-file in the R-directory to start the environment. Define the neighbourhood code(s) and municipality name in the neighbourhood.xlsx file. 
@@ -93,7 +95,7 @@ For technical assistance and other questions, please contact
 Mark Gremmen, mark.gremmen@vng.nl (project, R language).
 
 ## Expertise group data science
-This procedure is a joined effort of VNG, several dutch municipalities and public organisations: Amsterdam, Apeldoorn, Utrecht, Nijmegen, Omgevingsdienst Midden- en West Brabant, and GGD West Brabant
+This procedure is a joined effort of VNG, several dutch municipalities and public organisations, including: Amsterdam, Apeldoorn, Utrecht, Omgevingsdienst Midden- en West Brabant, and GGD West Brabant
 
 ## Licence
 <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons-Licentie" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br />Dit werk valt onder een <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Naamsvermelding-NietCommercieel-GelijkDelen 4.0 Internationaal-licentie</a>.

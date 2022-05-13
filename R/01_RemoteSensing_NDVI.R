@@ -1,12 +1,12 @@
 
 #-----------------------------------------------------------------------------------------------
 
-# Remote Sensing: Green private urban spaces
+# Main procedure
 
 #-----------------------------------------------------------------------------------------------
 
 # date created: 2021-05-11
-# date modified: 2022-03-08
+# date modified: 2022-05-13
 
 #-----------------------------------------------------------------------------------------------
 
@@ -49,7 +49,6 @@ if(report_tuinen==TRUE) {
         #red light from aerial photo masked/clipped buurt (which vegetation absorbs)
         red <- ai_buurt[[red_seq]]
 }
-
 
 plotting_gg_dist <- function(input, xx, lab_nme, file_slug, bin_width) {
 
@@ -133,7 +132,6 @@ reclass_binary_m <- matrix(reclass_binary,
                            byrow = TRUE)
 
 veg_g <- class_func(ndvi,reclass_binary_m)
-
 
 #contour lines vegetation
 veg_contour <- raster::rasterToContour(veg_g)
@@ -261,13 +259,11 @@ message("\napply Actueel Hoogtebestand Nederland (AHN)")
 
 source(here::here('SRC/ahn.R'))
 
-
 #-----------------------------------------------------------------------------------------------
 
 # Garden above xmeter
 
 #-----------------------------------------------------------------------------------------------
-
 
 
 #height 3m and above
@@ -305,7 +301,6 @@ raster::crs(veg_t5) <- raster::crs(percelen_sf)
 rm(reclass_binary, reclass_binary_m)
 
 }
-
 
 #-----------------------------------------------------------------------------------------------
 
@@ -385,7 +380,6 @@ write.csv(crowns,file=paste(report.loc,"Crown_statistieken_",neighbourhood,".csv
 }
 }
 
-
 #-----------------------------------------------------------------------------------------------
 #indices tuinen
 
@@ -448,7 +442,6 @@ water_cover<-exactextractr::exact_extract(water_d,tuinen_sf,
                                           force_df =FALSE)
 
 tuinen_sf$water_cover<-round(water_cover*100,1)
-
 
 #-----------------------------------------------------------------------------------------------
 

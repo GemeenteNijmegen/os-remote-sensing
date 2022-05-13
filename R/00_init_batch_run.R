@@ -1,7 +1,7 @@
 
 #-----------------------------------------------------------------------------------------------
 
-# Remote Sensing of green (private) urban spaces
+# Remote Sensing of green (private) urban spaces of neigbourhoods in the Netherlands
 
 #-----------------------------------------------------------------------------------------------
 
@@ -35,7 +35,7 @@ source(here::here('FUNC/green_indices.R'))
 #make aerial photo available in AI-directory
 tiff.as.source <- TRUE #default (T)
 
-#year of the aerial photo and polygons
+#year of the aerial photo
 yr<-2020
 
 #position of near-infrared (NIR) and Red bands in Color-infrared (CIR) photo
@@ -108,7 +108,6 @@ rvi_calc <- FALSE #default (F)
 #It has always positive values and the variances of the ratio are proportional to mean values
 
 #TNDVI = sqrt((NIR–R/NIR+R) +0.5)
-
 tndvi_calc <- FALSE #default (F)
 
 #-----------------------------------------------------------------------------------------------
@@ -121,7 +120,6 @@ tndvi_calc <- FALSE #default (F)
 #on the SAVI.
 
 #MSAVI2 = (0.5)*(2*(NIR + 1) - sqrt((2*NIR + 1)2 - 8*(NIR–R)))
-
 msavi2_calc <- FALSE #default (F)
 
 #-----------------------------------------------------------------------------------------------
@@ -134,8 +132,7 @@ msavi2_calc <- FALSE #default (F)
 #for vegetation with different background soil reflectance
 
 #EVI2 = 2.5 * ( NIR - RED) / ( NIR + 2.4 * RED + 1.0 ).
-
-evi2_calc <- FALSE #default (T)
+evi2_calc <- FALSE #default (F)
 
 #-----------------------------------------------------------------------------------------------
 
@@ -190,18 +187,15 @@ ahn_points <- FALSE #FALSE (default), TRUE for canopy height based on points clo
 tree_trace <- TRUE
 
 #tree lower and upper bound (m)
-tree_lb<-5
-tree_up<-50
+tree_lb<-5 #lower bound
+tree_up<-50 #upper bound
 
 #tree crowns and crown health
 #only makes sense when computing stats for entire buurt (report_tuinen<-FALSE and tree_trace<-TRUE)
 crowns_trace <- TRUE #FALSE (default)
 
 #crown lower bound
-crown_lb<-2
-
-#tree crown statistics
-crown_stats <- FALSE
+crown_lb<-2 #lower bound
 
 #-----------------------------------------------------------------------------------------------
 

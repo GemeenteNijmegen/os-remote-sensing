@@ -98,7 +98,7 @@ lapply(locations, function(x) {
 })
 
 #clear plots and data directory
-clear_locations <- c(plots.loc,data.loc, report.loc)
+clear_locations <- c(plots.loc,data.loc,report.loc)
 
 # get all files in the directories, recursively
 f <- list.files(clear_locations, include.dirs = F, full.names = T, recursive = T)
@@ -123,8 +123,7 @@ aspect_ratio <- 1
 dpi <- 180 #retina(320)
 sub_title<-''
 
-
-#store Stack credentials here and remove below
+#store Stack credentials here and remove lines below
 #file.edit(file.path("~", ".Rprofile"))
 
 #webdav Transip Stack credentials (public directory)
