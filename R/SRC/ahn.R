@@ -121,10 +121,12 @@ ahn_panden %>% #RasterLayer
 
 #-----------------------------------------------------------------------------------------------
 
-#Crowns and tree tops
+#Tree tops, crown delineation
 
 #-----------------------------------------------------------------------------------------------
 
+if(tree_trace==TRUE) {
 source(here::here('SRC/canopy.R'))
+}
 
 #rm(ai_buurt)

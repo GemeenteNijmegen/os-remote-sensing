@@ -70,6 +70,8 @@ packages <- c(
   'gdalUtils',
   #Interface to Geometry Engine
   'rgeos',
+  #interface to the PROJ.4 cartographic projections library
+  #'proj4',
   #bindings to liblwgeom functions for sf
   'lwgeom',
   #Fast Extraction from Raster Datasets using Polygons
