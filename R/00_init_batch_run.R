@@ -143,7 +143,7 @@ evi2_calc <- FALSE #default (T)
 
 #-----------------------------------------------------------------------------------------------
 
-unsup_cl <- FALSE #default (T)
+unsup_cl <- TRUE #default (T)
 
 #number of clusters
 k <- 5

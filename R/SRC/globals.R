@@ -134,7 +134,9 @@ webdav_password <- "VNGRS2021!"
 
 #Maximum number of cells to read into memory.
 #default value of maxmemory is 5e+09 (4.66GB)
-rasterOptions(maxmemory = 6e+09)
+#rasterOptions()
+rasterOptions(maxmemory = 7e+09,chunksize=2e+08,memfrac=0.7)
+terraOptions(memfrac=0.7,memmax = 7e+09)
 
 #location for temporary raster file (drive with big storage)
 #raster::rasterOptions(tmpdir = "path/to/drive/with/space")
