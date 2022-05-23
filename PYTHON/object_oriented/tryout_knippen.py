@@ -6,23 +6,27 @@ import json
 import rasterio
 from osgeo import gdal
 
+# Docker can access local files: https://stackoverflow.com/questions/44876778/how-can-i-use-a-local-file-on-container
+# gdalwarp -cutline [clipfile] -crop_to_cutline [infile] [outfile]
+
+
 # maak een buurt aan
-buurt = area_object.Buurt("BU07721110")
+#buurt = area_object.Buurt("BU07721110")
 
 # haal de grenzen op
-buurtgrens = buurt.get_boundaries()
+#buurtgrens = buurt.get_boundaries()
 
 # zet om naar json
-json_buurtgrens = json.loads(buurtgrens.to_json())["features"][0]["geometry"]
+#json_buurtgrens = json.loads(buurtgrens.to_json())["features"][0]["geometry"]
 
 # definieer pad naar grote luchtfoto (gemapt)
 huge_aerial_image_path = os.path.join("Z:", "Data", "raw", "2020_LR_CIR_totaalmozaiek_v2_clip.ecw")
 print("Path to raw aerial image exists: {}".format(os.path.exists(huge_aerial_image_path)))
 
 # knip de buurt uit de grote luchtfoto
-with rasterio.open(huge_aerial_image_path) as src:
-    out_image, out_transform = rasterio.mask.mask(src, json_buurtgrens, crop=True)
-    out_meta = src.meta
+#with rasterio.open(huge_aerial_image_path) as src:
+#    out_image, out_transform = rasterio.mask.mask(src, json_buurtgrens, crop=True)
+#    out_meta = src.meta
 
 # sla de buurt op
 

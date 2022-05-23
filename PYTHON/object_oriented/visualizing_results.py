@@ -43,7 +43,7 @@ if __name__ == "__main__":
         cbsodata.get_data(
             '84799NED',
             filters="substringof('BU', WijkenEnBuurten)",
-            select=['WijkenEnBuurten', 'Codering_3', 'GemiddeldeWOZWaardeVanWoningen_35', 'OpleidingsniveauHoog_66', 'GemGestandaardiseerdInkomenVanHuish_75', 'Omgevingsadressendichtheid_116'])
+            select=['WijkenEnBuurten', 'Gemeentenaam_1', 'Codering_3', 'GemiddeldeWOZWaardeVanWoningen_35', 'OpleidingsniveauHoog_66', 'GemGestandaardiseerdInkomenVanHuish_75', 'Omgevingsadressendichtheid_116'])
     )
 
     df = df.merge(
@@ -52,6 +52,9 @@ if __name__ == "__main__":
         right_on="Codering_3",
         how="left"
     )
+
+    # temporary save of the merged dataframe
+    df.to_csv(os.path.join("..", "..", "output", "temp_out.csv"), index=False)
 
     # create plots
     for col in ["intense vegetation", "substantial vegetation"]:
