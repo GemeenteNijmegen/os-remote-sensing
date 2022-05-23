@@ -9,7 +9,8 @@ Voor het knippen van de grote luchtfoto:
 
 2. Plaats de foto op de harde schijf. Dit kan de C-schijf zijn, maar ook een externe harde schijf.
    Deze schijf heeft de volgende directory structuur:
-
+    
+    │
     ├───data                            <- Plek waar de shape files en resultaten worden opgeslagen
     │   │
     │   ├───buurt.cpg
