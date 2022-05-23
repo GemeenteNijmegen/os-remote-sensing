@@ -7,19 +7,20 @@ Voor het knippen van de grote luchtfoto:
     Je hoeft niet in te loggen.
     Het downloaden kan wel 10 uur duren.
 
-   1. Plaats de foto op de harde schijf. Dit kan de C-schijf zijn, maar ook een externe harde schijf.
-      Deze schijf heeft de volgende directory structuur
-       ├───data                            <- Plek waar de shape files en resultaten worden opgeslagen
-       │   │
-       │   ├───buurt.cpg
-       │   ├───buurt.dbf
-       │   ├───buurt.prj
-       │   ├───buurt.shp
-       │   └───buurt.shx
-       │
-       └───RemoteSensing
-           │
-           └───2020_LR_CIR_totaalmozaiek_v2_clip.ecw   <- grote luchtfoto
+2. Plaats de foto op de harde schijf. Dit kan de C-schijf zijn, maar ook een externe harde schijf.
+   Deze schijf heeft de volgende directory structuur:
+
+    ├───data                            <- Plek waar de shape files en resultaten worden opgeslagen
+    │   │
+    │   ├───buurt.cpg
+    │   ├───buurt.dbf
+    │   ├───buurt.prj
+    │   ├───buurt.shp
+    │   └───buurt.shx
+    │
+    └───RemoteSensing
+        │
+        └───2020_LR_CIR_totaalmozaiek_v2_clip.ecw   <- grote luchtfoto
 
 
 3. Indien het een externe harde schijf is, zorg dat deze ingeplugd is bij het opstarten van de
