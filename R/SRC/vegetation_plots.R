@@ -153,11 +153,10 @@ plotting_gg_clean(crowns, "ndvi_avg", "mean NDVI", "rs_ndvi_mean_crowns", "turbo
 #dev.off()
 
 #lattice-style levelplot NDVI
-png(paste0(plots.loc,"rs_ndvi_levelplot_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
-mplot_p2<-rasterVis::levelplot(ndvi)
-#+ latticeExtra::layer(sp.polygons(percelen_sf, col="white", lwd=0.2))
-print(mplot_p2)
-dev.off()
+#png(paste0(plots.loc,"rs_ndvi_levelplot_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
+#mplot_p2<-rasterVis::levelplot(ndvi)
+#print(mplot_p2)
+#dev.off()
 
 #distribution of gardens over NDVI
 plotting_gg_dist(tuinen_sf, "ndvi_avg", "NDVI", "rs_tuinen_distribution_ndvi",0.08)

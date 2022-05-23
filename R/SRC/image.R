@@ -5,7 +5,7 @@
 
 #-----------------------------------------------------------------------------------------------
 
-#we assume you use your own color-infrared (CIR) aerial photography
+#we assume you use your own color-infrared (CIR) aerial photography / airborne imagery
 
 #Alternatively, this location provides ECW-format aerial image for The Netherlands:
 #https://datasciencevng.nl/s/ztnYabpulASJakHR
@@ -33,12 +33,11 @@ if(tiff.as.source==TRUE & tiff.rdy==FALSE) {
 input.tif <- paste0(ai.dir,"/",neighbourhood,".tif")
 
 if(length(input.tif) != 0) {
-#message("extract CIR aerial photo in TIF-format from AI directory")
 #move to output folder
 file.copy(from = input.tif,
           to   = output)
 
-#reset status
+#verify
 tiff.rdy <- file.exists(output)
 }
 

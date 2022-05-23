@@ -132,10 +132,10 @@ webdav_login <- "remotesensing"
 webdav_password <- "VNGRS2021!"
 
 #Maximum number of cells to read into memory.
-#default value of maxmemory is 5e+09 (4.66GB)
+#default value of maxmemory is 5e+09 (4.66GB), memfrac is 0.6
 #rasterOptions()
-rasterOptions(maxmemory = 7e+09,chunksize=2e+08,memfrac=0.7)
-terraOptions(memfrac=0.7,memmax = 7e+09)
+rasterOptions(maxmemory = 7e+09,chunksize=2e+08,memfrac=0.65)
+terraOptions(memfrac=0.65,memmax = 7e+09)
 
 #location for temporary raster file (drive with big storage)
 #raster::rasterOptions(tmpdir = "path/to/drive/with/space")

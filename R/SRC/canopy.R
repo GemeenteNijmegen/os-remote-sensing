@@ -118,11 +118,36 @@ if(crowns_trace==TRUE) {
   #tree tops are located above 5m, tree crowns above 2m
   #defaults to raster
 
-  #polygon version
-  crowns <- ForestTools::mcws(treetops = ttops, CHM = chm_mveg, format = "polygons", minHeight = crown_lb, verbose = FALSE)
+  #polygons
+  #slow, results in memory leaks
+  #crowns <- ForestTools::mcws(treetops = ttops, CHM = chm_mveg, format = "polygons", minHeight = crown_lb, verbose = FALSE)
 
   #create sf object
-  crowns <- st_as_sf(crowns)
+  #crowns <- st_as_sf(crowns)
+
+
+#--------------------------------------------------------
+#Alternative (faster) method for vectorizing crowns
+
+  ttops_sf <- st_as_sf(ttops)
+
+  crwn_rst <- mcws(treetops=ttops, CHM = chm_mveg, format = "raster")
+
+  ## Convert crwn_rst from raster to SpatRaster (from terra package)
+  crwn_spatrst <- as(crwn_rst, "SpatRaster")
+
+  ## Convert the raster zones to polygons (uses GDAL, fast)
+  crwn_spatvec <- terra::as.polygons(crwn_spatrst)
+
+  ## Convert SpatVec object to sf (via export to Shapefile)
+  tmp_fn <- tempfile(fileext = ".shp")
+  terra::writeVector(crwn_spatvec, tmp_fn)
+  crwn_sf <- sf::st_read(tmp_fn)
+
+  ## Add crown area and treetop height to the attribute table
+  crowns <- crwn_sf %>%
+    dplyr::mutate(area = st_area(crwn_sf)) %>%
+    sf::st_join(ttops_sf, join = st_intersects)
 }
 
 #garbage collection
