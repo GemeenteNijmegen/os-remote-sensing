@@ -151,8 +151,4 @@ sf::sf_extSoftVersion()["lwgeom"]
 #review packages loaded (store active-packages set-up)
 sessionInfo() %>% capture.output(file="session_info.txt")
 
-#shut-up RGDAL
-options("rgdal_show_exportToProj4_warnings"="none")
 
-#prevents an auxiliary file being written next to *.gpkg
-Sys.setenv(GDAL_PAM_ENABLED = "NO")

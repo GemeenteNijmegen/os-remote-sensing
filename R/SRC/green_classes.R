@@ -65,7 +65,6 @@ plot.nme = paste0('NDVI_cluster_boundaries_unsupervised.png')
 plot.store <-paste0(plots.loc,plot.nme)
 ggsave(plot.store, dpi=dpi)
 
-
 # create list with upper-bounds per cluster
 rng_list <- list()
 for (c in 1:k) {

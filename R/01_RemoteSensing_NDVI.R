@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------------------------
 
 # date created: 2021-05-11
-# date modified: 2022-05-13
+# date modified: 2022-05-24
 
 #-----------------------------------------------------------------------------------------------
 
@@ -36,19 +36,6 @@ source(here::here('SRC/buurt_pand_perceel_request.R'))
 
 source(here::here('SRC/image.R'))
 
-#assign bands (CIR)
-
-if(report_tuinen==TRUE) {
-        #near-infrared band from aerial photo masked/clipped tuinen (which vegetation strongly reflects)
-        nir <- ai_tuinen[[nir_seq]]
-        #red light from aerial photo masked/clipped tuinen (which vegetation absorbs)
-        red <- ai_tuinen[[red_seq]]
-} else {
-        #near-infrared band from aerial photo masked/clipped buurt (which vegetation strongly reflects)
-        nir <- ai_buurt[[nir_seq]]
-        #red light from aerial photo masked/clipped buurt (which vegetation absorbs)
-        red <- ai_buurt[[red_seq]]
-}
 
 plotting_gg_dist <- function(input, xx, lab_nme, file_slug, bin_width) {
 
@@ -258,6 +245,18 @@ if(ahn_calc==TRUE) {
 message("\napply Actueel Hoogtebestand Nederland (AHN)")
 
 source(here::here('SRC/ahn.R'))
+
+
+#-----------------------------------------------------------------------------------------------
+
+#Tree tops, crown delineation
+
+#-----------------------------------------------------------------------------------------------
+
+if(tree_trace==TRUE) {
+    source(here::here('SRC/canopy.R'))
+}
+
 
 #-----------------------------------------------------------------------------------------------
 
@@ -579,22 +578,22 @@ write.csv(buurt_sf,file=paste(report.loc,"Buurt_vollediggebeid_statistieken_",ne
 
 #-----------------------------------------------------------------------------------------------
 
+# Metrics for unsupervised NDVI clusters (Fragmentation analysis)
+
+#-----------------------------------------------------------------------------------------------
+
+if(unsup_cl==TRUE) {
+  source(here::here('SRC/green_classes_metrics.R'))
+}
+
+#-----------------------------------------------------------------------------------------------
+
 # Vegetation plots
 
 #-----------------------------------------------------------------------------------------------
 
 if(plots_create==TRUE) {
 source(here::here('SRC/vegetation_plots.R'))
-}
-
-#-----------------------------------------------------------------------------------------------
-
-# Metrics for unsupervised NDVI clusters (Fragmentation analysis)
-
-#-----------------------------------------------------------------------------------------------
-
-if(unsup_cl==TRUE) {
-source(here::here('SRC/green_classes_metrics.R'))
 }
 
 #-----------------------------------------------------------------------------------------------

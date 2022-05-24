@@ -118,15 +118,6 @@ ahn_panden %>% #RasterLayer
 #plot(ahn_tuinen, xlab = "X", ylab = "Y", main = "AHN Elevation tuinen (m)")
 #plot(ahn_panden, xlab = "X", ylab = "Y", main = "AHN Elevation panden (m)")
 
-
 #-----------------------------------------------------------------------------------------------
-
-#Tree tops, crown delineation
-
-#-----------------------------------------------------------------------------------------------
-
-if(tree_trace==TRUE) {
-source(here::here('SRC/canopy.R'))
-}
 
 #rm(ai_buurt)

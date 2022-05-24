@@ -98,10 +98,10 @@ class_func <- function(rast,bins) {
 
 #-----------------------------------------------------------------------------------------------
 
-plotting_gg <- function(input, xx, lab_nme, file_slug, col_scheme, coord) {
+plotting_gg <- function(input, xx, lab_nme, file_slug, col_scheme, dir, coord) {
   ggplot(data = input) +
     geom_sf(aes(fill = .data[[xx]]),size = 0.001) +
-    scale_fill_viridis_c(option = col_scheme, direction = 1,name = lab_nme) +
+    scale_fill_viridis_c(option = col_scheme, direction = dir,name = lab_nme) +
     #geom_point(size = 0.4, aes(x = coord_panden$X,y = coord_panden$Y), colour="white", shape = 15) +
     geom_text(
       aes(

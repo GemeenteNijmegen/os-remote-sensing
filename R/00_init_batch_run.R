@@ -27,7 +27,7 @@ source(here::here('FUNC/green_indices.R'))
 
 #-----------------------------------------------------------------------------------------------
 
-# Color-infrared (CIR) aerial photography (TIF or ECW format)
+# Color-infrared (CIR) aerial photography
 
 #-----------------------------------------------------------------------------------------------
 
@@ -61,7 +61,7 @@ crs_str<-paste0("EPSG:",crs_sp)
 #Report woonpercelen, or all percelen within buurt)
 report_tuinen<-FALSE #default (T)
 
-#foto as base image for (raster) plots
+#aerial image as base image for (raster) plots
 alpha<-255 # 255 is visible, 0 is invisible
 
 #-----------------------------------------------------------------------------------------------
@@ -87,7 +87,6 @@ plots_create<-TRUE
 #metrics (area, coverage) are calculated based on NDVI
 
 #NDVI = (NIR–R/NIR+R)
-
 
 #-----------------------------------------------------------------------------------------------
 
@@ -175,7 +174,7 @@ ahn_calc <-TRUE #default (T)
 ngr_source <- FALSE #FALSE (default), is faster
 
 ahn_points <- FALSE #FALSE (default), TRUE for canopy height based on points cloud
-#please note that this takes quite some time....
+#please note that this takes lot's of resources and quite some time....
 
 #-----------------------------------------------------------------------------------------------
 

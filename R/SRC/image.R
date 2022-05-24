@@ -60,6 +60,7 @@ if(tiff.as.source==TRUE & tiff.rdy==FALSE) {
                                password = webdav_password,
                                verbose  = FALSE)
   tiff.rdy <- file.exists(output)
+
 }
 
 #-----------------------------------------------------------------------------------------------
@@ -172,6 +173,20 @@ ai_buurt[[2]] %>% #RasterLayer
 #GDAL options for GPKG
 #https://gdal.org/drivers/raster/gpkg.html#creation-options
 
+#-----------------------------------------------------------------------------------------------
+#assign bands (CIR)
+
+if(report_tuinen==TRUE) {
+  #near-infrared band from aerial photo masked/clipped tuinen (which vegetation strongly reflects)
+  nir <- ai_tuinen[[nir_seq]]
+  #red light from aerial photo masked/clipped tuinen (which vegetation absorbs)
+  red <- ai_tuinen[[red_seq]]
+} else {
+  #near-infrared band from aerial photo masked/clipped buurt (which vegetation strongly reflects)
+  nir <- ai_buurt[[nir_seq]]
+  #red light from aerial photo masked/clipped buurt (which vegetation absorbs)
+  red <- ai_buurt[[red_seq]]
+}
 
 #-----------------------------------------------------------------------------------------------
 #Principle component bands

@@ -129,11 +129,11 @@ dev.off()
 #-----------------------------------------------------------------------------------------------------------
 
 #coverage of panden and tuinen (GGPLOT)
-plotting_gg(tuinen_sf, "ndvi_green_avg", "mean NDVI", "rs_ndvi_mean_tuinen", "turbo", coord_tuinen )
-plotting_gg(tuinen_sf, "green_cover", "green cover (%)", "rs_green_cover_tuinen", "viridis", coord_tuinen )
-plotting_gg(tuinen_sf, "water_cover", "water cover (%)", "rs_water_cover_tuinen", "plasma", coord_tuinen )
-plotting_gg(tuinen_sf, "stone_cover", "stone cover (%)", "rs_stone_cover_tuinen", "inferno", coord_tuinen )
-plotting_gg(panden_sf, "green_cover", "green cover (%)", "rs_green_cover_woningen", "viridis", coord_panden )
+plotting_gg(tuinen_sf, "ndvi_green_avg", "mean NDVI", "rs_ndvi_mean_tuinen", "turbo",1, coord_tuinen )
+plotting_gg(tuinen_sf, "green_cover", "green cover (%)", "rs_green_cover_tuinen", "viridis",1, coord_tuinen )
+plotting_gg(tuinen_sf, "water_cover", "water cover (%)", "rs_water_cover_tuinen", "plasma",-1, coord_tuinen )
+plotting_gg(tuinen_sf, "stone_cover", "stone cover (%)", "rs_stone_cover_tuinen", "inferno",1, coord_tuinen )
+plotting_gg(panden_sf, "green_cover", "green cover (%)", "rs_green_cover_woningen", "viridis",1, coord_panden )
 
 #buurt
 #plotting_gg_clean(buurt_sf, "green_cover_all", "green cover (%)", "rs_green_cover_buurt", "viridis")
@@ -162,7 +162,7 @@ plotting_gg_clean(crowns, "ndvi_avg", "mean NDVI", "rs_ndvi_mean_crowns", "turbo
 plotting_gg_dist(tuinen_sf, "ndvi_avg", "NDVI", "rs_tuinen_distribution_ndvi",0.08)
 
 #distribution of crowns over NDVI
-plotting_gg_dist(crowns_polygon, "ndvi_avg", "NDVI", "rs_crowns_distribution_ndvi",0.08)
+#plotting_gg_dist(crwn_sf, "ndvi_avg", "NDVI", "rs_crowns_distribution_ndvi",0.08)
 
 if(report_tuinen==TRUE) {
 #distribution of gardens over vegetation coverage
@@ -172,7 +172,6 @@ plotting_gg_dist(buurt_sf, "green_cover", "vegetation buurt", "rs_buurt_distribu
 }
 #distribution of woningen over vegetation coverage
 plotting_gg_dist(panden_sf, "green_cover", "vegetation cover panden on woonperceel", "rs_woningen_distribution_vegetation_coverage", 20)
-
 
 #Distribution of raster cell NDVI values
 #png(paste0(plots.loc,"rs_ndvi_distibution_raster_cell_",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio*2, height=png_height)
@@ -222,7 +221,7 @@ cols_rainbow<- sample(rainbow(50), length(unique(crowns[])), replace = TRUE)
 plotting_base(ai_buurt,crowns, "tree crowns", "rs_crown_tops",NULL,NULL,cols_rainbow)
 
 #distrubution of crowns over ndvi
-plotting_gg_dist(crowns, "ndvi_avg", "distribution of crowns over NDVI", "rs_crowns_distribution_ndvi", 0.1)
+plotting_gg_dist(crwn_sf, "ndvi_avg", "distribution of crowns over NDVI", "rs_crowns_distribution_ndvi", 0.1)
 
 
 }

@@ -25,6 +25,12 @@ options(encoding = "UTF-8")
 #turn-off R’s automatic conversion of strings into factors
 options(stringsAsFactors = FALSE)
 
+#shut-up RGDAL
+options("rgdal_show_exportToProj4_warnings"="none")
+
+#prevents an auxiliary file being written next to *.gpkg
+Sys.setenv(GDAL_PAM_ENABLED = "NO")
+
 #prevent exponential / scientific notation.
 options(scipen = 999)
 
@@ -43,9 +49,6 @@ r_root <- here::here()
 
 #set working directory
 #setwd(r_root)
-
-#Python root
-py_root <- here::here("Processing")
 
 #directories
 #create directories on-the-fly if not exist
@@ -134,8 +137,8 @@ webdav_password <- "VNGRS2021!"
 #Maximum number of cells to read into memory.
 #default value of maxmemory is 5e+09 (4.66GB), memfrac is 0.6
 #rasterOptions()
-rasterOptions(maxmemory = 7e+09,chunksize=2e+08,memfrac=0.65)
-terraOptions(memfrac=0.65,memmax = 7e+09)
+rasterOptions(maxmemory = 8e+09,chunksize=2e+08,memfrac=0.7)
+terraOptions(memfrac=0.7,memmax = 8e+09)
 
 #location for temporary raster file (drive with big storage)
 #raster::rasterOptions(tmpdir = "path/to/drive/with/space")

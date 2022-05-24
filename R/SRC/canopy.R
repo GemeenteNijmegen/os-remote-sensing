@@ -34,10 +34,10 @@ rm(chm_m)
 #detect trees
 message("\ntree detection")
 
+#local maximum filter
 #windows size of ws = 7 meters meaning that for a given point the algorithm looks to the neigbourhood points within
-#a 3.5 radius circle to figure out if the point is the local highest.
-ttops <- lidR::find_trees(chm_mveg, lmf(ws=7))
-
+#a 3 radius circle to figure out if the point is the local highest.
+ttops <- lidR::find_trees(chm_mveg, lmf(ws=6))
 
 } else {
 
@@ -101,13 +101,11 @@ trees_n
 
 message("\nnumber of trees ", trees_n)
 
-
 #-----------------------------------------------------------------------------------------------
 
 #Crown deliniation
 
 #-----------------------------------------------------------------------------------------------
-
 
 if(crowns_trace==TRUE) {
   #detect crowns
@@ -125,26 +123,30 @@ if(crowns_trace==TRUE) {
   #create sf object
   #crowns <- st_as_sf(crowns)
 
-
 #--------------------------------------------------------
 #Alternative (faster) method for vectorizing crowns
 
   ttops_sf <- st_as_sf(ttops)
 
+  #Apply watershed function to segment (i.e.: outline) crowns from a canopy height model.
+  #Segmentation is guided by the point locations of treetop
+
   crwn_rst <- mcws(treetops=ttops, CHM = chm_mveg, format = "raster")
 
-  ## Convert crwn_rst from raster to SpatRaster (from terra package)
+  # Convert from raster to SpatRaster (from terra package)
   crwn_spatrst <- as(crwn_rst, "SpatRaster")
 
-  ## Convert the raster zones to polygons (uses GDAL, fast)
+  # Convert the raster zones to polygons (uses GDAL, fast)
   crwn_spatvec <- terra::as.polygons(crwn_spatrst)
 
-  ## Convert SpatVec object to sf (via export to Shapefile)
+  # Convert SpatVec object to sf (via export to Shapefile)
   tmp_fn <- tempfile(fileext = ".shp")
   terra::writeVector(crwn_spatvec, tmp_fn)
   crwn_sf <- sf::st_read(tmp_fn)
 
-  ## Add crown area and treetop height to the attribute table
+  rm(crwn_rst,crwn_spatrst,crwn_spatvec)
+
+  # Add crown area and treetop height to the attribute table
   crowns <- crwn_sf %>%
     dplyr::mutate(area = st_area(crwn_sf)) %>%
     sf::st_join(ttops_sf, join = st_intersects)
