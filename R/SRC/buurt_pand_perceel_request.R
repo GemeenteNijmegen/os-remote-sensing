@@ -109,7 +109,6 @@
 
   #BAG footprints with calculated height from AHN3 (from TU Delft)
 
-  #UNDER CONSTRUCTION
   #https://data.3dbag.nl/api/BAG3D_v2/wfs?request=getcapabilities
 
   if(buildings_3d==TRUE) {
@@ -260,7 +259,7 @@
     sf::st_collection_extract("POLYGON") %>% #polygons
     filter(!is.na(perceelnummer)) %>% #garden with perceelnummer
     mutate(area = as.numeric(st_area(geometry))) %>%
-    filter(area > 1) %>% #remove garbage elements
+    filter(area > 1) %>% #remove garbage elements (garden smaller than or equal to 1m2)
     dplyr::select(one_of(percelen_cols)) #relevant columns
 
   #interactive Leaflet presentation of the layers buurt, percelen and panden

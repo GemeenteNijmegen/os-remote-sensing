@@ -25,7 +25,7 @@ chm_m <- class_func(ahn_buurt,reclass_chm_m)
 
 raster::crs(chm_m) <- raster::crs(percelen_sf)
 
-#canopy height model (chm) : vegetation within 5-40m
+#canopy height model (chm) : vegetation within lower and upper bound of trees
 #veg_g (1=green)
 chm_mveg <- veg_g * chm_m
 
@@ -35,9 +35,9 @@ rm(chm_m)
 message("\ntree detection")
 
 #local maximum filter
-#windows size of ws = 7 meters meaning that for a given point the algorithm looks to the neigbourhood points within
+#windows size of ws = 6 meters meaning that for a given point the algorithm looks to the neigbourhood points within
 #a 3 radius circle to figure out if the point is the local highest.
-ttops <- lidR::find_trees(chm_mveg, lmf(ws=6))
+ttops <- lidR::find_trees(chm_mveg, lmf(ws=ws))
 
 } else {
 
@@ -129,14 +129,14 @@ if(crowns_trace==TRUE) {
   ttops_sf <- st_as_sf(ttops)
 
   #Apply watershed function to segment (i.e.: outline) crowns from a canopy height model.
-  #Segmentation is guided by the point locations of treetop
+  #Segmentation is guided by the treetop location
 
-  crwn_rst <- mcws(treetops=ttops, CHM = chm_mveg, format = "raster")
+  crwn_rst <- ForestTools::mcws(treetops=ttops, CHM = chm_mveg, format = "raster")
 
-  # Convert from raster to SpatRaster (from terra package)
+  # Convert raster to SpatRaster (from terra package)
   crwn_spatrst <- as(crwn_rst, "SpatRaster")
 
-  # Convert the raster zones to polygons (uses GDAL, fast)
+  # Convert the raster zones to polygons (uses GDAL)
   crwn_spatvec <- terra::as.polygons(crwn_spatrst)
 
   # Convert SpatVec object to sf (via export to Shapefile)
@@ -144,7 +144,7 @@ if(crowns_trace==TRUE) {
   terra::writeVector(crwn_spatvec, tmp_fn)
   crwn_sf <- sf::st_read(tmp_fn)
 
-  rm(crwn_rst,crwn_spatrst,crwn_spatvec)
+  rm(crwn_rst,crwn_spatrst,crwn_spatvec,chm_mveg)
 
   # Add crown area and treetop height to the attribute table
   crowns <- crwn_sf %>%

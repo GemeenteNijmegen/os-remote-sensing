@@ -60,7 +60,6 @@ if(tiff.as.source==TRUE & tiff.rdy==FALSE) {
                                password = webdav_password,
                                verbose  = FALSE)
   tiff.rdy <- file.exists(output)
-
 }
 
 #-----------------------------------------------------------------------------------------------

@@ -196,6 +196,10 @@ crowns_trace <- TRUE #FALSE (default)
 #crown lower bound
 crown_lb<-2 #lower bound
 
+#windows size for detecting tree tops (local high)
+#6m diameter
+ws<-6 #in meters
+
 #-----------------------------------------------------------------------------------------------
 
 # Batch run neighbourhoods
