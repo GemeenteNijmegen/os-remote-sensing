@@ -70,7 +70,8 @@
   loops = c(0,1001,2001,3001,4001,5001)
   empty_df = list()
   for (loop in loops) {
-    url <- parse_url("https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1?")
+    #url <- parse_url("https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1?")
+    url <- parse_url("https://service.pdok.nl/lv/bag/wfs/v2_0?")
     url$query <- list(service = "wfs",
                       version = "2.0.0",
                       request = "GetFeature",
@@ -194,7 +195,8 @@
 
   empty_df = list()
   for (loop in loops) {
-    url <- parse_url("https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1?")
+    #url <- parse_url("https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1?")
+    url <- parse_url("https://service.pdok.nl/lv/bag/wfs/v2_0?")
     url$query <- list(service = "wfs",
                       version = "2.0.0",
                       request = "GetFeature",
@@ -217,7 +219,7 @@
   #subset verblijfsobjecten within buurt
   verblijfsobjecten_sf <- verblijfsobjecten_sf[buurt_sf$geom,] #containing
   verblijfsobjecten_sf <- sf::st_intersection(buurt_sf, verblijfsobjecten_sf) %>%
-    group_by(gid) %>%
+    group_by(id) %>%
     slice(1) %>%
     dplyr::select(one_of(verblijfsobjecten_cols)) #relevant vbo features
 

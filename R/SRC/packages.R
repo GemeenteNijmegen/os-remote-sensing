@@ -68,6 +68,7 @@ packages <- c(
   'rgdal',
   #Wrappers for the Geospatial Data Abstraction Library (GDAL) Utilities
   'gdalUtils',
+  #'gdalUtilities',
   #Interface to Geometry Engine
   'rgeos',
   #interface to the PROJ.4 cartographic projections library
@@ -111,6 +112,17 @@ if(any(!has_available)) install.packages(packages[!has_available])
 lapply(packages,library,character.only = TRUE
        ,quietly = TRUE
 )
+
+#-----------------------------------------------------------------------------------------------
+
+is_gdalutils_available<-FALSE
+is_gdalutils_available <- require("gdalUtils")
+
+if(is_gdalutils_available==FALSE) {
+
+devtools:::install_github("gearslaboratory/gdalUtils")
+
+}
 
 #-----------------------------------------------------------------------------------------------
 

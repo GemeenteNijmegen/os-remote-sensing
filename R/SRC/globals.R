@@ -134,8 +134,12 @@ webdav_hostname <- "https://datasciencevng.nl/remote.php/webdav/"
 webdav_login <- "remotesensing"
 webdav_password <- "VNGRS2021!"
 
-#Maximum number of cells to read into memory.
-#default value of maxmemory is 5e+09 (4.66GB), memfrac is 0.6
+#global options used by the raster package
+#Maximum number of cells to read into memory
+#default value of maxmemory is 5e+09 (4.66GB)
+#Fraction of available RAM that may be used by a process
+#default value of memfrac is 0.6
+
 #rasterOptions()
 rasterOptions(maxmemory = 8e+09,chunksize=2e+08,memfrac=0.7)
 terraOptions(memfrac=0.7,memmax = 8e+09)

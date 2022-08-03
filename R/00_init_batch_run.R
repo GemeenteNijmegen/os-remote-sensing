@@ -41,10 +41,10 @@ yr<-2020
 #position of near-infrared (NIR) and Red bands in Color-infrared (CIR) photo
 #make sure your photo is a CIR photo
 
-#Near-infrared resides in band:
+#Near-infrared resides in band number:
 nir_seq<-1
 
-#color red resides in band:
+#color red resides in band number:
 red_seq<-2
 
 #band names
