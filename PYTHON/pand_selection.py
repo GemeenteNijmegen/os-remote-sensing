@@ -18,7 +18,7 @@ gdf_buurt = gpd.read_file(gpkg_vector, driver='GPKG', layer='buurt')
 bbox_geom = gdf_buurt.bounds
 lowerCorner = bbox_geom['minx'].astype(str) + ' ' + bbox_geom['miny'].astype(str)
 upperCorner = bbox_geom['maxx'].astype(str) + ' ' + bbox_geom['maxy'].astype(str)
-url_WFSbagpand = "https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1?"
+url_WFSbagpand = "https://service.pdok.nl/lv/bag/wfs/v2_0?"
 wfs = WebFeatureService(url=url_WFSbagpand)
 layer = 'bag:pand'
 filter = ('<ogc:Filter>'

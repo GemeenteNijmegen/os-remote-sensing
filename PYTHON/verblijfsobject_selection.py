@@ -18,7 +18,7 @@ gdf_buurt = gpd.read_file(gpkg_vector, driver='GPKG', layer='buurt')
 bbox_geom = gdf_buurt.bounds
 lowerCorner = bbox_geom['minx'].astype(str) + ' ' + bbox_geom['miny'].astype(str)
 upperCorner = bbox_geom['maxx'].astype(str) + ' ' + bbox_geom['maxy'].astype(str)
-url_WFSbagvo = "https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1?"
+url_WFSbagvo = "hhttps://service.pdok.nl/lv/bag/wfs/v2_0?"
 wfs = WebFeatureService(url=url_WFSbagvo)
 layer = 'bag:verblijfsobject'
 filter = ('<ogc:Filter>'
@@ -53,7 +53,7 @@ for loop in loops:
     #bbox_geom = gdf_buurt.bounds
     #lowerCorner = bbox_geom['minx'].astype(str) + ' ' + bbox_geom['miny'].astype(str)
     #upperCorner = bbox_geom['maxx'].astype(str) + ' ' + bbox_geom['maxy'].astype(str)
-    #url_WFSbagvo = "https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1?"
+    #url_WFSbagvo = "https://service.pdok.nl/lv/bag/wfs/v2_0?"
     #wfs = WebFeatureService(url=url_WFSbagvo)
     #layer = 'bag:verblijfsobject'
     #filter = ('<ogc:Filter>'
