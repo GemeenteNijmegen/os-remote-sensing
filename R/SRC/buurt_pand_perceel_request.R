@@ -286,9 +286,6 @@
   }
 
 
-  mydata2 <- st_collection_extract(buurt_sf, "POLYGON")
-
-
   #review layers
   #create vector geopackage (GPKG)
   sf::st_write(buurt_sf, dsn=gpkg_vector, layer='buurt',layer_options = "OVERWRITE=YES",append=FALSE)
