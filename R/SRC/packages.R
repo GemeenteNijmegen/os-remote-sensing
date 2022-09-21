@@ -12,8 +12,8 @@ cat("\014")
 gc(verbose = FALSE, full = TRUE)
 
 #Ncpus: The number of parallel processes to use for a parallel install of more than one source package.
-getOption("Ncpus", 1L) #defaults to 1
 options(Ncpus = 8) #we use 8
+#getOption("Ncpus", 1L) #defaults to 1
 
 message("deploy packages")
 
@@ -162,5 +162,3 @@ sf::sf_extSoftVersion()["lwgeom"]
 
 #review packages loaded (store active-packages set-up)
 sessionInfo() %>% capture.output(file="session_info.txt")
-
-

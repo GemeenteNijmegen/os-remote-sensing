@@ -52,7 +52,7 @@ see: metrics_definition.txt
 all metrics are stored in sheets in the REPORT directory.
 
 ![vegetation represented by NDVI](DOCS/rs_ndvi_BU15810004.png)
-![Tree crown deliniation and crown health](DOCS/rs_ndvi_mean_crowns_BU15810004.png)
+![Tree crown delineation and crown health](DOCS/rs_ndvi_mean_crowns_BU15810004.png)
 
 ## Instructions
 Open de Rproj-file in the R-directory to start the environment. Define the neighbourhood code(s) and municipality name in the neighbourhood.xlsx file. 

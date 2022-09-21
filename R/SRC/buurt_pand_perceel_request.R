@@ -67,7 +67,7 @@
   message("extract panden polygons from nationaalgeoregister.nl ", neighbourhood)
 
   #loop because of limit of 1000 results
-  loops = c(0,1001,2001,3001,4001,5001)
+  loops = c(0,1001,2001,3001,4001,5001,6001)
   empty_df = list()
   for (loop in loops) {
     #url <- parse_url("https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1?")

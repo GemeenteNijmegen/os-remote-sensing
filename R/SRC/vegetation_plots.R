@@ -222,8 +222,6 @@ plotting_base(ai_buurt,crowns, "tree crowns", "rs_crown_tops",NULL,NULL,cols_rai
 
 #distrubution of crowns over ndvi
 plotting_gg_dist(crwn_sf, "ndvi_avg", "distribution of crowns over NDVI", "rs_crowns_distribution_ndvi", 0.1)
-
-
 }
 
 rm(list=ls(pattern="^mplot_"))

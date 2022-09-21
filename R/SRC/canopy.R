@@ -27,29 +27,21 @@ chm_mveg_smooth <- rLiDAR::CHMsmoothing(chm_mveg, filter = "mean", ws = 3)
 
 rm(chm_m,chm_mveg)
 
-#detect trees
-message("\ntree detection")
-
-#local maximum filter
-#windows size of e.g. ws = 5 meters meaning that for a given point the algorithm looks to the neigbourhood points within
-#a 2.5m radius circle to figure out if the point is the local highest.
-#ttops <- lidR::find_trees(chm_mveg_smooth, lmf(ws=ws))
-
-#tree tops start at least one and a half meter above lower bound crown
-hmin<-crown_lb+1.5
-
-#sf version
-#ttops <- lidR::locate_trees(chm_mveg_smooth, lmf(ws = ws, hmin = hmin, shape = "circular"))
-
-#sp version
-ttops <- lidR::find_trees(chm_mveg_smooth, lmf(ws=ws, hmin = hmin, shape = "circular"))
-
 
 #-----------------------------------------------------------------------------------------------
 
 #Trees
 
 #-----------------------------------------------------------------------------------------------
+
+#detect trees
+message("\ntree detection")
+
+#sf version (for future use)
+#ttops <- lidR::locate_trees(chm_mveg_smooth, lmf(ws = ws, hmin = hmin, shape = "circular"))
+
+#sp version
+ttops <- lidR::find_trees(chm_mveg_smooth, lmf(ws=ws, hmin = ttop_lb, shape = "circular"))
 
 #number of trees
 trees_n<-max(ttops$treeID)
@@ -59,14 +51,14 @@ message("\nnumber of trees ", trees_n)
 
 #-----------------------------------------------------------------------------------------------
 
-#Crown deliniation
+#Crown delineation
 
 #-----------------------------------------------------------------------------------------------
 
 if(crowns_trace==TRUE) {
   #detect crowns
 
-  message("\ncrown deliniation")
+  message("\ncrown delineation")
 
   #canopy segmentation
   #defaults to raster

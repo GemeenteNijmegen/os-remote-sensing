@@ -16,7 +16,7 @@
 #-----------------------------------------------------------------------------------------------
 
 #Run in project environment (to avoid package conflicts)
-proj_env <- FALSE #default (F)
+proj_env<-FALSE #default (F)
 
 #packages
 source('SRC/packages.R')
@@ -32,9 +32,9 @@ source(here::here('FUNC/green_indices.R'))
 
 #read TIFF (TRUE=TIFF, FALSE=ECW)
 #make aerial photo available in AI-directory
-tiff.as.source <- TRUE #default (T)
+tiff.as.source<-TRUE #default (T)
 
-#year of the aerial photo
+#year of the aerial photo (also used for Pdok requests)
 yr<-2020
 
 #position of near-infrared (NIR) and Red bands in Color-infrared (CIR) photo
@@ -47,7 +47,7 @@ nir_seq<-1
 red_seq<-2
 
 #band names
-band_nms <- c("nir","red","green")
+band_nms<-c("nir","red","green")
 
 #Coordinate Reference System
 #Amersfoort projection (28992)
@@ -94,7 +94,7 @@ plots_create<-TRUE
 #-----------------------------------------------------------------------------------------------
 
 #rvi = NIR/RED
-rvi_calc <- FALSE #default (F)
+rvi_calc<-FALSE #default (F)
 
 #-----------------------------------------------------------------------------------------------
 
@@ -106,7 +106,7 @@ rvi_calc <- FALSE #default (F)
 #It has always positive values and the variances of the ratio are proportional to mean values
 
 #TNDVI = sqrt((NIR–R/NIR+R) +0.5)
-tndvi_calc <- FALSE #default (F)
+tndvi_calc<-FALSE #default (F)
 
 #-----------------------------------------------------------------------------------------------
 
@@ -118,7 +118,7 @@ tndvi_calc <- FALSE #default (F)
 #on the SAVI.
 
 #MSAVI2 = (0.5)*(2*(NIR + 1) - sqrt((2*NIR + 1)2 - 8*(NIR–R)))
-msavi2_calc <- FALSE #default (F)
+msavi2_calc<-FALSE #default (F)
 
 #-----------------------------------------------------------------------------------------------
 
@@ -130,7 +130,7 @@ msavi2_calc <- FALSE #default (F)
 #for vegetation with different background soil reflectance
 
 #EVI2 = 2.5 * ( NIR - RED) / ( NIR + 2.4 * RED + 1.0 ).
-evi2_calc <- FALSE #default (F)
+evi2_calc<-FALSE #default (F)
 
 #-----------------------------------------------------------------------------------------------
 
@@ -138,10 +138,10 @@ evi2_calc <- FALSE #default (F)
 
 #-----------------------------------------------------------------------------------------------
 
-unsup_cl <- FALSE #default (T)
+unsup_cl<-FALSE #default (T)
 
 #number of clusters
-k <- 5
+k<-5
 
 #-----------------------------------------------------------------------------------------------
 
@@ -149,7 +149,7 @@ k <- 5
 
 #-----------------------------------------------------------------------------------------------
 
-pca.ai <- FALSE #default (F)
+pca.ai<-FALSE #default (F)
 
 #-----------------------------------------------------------------------------------------------
 
@@ -158,7 +158,7 @@ pca.ai <- FALSE #default (F)
 #-----------------------------------------------------------------------------------------------
 
 #add 3D panden (TU Delft) as layer in (vector) geopackage
-buildings_3d <- FALSE #default (F)
+buildings_3d<-FALSE #default (F)
 
 #-----------------------------------------------------------------------------------------------
 
@@ -170,7 +170,7 @@ buildings_3d <- FALSE #default (F)
 ahn_calc <-TRUE #default (T)
 
 #nationaalgeoregister.nl as direct source (aka not being package rAHNextract)
-ngr_source <- FALSE #FALSE (default), is faster
+ngr_source<-FALSE #FALSE (default), is faster
 
 
 #-----------------------------------------------------------------------------------------------
@@ -180,22 +180,30 @@ ngr_source <- FALSE #FALSE (default), is faster
 #-----------------------------------------------------------------------------------------------
 
 #tree tops
-tree_trace <- TRUE
+tree_trace<-TRUE
 
 #tree foliage lower and upper bound (m)
-foliage_lb<-2 #lower bound
-foliage_ub<-50 #upper bound
+foliage_lb<-2 #lower bound (default: 2)
+foliage_ub<-50 #upper bound (default: 50)
 
 #tree crowns and crown health
 #only makes sense when computing stats for entire buurt (report_tuinen<-FALSE and tree_trace<-TRUE)
-crowns_trace <- TRUE #FALSE (default)
+crowns_trace<-TRUE #FALSE (default)
 
-#crown lower bound
-crown_lb<-2.5 #lower bound
+#crown lower bound (m)
+crown_lb<-foliage_lb + 0.5 #lower bound (default: 0.5)
 
-#windows size for detecting tree tops (local high)
-#5m diameter
-ws<-5 #in meters
+#tree tops
+#tree top lower bound starts one and a half meter above lower bound crown (i.c. trees are at least 4m,
+#, 2m abover foliage lower bound)
+ttop_lb<-crown_lb+1.5 #lower bound (default: 1.5)
+
+#local maximum filter
+#window size for detecting tree tops (local high)
+#windows size of e.g. ws = 5 meters meaning that for a given point the algorithm looks to the neigbourhood
+#points within a 2.5m radius circle to figure out if the point is the local highest.
+
+ws<-5 #in meters (default ; 5)
 
 #-----------------------------------------------------------------------------------------------
 
@@ -204,12 +212,12 @@ ws<-5 #in meters
 #-----------------------------------------------------------------------------------------------
 
 #please declare (multiple) buurtcode(s) (covered by CIR aerial photography) in xlsx-sheet:
-BU_codes <- read.xlsx('neighbourhoods.xlsx')
+BU_codes<-read.xlsx('neighbourhoods.xlsx')
 
 for (i in 1:nrow(BU_codes)) {
   #cat("iteration =", i, "\n")
-  neighbourhood <- BU_codes$buurtcode[i]
-  municipality <- BU_codes$gemeente[i]
+  neighbourhood<-BU_codes$buurtcode[i]
+  municipality<-BU_codes$gemeente[i]
 
   #(re)set globals
   source(here::here('SRC/globals.R'))
