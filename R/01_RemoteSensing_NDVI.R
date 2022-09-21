@@ -36,7 +36,6 @@ source(here::here('SRC/buurt_pand_perceel_request.R'))
 
 source(here::here('SRC/image.R'))
 
-
 plotting_gg_dist <- function(input, xx, lab_nme, file_slug, bin_width) {
 
 }
@@ -48,7 +47,6 @@ plotting_gg_dist <- function(input, xx, lab_nme, file_slug, bin_width) {
 #-----------------------------------------------------------------------------------------------
 
 message("\ncalculate vegetation indices")
-
 
 #-----------------------------------------------------------------------------------------------
 

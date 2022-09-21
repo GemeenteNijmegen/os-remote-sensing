@@ -8,7 +8,6 @@
 #Spatial distribution analysis of urban green-grey-blue spaces
 
 #!!Please note, you must initiate the procedure, via the .proj file in the R directory!
-#then run this file!!
 
 #-----------------------------------------------------------------------------------------------
 
@@ -173,8 +172,6 @@ ahn_calc <-TRUE #default (T)
 #nationaalgeoregister.nl as direct source (aka not being package rAHNextract)
 ngr_source <- FALSE #FALSE (default), is faster
 
-ahn_points <- FALSE #FALSE (default), TRUE for canopy height based on points cloud
-#please note that this takes lot's of resources and quite some time....
 
 #-----------------------------------------------------------------------------------------------
 
@@ -185,20 +182,20 @@ ahn_points <- FALSE #FALSE (default), TRUE for canopy height based on points clo
 #tree tops
 tree_trace <- TRUE
 
-#tree lower and upper bound (m)
-tree_lb<-5 #lower bound
-tree_up<-50 #upper bound
+#tree foliage lower and upper bound (m)
+foliage_lb<-2 #lower bound
+foliage_ub<-50 #upper bound
 
 #tree crowns and crown health
 #only makes sense when computing stats for entire buurt (report_tuinen<-FALSE and tree_trace<-TRUE)
 crowns_trace <- TRUE #FALSE (default)
 
 #crown lower bound
-crown_lb<-2 #lower bound
+crown_lb<-2.5 #lower bound
 
 #windows size for detecting tree tops (local high)
-#6m diameter
-ws<-6 #in meters
+#5m diameter
+ws<-5 #in meters
 
 #-----------------------------------------------------------------------------------------------
 

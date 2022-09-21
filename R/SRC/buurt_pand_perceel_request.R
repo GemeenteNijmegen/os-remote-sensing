@@ -264,6 +264,8 @@
     filter(area > 1) %>% #remove garbage elements (garden smaller than or equal to 1m2)
     dplyr::select(one_of(percelen_cols)) #relevant columns
 
+
+
   #interactive Leaflet presentation of the layers buurt, percelen and panden
   #mapview(list(panden_sf,percelenwoonfunctie_sf,tuinen_sf),alpha.regions = 0.6, alpha = 1)
   #mapview(list(verschiltuinen,tuinen_sf_py,tuinen_sf),alpha.regions = 0.6, alpha = 1)
@@ -283,6 +285,10 @@
     unlink(gpkg_vector)
   }
 
+
+  mydata2 <- st_collection_extract(buurt_sf, "POLYGON")
+
+
   #review layers
   #create vector geopackage (GPKG)
   sf::st_write(buurt_sf, dsn=gpkg_vector, layer='buurt',layer_options = "OVERWRITE=YES",append=FALSE)
@@ -292,7 +298,7 @@
   sf::st_write(woningen_sf, dsn=gpkg_vector, layer='woningen',layer_options = "OVERWRITE=YES",append=FALSE)
   sf::st_write(tuinen_sf, dsn=gpkg_vector, layer='tuinen',layer_options = "OVERWRITE=YES",append=FALSE)
   sf::st_write(percelenwoonfunctie_sf, dsn=gpkg_vector, layer='percelenwoonfunctie',layer_options = "OVERWRITE=YES",append=FALSE)
-  sf::st_write(percelenoverig_sf, dsn=gpkg_vector, layer='percelenoverig',layer_options = "OVERWRITE=YES",append=FALSE)
+  #sf::st_write(percelenoverig_sf, dsn=gpkg_vector, layer='percelenoverig',layer_options = "OVERWRITE=YES",append=FALSE)
 
   if(buildings_3d==TRUE) {
     sf::st_write(panden3d_sf, dsn=gpkg_vector, layer='panden3d',layer_options = "OVERWRITE=YES",append=FALSE)

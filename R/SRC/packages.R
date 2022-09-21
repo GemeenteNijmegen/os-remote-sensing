@@ -93,7 +93,7 @@ packages <- c(
   #quantify landscape configuration
   'landscapemetrics',
   # Airborne LiDAR Data Manipulation and Visualization for Forestry Applications
-  'lidR',
+  'lidR','rLiDAR',
   # 3D data visualizations
   #'rayshader',
   #color schemes
