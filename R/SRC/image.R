@@ -1,11 +1,11 @@
 
 #-----------------------------------------------------------------------------------------------
 
-# Color-infrared (CIR) aerial photography (TIF or ECW format)
+# Color-infrared (CIR) airborne imagery
 
 #-----------------------------------------------------------------------------------------------
 
-#we assume you use your own color-infrared (CIR) aerial photography / airborne imagery
+#we assume you use your own color-infrared (CIR) airborne imagery
 
 #Alternatively, this location provides ECW-format aerial image for The Netherlands:
 #https://datasciencevng.nl/s/ztnYabpulASJakHR
@@ -14,19 +14,20 @@
 
 #this procedure checks the AI directory first, then checks for a clipping on the VNG stack
 
-#location of output file (TIF)
-output <- paste0(data.loc,"/",neighbourhood,".tif")
+#neighbourhood<-"BU15810004"
+#location of output.tif file (TIF)
+output.tif <- paste0(data.loc,"/",neighbourhood,".tif")
 
-#does local TIF exist? (from previous run (as output file))
-tiff.rdy <- FALSE
-tiff.rdy <- file.exists(output)
-tiff.rdy
+#does local TIF exist?
+tif.rdy <- FALSE
+tif.rdy <- file.exists(output.tif)
+tif.rdy
 
 #-----------------------------------------------------------------------------------------------
 #Check for Aerial image in AI-directory (TIF-format)
 
 #tif as a source (as input file)
-if(tiff.as.source==TRUE & tiff.rdy==FALSE) {
+if(tif.as.source==TRUE & tif.rdy==FALSE) {
 
 #location of input file
 #input.tif <- list.files(ai.dir, pattern = "\\.tif$", full.names = TRUE)
@@ -35,10 +36,10 @@ input.tif <- paste0(ai.dir,"/",neighbourhood,".tif")
 if(length(input.tif) != 0) {
 #move to output folder
 file.copy(from = input.tif,
-          to   = output)
+          to   = output.tif)
 
 #verify
-tiff.rdy <- file.exists(output)
+tif.rdy <- file.exists(output.tif)
 }
 
 }
@@ -47,7 +48,7 @@ tiff.rdy <- file.exists(output)
 #Check for Aerial image clipping of the neighbourhood on VNG Stack
 #please request for the image first
 
-if(tiff.as.source==TRUE & tiff.rdy==FALSE) {
+if(tif.as.source==TRUE & tif.rdy==FALSE) {
 
   message("\nextract CIR aerial photo in TIF-format from VNG Stack")
 
@@ -59,22 +60,22 @@ if(tiff.as.source==TRUE & tiff.rdy==FALSE) {
                                username = webdav_login,
                                password = webdav_password,
                                verbose  = FALSE)
-  tiff.rdy <- file.exists(output)
+  tif.rdy <- file.exists(output.tif)
 }
 
 #-----------------------------------------------------------------------------------------------
 #Check for Aerial image in AI-directory (ECW-format)
 
-if(tiff.as.source==FALSE & tiff.rdy==FALSE) {
+if(tif.as.source==FALSE & tif.rdy==FALSE) {
 
   input.ecw <- list.files(ai.dir, pattern = "\\.ecw$", full.names = TRUE)
   if(length(input.ecw) != 0) {
 
     message("\nextract CIR aerial photo in ECW-format from AI directory")
 
-    gdalUtils::gdal_translate(src_dataset=input.ecw, dst_dataset=output, of="GTiff", overwrite=T, verbose=TRUE)
+    gdalUtils::gdal_translate(src_dataset=input.ecw, dst_dataset=output.tif, of="GTiff", overwrite=T, verbose=TRUE)
 
-    tiff.rdy <- file.exists(output)
+    tif.rdy <- file.exists(output.tif)
   } else {
     message("\nno aerial photo in ECW-format available in AI directory")
   }
@@ -83,37 +84,33 @@ if(tiff.as.source==FALSE & tiff.rdy==FALSE) {
 
 #-----------------------------------------------------------------------------------------------
 
-if(tiff.rdy==FALSE) {
+if(tif.rdy==FALSE) {
   message("\nNo (valid) CIR aerial photo available in AI directory")
   stop("\nprocedure terminated")
 }
 
-#we use stars package as it is much faster than raster and terra
-ai <- as(stars::read_stars(output), "Raster")
+ai <- terra::rast(output.tif)
 
 #set projection of the raster
 message("The projection of the aerial photo will be set to ", crs_sp)
-raster::crs(ai) <- crs_sp
+crs(ai) <- crs_str
 
 #-----------------------------------------------------------------------------------------------
 #meta data
 
 #structure
-#str(ai)
+str(ai)
 
 #layers
-nlayer<-nlayers(ai)
+nlayer<-nlyr(ai)
 nlayer
 
 if(nlayer<3) {
   stop("\nNumber of bands in the aerial image is less than three : ", nlayer)
 }
 
-#extent
-#extent(ai)
-
 #layer names
-#names(ai)
+names(ai)
 
 #set correct layer names
 #https://www.mngeo.state.mn.us/chouse/airphoto/cir.html
@@ -123,17 +120,15 @@ names(ai) <- band_nms
 #cropping and masking
 
 #crop neighbourhood
-ai_crop <- raster::crop(ai, buurt_sf)
-
-rm(ai)
+ai_crop <- terra::crop(ai, buurt_sf)
 
 #mask buurt
-ai_buurt <- raster::mask(ai_crop, buurt_sf)
+ai_buurt <- terra::mask(ai_crop, buurt_sf)
 
 #mask tuinen
-ai_tuinen <- raster::mask(ai_crop, tuinen_sf)
+ai_tuinen <- terra::mask(ai_crop, tuinen_sf)
 
-rm(ai_crop)
+rm(ai,ai_crop)
 
 #-----------------------------------------------------------------------------------------------
 #Geopackage raster data
@@ -143,31 +138,7 @@ if (file.exists(gpkg_raster)) {
 unlink(gpkg_raster)
 }
 
-message("store CIR layers as rasters in geopackage")
-
-#create (fresh) multi-raster GeoPackage
-#NIR
-names(ai_buurt[[1]]) <-"nir"
-ai_buurt[[1]] %>% #RasterLayer
-  st_as_stars %>% #convert to a stars object
-  write_stars(gpkg_raster
-              , driver = "GPKG"
-              , options = c("RASTER_TABLE=NIR.BAND","APPEND_SUBDATASET=YES"
-              )
-  )
-
-#RED
-names(ai_buurt[[2]]) <-"red"
-ai_buurt[[2]] %>% #RasterLayer
-  st_as_stars %>% #convert to a stars object
-  write_stars(gpkg_raster
-              , driver = "GPKG"
-              , options = c("RASTER_TABLE=Red.BAND","APPEND_SUBDATASET=YES")
-  )
-
-#read GPKG
-#ai_rb <- read_stars(gpkg_raster) %>%
-#  as("Raster")
+#message("store CIR layers as rasters in geopackage")
 
 #GDAL options for GPKG
 #https://gdal.org/drivers/raster/gpkg.html#creation-options
@@ -192,7 +163,7 @@ if(report_tuinen==TRUE) {
 
 if(pca.ai==TRUE) {
 ai_pca <- RStoolbox::rasterPCA(ai_buurt, nSamples = NULL, nComp = nlayers(ai_buurt), spca = FALSE)
-ai_pca$model
+#ai_pca$model
 
 ai_pca_img <- stack(ai_pca$map)
 
@@ -222,7 +193,7 @@ rm(ai_pca,ai_pca_img)
 #dev.off()
 
 #RGB plot buurt
-plotting_terra(ai_buurt,percelen_sf$geometry,NULL,"rs_rgb_buurt",NULL,NULL,NULL)
+#plotting_terra(ai_buurt,percelen_sf$geometry,NULL,"rs_rgb_buurt",NULL,NULL,NULL)
 
 if(report_tuinen==TRUE) {
 #RGB plot tuinen in buurt

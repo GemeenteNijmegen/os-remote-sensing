@@ -11,14 +11,14 @@ message("\nvegetation plots")
 #-----------------------------------------------------------------------------------------------
 # Breaks and steps for NDVI
 
-ndvi_min <- round(ndvi@data@min,1)
-ndvi_max <- round(ndvi@data@max,1)
+ndvi_min <- round(ndvi@ptr[["range_min"]],1)
+ndvi_max <- round(ndvi@ptr[["range_max"]],1)
 
 brks_ndvi <- seq(ndvi_min, ndvi_max, by=0.1)
 cols_terrain <- rev(terrain.colors((length(brks_ndvi)-1)))
 
 #-----------------------------------------------------------------------------------------------
-alpha<-255
+
 #plot ndvi
 plotting_terra(ai_tuinen,ndvi,"NDVI","rs_ndvi",brks_ndvi,brks_ndvi,cols_terrain,alpha)
 
@@ -36,8 +36,17 @@ if(unsup_cl==TRUE) {
   brks_clu <- seq(1, k, by=1)
   cols_viridis<- colorspace::sequential_hcl(max(brks_clu), palette = "Viridis")
 
-  plotting_terra(ai_tuinen,veg_clus,"NDVI classes (unsupervised)","rs_vegetation_class_unsupervised",brks_clu,brks_clu,cols_viridis,alpha)
+  # Define a color vector for 10 clusters (learn more about setting the color later)
+  mycolor <- c("#fef65b","#ff0000", "#daa520","#0000ff","#0000ff","#00ff00","#cbbeb5",
+               "#c3ff5b", "#ff7373", "#00ff00", "#808080")
+  png(paste0(plots.loc,"rs_ndvi_unsupervised_",neighbourhood,".png"), bg="white", width=png_height*aspect_ratio*2, height=png_height)
+
+  par(mfrow = c(1,2))
+  plot(ndvi, col = rev(terrain.colors(10)), main = "NDVI")
+  plot(knr, main = 'Unsupervised classification vegetation', col = cols_viridis, type="classes")
+  dev.off()
 }
+
 
 #plot fixed classes
 brks_clf <- seq(1, 5, by=1)
@@ -47,21 +56,21 @@ labels_clf=c("water","sand/stone","grasses/weed","low veg.","dense veg.")
 plotting_terra(ai_tuinen,veg_c,"NDVI classes (fixed)","rs_vegetation_class_fixed",brks_clf,labels_clf,cols_viridis,alpha)
 
 #plot ndvi and vegetation contour
-png(paste0(plots.loc,"rs_ndvi_vegetation_contours_",neighbourhood,".png"), height = 1280, width = 1280, res = 180, units = "px")
-par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
-plot(ndvi, axes=FALSE, box=FALSE, legend=TRUE, cex = 0.5, breaks=brks_ndvi, lab.breaks=brks_ndvi, col=cols_terrain,na.value ="transparent",
-     main=paste0("NDVI and vegetation contour ", neighbourhood))
-plot(veg_contour, add=TRUE, lwd = 0.1)
-plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
-dev.off()
+#png(paste0(plots.loc,"rs_ndvi_vegetation_contours_",neighbourhood,".png"), height = 1280, width = 1280, res = 180, units = "px")
+#par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
+#plot(ndvi, axes=FALSE, box=FALSE, legend=TRUE, cex = 0.5, breaks=brks_ndvi, lab.breaks=brks_ndvi, col=cols_terrain,na.value ="transparent",
+#     main=paste0("NDVI and vegetation contour ", neighbourhood))
+#plot(veg_contour, add=TRUE, lwd = 0.1)
+#plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
+#dev.off()
 
 
 #-----------------------------------------------------------------------------------------------
 
 #plot rvi
 if(rvi_calc==TRUE) {
-rvi_min <- round(rvi@data@min,1)
-rvi_max <- round(rvi@data@max,1)
+rvi_min <- round(rvi@ptr[["range_min"]],1)
+rvi_max <- round(rvi@ptr[["range_max"]],1)
 
 brks_rvi <- seq(rvi_min, rvi_max, by=0.5)
 cols_terrain <- rev(terrain.colors((length(brks_rvi)-1)))
@@ -73,8 +82,8 @@ plotting_terra(ai_tuinen,rvi,"RVI","rs_rvi",brks_rvi,brks_rvi,cols_terrain)
 
 #plot tndvi
 if(tndvi_calc==TRUE) {
-  tndvi_min <- round(tndvi@data@min,1)
-  tndvi_max <- round(tndvi@data@max,1)
+  tndvi_min <- round(tndvi@ptr[["range_min"]],1)
+  tndvi_max <- round(tndvi@ptr[["range_max"]],1)
 
   brks_tndvi <- seq(tndvi_min, tndvi_max, by=0.1)
   cols_terrain <- rev(terrain.colors((length(brks_tndvi)-1)))
@@ -85,8 +94,8 @@ plotting_terra(ai_tuinen,tndvi,"TNDVI","rs_tndvi",brks_tndvi,brks_tndvi,cols_ter
 
 #plot rmsavi2
 if(msavi2_calc==TRUE) {
-  msavi2_min <- round(msavi2@data@min,1)
-  msavi2_max <- round(msavi2@data@max,1)
+  msavi2_min <- round(msavi2@ptr[["range_min"]],1)
+  msavi2_max <- round(msavi2@ptr[["range_max"]],1)
 
   brks_msavi2 <- seq(msavi2_min, msavi2_max, by=0.1)
   cols_terrain <- rev(terrain.colors((length(brks_msavi2)-1)))
@@ -97,8 +106,8 @@ plotting_terra(ai_tuinen,msavi2,"MSAVI2","rs_msavi2",brks_msavi2,brks_msavi2,col
 
 #plot evi2
 if(evi2_calc==TRUE) {
-  evi2_min <- round(evi2@data@min,1)
-  evi2_max <- round(evi2@data@max,1)
+  evi2_min <- round(evi2@ptr[["range_min"]],1)
+  evi2_max <- round(evi2@ptr[["range_max"]],1)
 
   brks_evi2 <- seq(evi2_min, evi2_max, by=0.1)
   cols_terrain <- rev(terrain.colors((length(brks_evi2)-1)))
@@ -110,10 +119,10 @@ if(evi2_calc==TRUE) {
 if(ahn_calc==TRUE) {
 
 #vegetation (3m and above)
-plotting_terra(ai_tuinen,veg_t3,"3m+ vegetation","rs_vegetation_3m",NULL,NULL,cols_terrain,255)
+plotting_terra(ai_tuinen,veg_t3,"3m+ vegetation","rs_vegetation_3m",NULL,NULL,cols_terrain,alpha)
 
 #trees (5m and above)
-plotting_terra(ai_tuinen,veg_t5,"5m+ vegetation","rs_vegetation_5m",NULL,NULL,cols_terrain,255)
+plotting_terra(ai_tuinen,veg_t5,"5m+ vegetation","rs_vegetation_5m",NULL,NULL,cols_terrain,alpha)
 }
 
 #Distribution of gardens over NDVI
@@ -139,7 +148,7 @@ plotting_gg(panden_sf, "green_cover", "green cover (%)", "rs_green_cover_woninge
 #plotting_gg_clean(buurt_sf, "green_cover_all", "green cover (%)", "rs_green_cover_buurt", "viridis")
 
 #NDVI of crowns
-if(crowns_trace==TRUE) {
+if(tree_trace==TRUE) {
 plotting_gg_clean(crowns, "ndvi_avg", "mean NDVI", "rs_ndvi_mean_crowns", "turbo")
 }
 
@@ -203,22 +212,20 @@ aerial_rgb <- terra::plotRGB(ai_buurt,
                              stretch = "lin",
                              alpha=alpha,#hide (0), show(255)
                              axes = TRUE,
-                             main = paste0("AHN buurt (m) and tree tops (5m+) ", neighbourhood))
+                             main = paste0("AHN buurt (m) and tree tops ", neighbourhood))
 plot(ahn_buurt, add=TRUE, legend=FALSE, col= cols_ahn)
 plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
 #plot(crowns, add=TRUE, legend=FALSE, col=cols_viridis)
-plot(ttops, add=TRUE, legend=TRUE)
+plot(apices, add=TRUE, legend=TRUE)
 box(col = "white")
 #aerial_rgb
 plot(cntrd_perceel, col = 'blue', add = TRUE, cex = .5)
-text(1.5, 150, paste("Tree count = ", trees_n), pos = 4)
+#text(1.5, 150, paste("Tree count = ", trees_n), pos = 4)
 dev.off()
-}
 
-if(crowns_trace==TRUE) {
 # crowns
 cols_rainbow<- sample(rainbow(50), length(unique(crowns[])), replace = TRUE)
-plotting_base(ai_buurt,crowns, "tree crowns", "rs_crown_tops",NULL,NULL,cols_rainbow)
+plotting_terra(ai_buurt,crowns,"tree crowns","rs_crowns",NULL,NULL,cols_rainbow,alpha)
 
 #distrubution of crowns over ndvi
 plotting_gg_dist(crwn_sf, "ndvi_avg", "distribution of crowns over NDVI", "rs_crowns_distribution_ndvi", 0.1)

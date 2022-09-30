@@ -7,7 +7,7 @@
 
 #Spatial distribution analysis of urban green-grey-blue spaces
 
-#!!Please note, you must initiate the procedure, via the .proj file in the R directory!
+#!!Please initiate the procedure, via the .proj file in the R directory!
 
 #-----------------------------------------------------------------------------------------------
 
@@ -31,10 +31,10 @@ source(here::here('FUNC/green_indices.R'))
 #-----------------------------------------------------------------------------------------------
 
 #read TIFF (TRUE=TIFF, FALSE=ECW)
-#make aerial photo available in AI-directory
-tiff.as.source<-TRUE #default (T)
+#make airborne imagery available in AI-directory
+tif.as.source<-TRUE #default (T)
 
-#year of the aerial photo (also used for Pdok requests)
+#year of the aerial photo (also used for Pdok polygon requests)
 yr<-2020
 
 #position of near-infrared (NIR) and Red bands in Color-infrared (CIR) photo
@@ -61,7 +61,7 @@ crs_str<-paste0("EPSG:",crs_sp)
 report_tuinen<-FALSE #default (T)
 
 #aerial image as base image for (raster) plots
-alpha<-255 # 255 is visible, 0 is invisible
+alpha<-0 # 255 is visible, 0 is invisible
 
 #-----------------------------------------------------------------------------------------------
 
@@ -69,6 +69,7 @@ alpha<-255 # 255 is visible, 0 is invisible
 
 #-----------------------------------------------------------------------------------------------
 
+#generate png plots
 plots_create<-TRUE
 
 #-----------------------------------------------------------------------------------------------
@@ -167,7 +168,7 @@ buildings_3d<-FALSE #default (F)
 #-----------------------------------------------------------------------------------------------
 
 #apply height of objects
-ahn_calc <-TRUE #default (T)
+ahn_calc<-TRUE #default (T)
 
 #nationaalgeoregister.nl as direct source (aka not being package rAHNextract)
 ngr_source<-FALSE #FALSE (default), is faster
@@ -179,24 +180,23 @@ ngr_source<-FALSE #FALSE (default), is faster
 
 #-----------------------------------------------------------------------------------------------
 
-#tree tops
+#tree segmentation
 tree_trace<-TRUE
+
+#in this research we consider trees to be at least 5m high.
 
 #tree foliage lower and upper bound (m)
 foliage_lb<-2 #lower bound (default: 2)
 foliage_ub<-50 #upper bound (default: 50)
 
-#tree crowns and crown health
-#only makes sense when computing stats for entire buurt (report_tuinen<-FALSE and tree_trace<-TRUE)
-crowns_trace<-TRUE #FALSE (default)
-
 #crown lower bound (m)
-crown_lb<-foliage_lb + 0.5 #lower bound (default: 0.5)
+crown_lb<-foliage_lb+1 #lower bound (default: 1)
 
 #tree tops
-#tree top lower bound starts one and a half meter above lower bound crown (i.c. trees are at least 4m,
-#, 2m abover foliage lower bound)
-ttop_lb<-crown_lb+1.5 #lower bound (default: 1.5)
+ttop_lb<-crown_lb+2 #lower bound (default: 2)
+
+#treetop minimum distance to next local high in meters
+dmin<-1.5 #(default: 1.5)
 
 #local maximum filter
 #window size for detecting tree tops (local high)

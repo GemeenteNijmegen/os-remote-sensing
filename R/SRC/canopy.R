@@ -5,99 +5,80 @@
 
 #-----------------------------------------------------------------------------------------------
 
-
-#reclassify tree foliage range
+#reclassify tree foliage height range
 reclass_chm <- c(-Inf, foliage_lb, NA,
                  foliage_ub,Inf, NA)
 
 reclass_chm_m <- matrix(reclass_chm,
-                    ncol = 3,
-                    byrow = TRUE)
+                        ncol=3,
+                        byrow=TRUE)
 
 chm_m <- class_func(ahn_buurt,reclass_chm_m)
 
-raster::crs(chm_m) <- raster::crs(percelen_sf)
+crs(chm_m) <- crs(percelen_sf)
 
-#canopy height model (chm) : vegetation within lower and upper bound of foliage height
-#veg_g (1=green)
+#canopy height model (chm) : vegetation  extend within lower and upper bound of foliage height
 chm_mveg <- veg_g * chm_m
 
-#eliminate spurious local maxima caused by tree branches
-chm_mveg_smooth <- rLiDAR::CHMsmoothing(chm_mveg, filter = "mean", ws = 3)
-
-rm(chm_m,chm_mveg)
-
+rm(chm_m)
 
 #-----------------------------------------------------------------------------------------------
 
-#Trees
+#Tree segmentation
 
 #-----------------------------------------------------------------------------------------------
 
 #detect trees
-message("\ntree detection")
+message("\ntree segmentation")
 
-#sf version (for future use)
-#ttops <- lidR::locate_trees(chm_mveg_smooth, lmf(ws = ws, hmin = hmin, shape = "circular"))
+#1. image pre-processing (non-linear filtering and smoothing for noise removal),
+#2. local maxima filtering and selection for apex (local maximum) detection,
+#3. image segmentation with a watershed algorithm for crown delineation.
 
-#sp version
-ttops <- lidR::find_trees(chm_mveg_smooth, lmf(ws=ws, hmin = ttop_lb, shape = "circular"))
+segms <- lidaRtRee::tree_segmentation(chm_mveg,nl_size=ws,dmin=dmin,hmin=ttop_lb,crown_hmin=crown_lb,crown_prop = 0.4)
+#dmin :numeric. treetop minimum distance to next higher pixel in meters
+
+#par(mfrow=c(1, 3))
+# display pre-processed chm
+#terra::plot(segms$smoothed_dem, main="Pre-processed CHM")
+# display selected local maxima
+#terra::plot(segms$local_maxima, main="Selected local maxima")
+# display segments, except ground segment
+#dummy <- segms$segments_id
+#dummy[dummy == 0] <- NA
+#terra::plot(dummy %% 8, main="Segments (random colors)", col=rainbow(8))
+
+# tree extraction
+apices <- lidaRtRee::tree_extraction(segms, crown=TRUE)
+# convert WKT field to polygons
+crowns <- sf::st_as_sf(sf::st_drop_geometry(apices), wkt="crown")
+# remove WKT field from apices
+apices <- apices[, -which(names(apices)=="crown")]
+head(apices)
+
+#id: apex id
+#x: easting coordinate of apex
+#y: northing coordinate of apex
+#h: height of apex
+#dom_radius: distance of apex to nearest higher pixel of CHM
+#s: crown surface
+#v: crown volume
+#sp (if plot mask is provided): crown surface inside plot
+#vp (if plot mask is provided): crown volume inside plot
+#crown (optional): 2D crown polygon in WKT format
 
 #number of trees
-trees_n<-max(ttops$treeID)
+trees_n<-nrow(apices)
 trees_n
 
-message("\nnumber of trees ", trees_n)
-
-#-----------------------------------------------------------------------------------------------
-
-#Crown delineation
-
-#-----------------------------------------------------------------------------------------------
-
-if(crowns_trace==TRUE) {
-  #detect crowns
-
-  message("\ncrown delineation")
-
-  #canopy segmentation
-  #defaults to raster
-
-  #polygons
-  #slow, results in memory leaks
-  #crowns <- ForestTools::mcws(treetops = ttops, CHM = chm_mveg, format = "polygons", minHeight = crown_lb, verbose = FALSE)
-
-  #create sf object
-  #crowns <- st_as_sf(crowns)
-
-#--------------------------------------------------------
-#Alternative (faster) method for vectorizing crowns
-
-  ttops_sf <- sf::st_as_sf(ttops)
-
-  #Apply watershed function to segment (i.e.: outline) crowns from a canopy height model.
-  #Segmentation is guided by the treetop location
-
-  crwn_rst <- ForestTools::mcws(treetops=ttops, CHM = chm_mveg_smooth, format = "raster")
-
-  # Convert raster to SpatRaster (from terra package)
-  crwn_spatrst <- as(crwn_rst, "SpatRaster")
-
-  # Convert the raster zones to polygons (uses GDAL)
-  crwn_spatvec <- terra::as.polygons(crwn_spatrst)
-
-  # Convert SpatVec object to sf (via export to Shapefile)
-  tmp_fn <- tempfile(fileext = ".shp")
-  terra::writeVector(crwn_spatvec, tmp_fn)
-  crwn_sf <- sf::st_read(tmp_fn)
-
-  rm(crwn_rst,crwn_spatrst,crwn_spatvec,chm_mveg)
-
-  # Add crown area and treetop height to the attribute table
-  crowns <- crwn_sf %>%
-    dplyr::mutate(area = st_area(crwn_sf)) %>%
-    sf::st_join(ttops_sf, join = st_intersects)
-}
+# display initial image
+#terra::plot(chm_mveg, col=gray(seq(0, 1, 1 / 255)), main="CHM and detected positions")
+# display segments border
+#terra::plot(sf::st_geometry(crowns), border="white", add=T, col=NA)
+# display plot mask
+#terra::plot(mask_plot_v, border="red", add=T)
+# display detected apices
+#plot(apices["h"], col="blue", cex=apices$h / 20, pch=2, add=TRUE)
 
 #garbage collection
 gc()

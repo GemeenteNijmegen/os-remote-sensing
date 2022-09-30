@@ -12,8 +12,8 @@ cat("\014")
 gc(verbose = FALSE, full = TRUE)
 
 #Ncpus: The number of parallel processes to use for a parallel install of more than one source package.
-options(Ncpus = 8) #we use 8
-#getOption("Ncpus", 1L) #defaults to 1
+options(Ncpus = 8) #we use 8 instead of 1
+#getOption("Ncpus", 1L)
 
 message("deploy packages")
 
@@ -57,15 +57,15 @@ packages <- c(
   #Simple Features
   'sf',
   #Geographic Data Analysis and Modeling
-  'raster',
+  #'raster',
   #replacement for raster (TODO rewrite remaining raster functions to terra)
   'terra',
   #Spatiotemporal Arrays, Raster and Vector Data Cubes
-  'stars',
+  #'stars',
   #calculations vectors
   'units',
-  #Bindings for the 'Geospatial' Data Abstraction Library
-  'rgdal',
+  #Bindings for the 'Geospatial' Data Abstraction Library (expires end of 2023)
+  #'rgdal',
   #Wrappers for the Geospatial Data Abstraction Library (GDAL) Utilities
   'gdalUtils',
   #'gdalUtilities',
@@ -81,7 +81,7 @@ packages <- c(
   #Visualization Methods for Raster Data
   'rasterVis',
   #Interactive viewing of spatial data
-  'mapview',
+  #'mapview',
   #unsupervised segmentation
   'cluster',
   #tools for Remote Sensing Data Analysis
@@ -93,14 +93,15 @@ packages <- c(
   #quantify landscape configuration
   'landscapemetrics',
   # Airborne LiDAR Data Manipulation and Visualization for Forestry Applications
-  'lidR','rLiDAR',
+  #'lidR','rLiDAR',
+  'lidaRtRee',
   # 3D data visualizations
   #'rayshader',
   #color schemes
   'colorspace',
   'viridis',
   #layout plots
-  'patchwork',
+  #'patchwork',
   #read xlsx
   'openxlsx'
 )
@@ -119,10 +120,10 @@ is_gdalutils_available<-FALSE
 is_gdalutils_available <- require("gdalUtils")
 
 if(is_gdalutils_available==FALSE) {
-
 devtools:::install_github("gearslaboratory/gdalUtils")
-
 }
+
+library(gdalUtils)
 
 #-----------------------------------------------------------------------------------------------
 

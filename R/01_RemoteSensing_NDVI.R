@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------------------------
 
 # date created: 2021-05-11
-# date modified: 2022-05-24
+# date modified: 2022-09-26
 
 #-----------------------------------------------------------------------------------------------
 
@@ -36,9 +36,6 @@ source(here::here('SRC/buurt_pand_perceel_request.R'))
 
 source(here::here('SRC/image.R'))
 
-plotting_gg_dist <- function(input, xx, lab_nme, file_slug, bin_width) {
-
-}
 
 #-----------------------------------------------------------------------------------------------
 
@@ -67,11 +64,14 @@ message("\ncalculate vegetation indices")
 
 message("\ncalculate Normalized difference vegetation index (NDVI)")
 
-ndvi <- raster::overlay(x=red, y=nir, fun = ndvi_func)
+ndvi <- ndvi_func(red, nir)
 names(ndvi) <- "ndvi"
 
 #apply projection
-raster::crs(ndvi) <- raster::crs(percelen_sf)
+terra::crs(ndvi) <- terra::crs(percelen_sf)
+
+#vegetaion range NDVI (0.2<)
+#veg <- clamp(ndvi, 0.2, values=TRUE)
 
 #--------------------------------------------------
 #(Re)Classify - unsupervised
@@ -93,39 +93,44 @@ message("\n(Re)Classify NDVI fixed classes")
 #--------------------------------------------------
 #NDVI classes
 
-ndvi_class<-c(-1,-0.1,1, #water
+reclass_bins<-c(-1,-0.1,1, #water
               -0.1,0.2,2, #sand/stone
               0.2,0.3,3, #grasses, weed
               0.3,0.5,4, #low vegetation
               0.5,1,5 #dense (healthy) vegetation, trees
 )
 
-veg_c <- class_func(ndvi,ndvi_class)
+#reshape the object into a matrix with columns and rows
+reclass_bins_m <- matrix(reclass_bins,
+                         ncol = 3,
+                         byrow = TRUE)
+
+veg_c <- class_func(ndvi,reclass_bins_m)
 
 #--------------------------------------------------
-#vegetation binary
+#vegetation bins
 
 #create new raster with 1 for vegetation and 0 for non-vegetation.
 #vegetation fixed boundary at NDVI value 0.2
 #classification matrix
-reclass_binary <- c(-1, 0.2, 0, #non-vegetation
+reclass_bins <- c(-1, 0.2, 0, #non-vegetation
                     0.2, 1, 1) #vegetation
 
 #reshape the object into a matrix with columns and rows
-reclass_binary_m <- matrix(reclass_binary,
+reclass_bins_m <- matrix(reclass_bins,
                            ncol = 3,
                            byrow = TRUE)
 
-veg_g <- class_func(ndvi,reclass_binary_m)
+veg_g <- class_func(ndvi,reclass_bins_m)
 
 #contour lines vegetation
-veg_contour <- raster::rasterToContour(veg_g)
+#veg_contour <- terra::contour(veg_g)
 
 #transform to polygon
-veg_polygon <- veg_contour %>% st_as_sf() %>% st_polygonize()
-veg_polygon$oppervlakte <- st_area(veg_polygon$geometry)
-#ass layer to geopackage
-sf::st_write(veg_polygon, dsn=gpkg_vector, layer='vegetation_contour',layer_options = "OVERWRITE=YES",append=FALSE)
+#veg_polygon <- veg_contour %>% st_as_sf() %>% st_polygonize()
+#veg_polygon$oppervlakte <- st_area(veg_polygon$geometry)
+#add layer to geopackage
+#sf::st_write(veg_polygon, dsn=gpkg_vector, layer='vegetation_contour',layer_options = "OVERWRITE=YES",append=FALSE)
 
 #for mean green
 #create new raster and remove NDVI value below 0.2.
@@ -144,26 +149,38 @@ reclass_dich <- c(-1, 0.3, NA)
 veg_s <- class_func(ndvi,reclass_dich)
 
 #--------------------------------------------------
-#Stone/sand binary
-#NDVI -0.1 to 0.2: Zand/Grond/Rots
+#Stone/sand bins
+#Values close to zero (-0.1 to 0.2) generally correspond to barren areas of rock,
+#sand with very low levels of shrub or weed
+#NDVI -0.1 to 0.2: Zand/Rots
 
-stone_class <- c(-1,-0.1,0, #water
+reclass_bins <- c(-1,-0.1,0, #water
                  -0.1,0.2,1, #stone, sand/earth
                  0.2,1,0 #vegetation
                   )
+#reshape the object into a matrix with columns and rows
+reclass_bins_m <- matrix(reclass_bins,
+                           ncol = 3,
+                           byrow = TRUE)
 
-stone_d <- class_func(ndvi,stone_class)
+stone_d <- class_func(ndvi,reclass_bins_m)
 
 #--------------------------------------------------
-#Water binary
+#Water bins
+#Negative values of NDVI (values approaching -1) correspond to water
 #NDVI < -0.1 : Water
 
-water_class<-c(-1,-0.1,1, #water
+reclass_bins<-c(-1,-0.1,1, #water
                -0.1,0.2,0, #stone, sand/earth
                0.2,1,0 #vegetation
               )
 
-water_d <- class_func(ndvi,water_class)
+#reshape the object into a matrix with columns and rows
+reclass_bins_m <- matrix(reclass_bins,
+                           ncol = 3,
+                           byrow = TRUE)
+
+water_d <- class_func(ndvi,reclass_bins_m)
 
 #-----------------------------------------------------------------------------------------------
 
@@ -177,7 +194,8 @@ water_d <- class_func(ndvi,water_class)
 if(tndvi_calc==TRUE) {
 message("\ncalculate Transformed Normalized Difference Vegetation Index (TNDVI)")
 
-tndvi <- raster::overlay(ndvi, fun = tndvi_func)
+#tndvi <- raster::overlay(ndvi, fun = tndvi_func)
+tndvi <- tndvi_func(ndvi)
 names(tndvi) <- "tndvi"
 }
 
@@ -193,7 +211,8 @@ names(tndvi) <- "tndvi"
 if(msavi2_calc==TRUE) {
 message("\ncalculate Modified Soil Adjusted Vegetation Index (MSAVI2)")
 
-msavi2 <- raster::overlay(x=red, y=nir, fun = msavi2_func)
+#msavi2 <- raster::overlay(x=red, y=nir, fun = msavi2_func)
+msavi2 <-  msavi2_func(red,nir)
 names(msavi2) <- "msavi2"
 }
 
@@ -209,7 +228,9 @@ names(msavi2) <- "msavi2"
 if(evi2_calc==TRUE) {
 message("\ncalculate Enhanced vegetation index - Two-band (EVI2)")
 
-evi2 <- raster::overlay(x=red, y=nir, fun = evi2_func)
+#evi2 <- raster::overlay(x=red, y=nir, fun = evi2_func)
+evi2 <- evi2_func(red,nir)
+
 names(evi2) <- "evi2"
 }
 
@@ -224,10 +245,11 @@ names(evi2) <- "evi2"
 if(rvi_calc==TRUE) {
 message("\ncalculate Ratio vegetation index (RVI)")
 
-rvi <- raster::overlay(red, nir, fun = rvi_func)
+#rvi <- raster::overlay(red, nir, fun = rvi_func)
+rvi <- rvi_func(red,nir)
+
 names(rvi) <- "rvi"
 }
-
 
 #-----------------------------------------------------------------------------------------------
 #garbage collection
@@ -244,7 +266,6 @@ message("\napply Actueel Hoogtebestand Nederland (AHN)")
 
 source(here::here('SRC/ahn.R'))
 
-
 #-----------------------------------------------------------------------------------------------
 
 #Tree tops, crown delineation
@@ -255,48 +276,45 @@ if(tree_trace==TRUE) {
     source(here::here('SRC/canopy.R'))
 }
 
-
 #-----------------------------------------------------------------------------------------------
 
 # Garden above xmeter
 
 #-----------------------------------------------------------------------------------------------
 
-
 #height 3m and above
-reclass_binary <- c(-Inf, 3, 0,
+reclass_bins <- c(-Inf, 3, 0,
                     3, Inf, 1)
 
 #reshape the object into a matrix with columns and rows
-reclass_binary_m <- matrix(reclass_binary,
+reclass_bins_m <- matrix(reclass_bins,
                            ncol = 3,
                            byrow = TRUE)
 
-garden_3mplus <- raster::reclassify(ahn_buurt,reclass_binary_m)
+garden_3mplus <- class_func(ahn_buurt,reclass_bins_m)
 
 #---------------------------
 
 #height 5m and above
-reclass_binary <- c(-Inf, 5, 0,
+reclass_bins <- c(-Inf, 5, 0,
                     5, Inf, 1)
 
 #reshape the object into a matrix with columns and rows
-reclass_binary_m <- matrix(reclass_binary,
+reclass_bins_m <- matrix(reclass_bins,
                            ncol = 3,
                            byrow = TRUE)
 
-garden_5mplus <- raster::reclassify(ahn_buurt,reclass_binary_m)
+garden_5mplus <- class_func(ahn_buurt,reclass_bins_m)
 
 #3m within class vegetation
 veg_t3 <- garden_3mplus*veg_g
-raster::crs(veg_t3) <- raster::crs(percelen_sf)
+crs(veg_t3) <- crs(percelen_sf)
 
 #5m within class vegetation (trees)
 veg_t5 <- garden_5mplus*veg_g
-raster::crs(veg_t5) <- raster::crs(percelen_sf)
+crs(veg_t5) <- crs(percelen_sf)
 
-rm(reclass_binary, reclass_binary_m)
-
+rm(reclass_bins, reclass_bins_m)
 }
 
 #-----------------------------------------------------------------------------------------------
@@ -305,24 +323,11 @@ rm(reclass_binary, reclass_binary_m)
 
 #-----------------------------------------------------------------------------------------------
 
-message("\nstore green indices in geopackage")
+message("\nexport green indices")
 
-#store green indices in geopackage
-source(here::here('SRC/vegetation_gpkg.R'))
+#export green indices
+source(here::here('SRC/vegetation_export.R'))
 
-vegetation_rasterbrick <- FALSE
-
-if(vegetation_rasterbrick==TRUE) {
-#read geopackage, create RasterBrick
-green_indices <-
-        read_stars(paste0(data.loc,neighbourhood,"_green_indices.gpkg")
-                   #subsetting
-                   #,sub = "ndvi"
-                   ,quiet = TRUE
-        ) %>%
-        as("Raster")
-green_indices
-}
 
 #-----------------------------------------------------------------------------------------------
 
@@ -331,7 +336,6 @@ green_indices
 #-----------------------------------------------------------------------------------------------
 
 #indices buurt
-
 if(report_tuinen==FALSE) {
 
 message("\ncalculate green coverage buurt")
@@ -360,7 +364,7 @@ water_cover_all<-exactextractr::exact_extract(water_d,buurt_sf,
 
 buurt_sf$water_cover_all<-round(water_cover_all*100,1)
 
-if(crowns_trace==TRUE) {
+if(tree_trace==TRUE) {
 #mean ndvi per polygon element (crown)
 ndvi_crowns_avg<-exactextractr::exact_extract(ndvi,crowns,
                                        fun ='mean',
@@ -376,6 +380,7 @@ write.csv(crowns,file=paste(report.loc,"Crown_statistieken_",neighbourhood,".csv
 
 }
 }
+
 
 #-----------------------------------------------------------------------------------------------
 #indices tuinen
@@ -417,7 +422,7 @@ veg_cover_3m<-exactextractr::exact_extract(veg_t3,tuinen_sf,
 
 tuinen_sf$veg_cover_3m<-round(veg_cover_3m*100,1)
 
-#tree (5m+) cover per polygon element (tuin)
+#high vegetation (5m+) cover per polygon element (tuin)
 tree_cover_5m<-exactextractr::exact_extract(veg_t5,tuinen_sf,
                                          fun ='mean',
                                          force_df =FALSE)
@@ -448,7 +453,7 @@ tuinen_sf <- tuinen_sf %>%
                   #oppervlakte vegetatie
                   green_surface = round((oppervlakte_tuin*(green_cover/100)),1),
                   #oppervlak potentieel vegetatie
-                  green_potential = oppervlakte_tuin-green_surface,
+                  green_potential = round((oppervlakte_tuin-green_surface),1),
                   #oppervlakte versteend
                   stone_surface = round((oppervlakte_tuin*(stone_cover/100)),1),
                   #oppervlakte versteend
@@ -534,7 +539,6 @@ ndvi_cover_panden<-exactextractr::exact_extract(veg_g,panden_sf,
                                          force_df =FALSE)
 
 panden_sf$green_cover<-round(ndvi_cover_panden*100,1)
-
 panden_sf$oppervlakte_pand_unit = st_area(panden_sf)
 panden_sf$oppervlakte_pand = as.numeric(panden_sf$oppervlakte_pand_unit)
 

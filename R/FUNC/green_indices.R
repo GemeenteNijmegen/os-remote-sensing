@@ -80,6 +80,7 @@ rvi_func <- function(x,y) {
   (y) / (x)
 }
 
+
 #-----------------------------------------------------------------------------------------------
 
 # (re)Classify raster function
@@ -87,8 +88,29 @@ rvi_func <- function(x,y) {
 #-----------------------------------------------------------------------------------------------
 
 class_func <- function(rast,bins) {
-  raster::reclassify(rast,bins)
+  terra::classify(rast,bins)
 }
+
+
+#-----------------------------------------------------------------------------------------------
+
+# Geopackage
+
+#-----------------------------------------------------------------------------------------------
+
+write_gpkg <- function(rast,loc,nme) {
+
+  ras_tbl<-paste0("RASTER_TABLE=",nme)
+
+  terra::writeRaster(
+    rast,
+    loc,
+    filetype = "GPKG",
+    gdal = c("APPEND_SUBDATASET=YES", ras_tbl),
+    overwrite = FALSE
+  )
+}
+
 
 #-----------------------------------------------------------------------------------------------
 
@@ -184,7 +206,7 @@ dev.off()
 plotting_base <- function(ai,rast,lab_nme,file_slug,brks,brks_lab,cols) {
 png(paste0(plots.loc,file_slug,"_",neighbourhood,".png"), bg="white", height=1280, width=1280, res=180,units = "px")
 par(col.lab = "white", tck = 0,mar = c(1,1,1,1))
-raster::plotRGB(ai, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0(lab_nme, " ", neighbourhood))
+#terra::plotRGB(ai, r=1, g=2, b=3, axes=TRUE, stretch="lin",colNA='transparent',main=paste0(lab_nme, " ", neighbourhood))
 plot(rast, add=TRUE, legend=TRUE, cex = 0.5, breaks=brks, lab.breaks=brks_lab, col=cols,na.value ="transparent")
 plot(percelen_sf$geometry, add=TRUE, legend=FALSE)
 box(col = "white")

@@ -141,7 +141,7 @@ webdav_password <- "VNGRS2021!"
 #default value of memfrac is 0.6
 
 #rasterOptions()
-rasterOptions(maxmemory = 8e+09,chunksize=2e+08,memfrac=0.7)
+#rasterOptions(maxmemory = 8e+09,chunksize=2e+08,memfrac=0.7)
 terraOptions(memfrac=0.7,memmax = 8e+09)
 
 #location for temporary raster file (drive with big storage)
