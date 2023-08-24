@@ -23,7 +23,7 @@
 
     message("extract NL-buurten polygon from nationaalgeoregister.nl ")
     #Buurt request
-    url <- parse_url("https://geodata.nationaalgeoregister.nl/wijkenbuurten2020/wfs?")
+    url <- parse_url("https://service.pdok.nl/cbs/wijkenbuurten/2020/wfs/v1_0?")
     url$query <- list(service = "wfs",
                       version = "1.0.0",
                       request = "GetFeature",
@@ -39,7 +39,7 @@
     #saveRDS(buurt_sf, "DATA/buurten_sf.rds")
 
     #transform from Multisurface to Polygon
-  buurt_sf <- st_cast(buurt_sf, "GEOMETRYCOLLECTION") %>% st_collection_extract("POLYGON")
+  buurt_sf <- sf::st_cast(buurt_sf, "GEOMETRYCOLLECTION") %>% st_collection_extract("POLYGON")
 
   #Extend and bounding box
   buurt_extend <- sf::st_bbox(buurt_sf$geom)
@@ -119,6 +119,8 @@
     for (loop in loops) {
       url <- parse_url("http://3dbag.bk.tudelft.nl/data/wfs?")
       #url <- parse_url("https://data.3dbag.nl/api/BAG3D_v2/wfs?")
+
+
       url$query <- list(SERVICE = "WFS",
                         REQUEST = "GetFeature",
                         TYPENAMES = "BAG3D:pand3d",

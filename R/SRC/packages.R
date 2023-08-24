@@ -60,6 +60,8 @@ packages <- c(
   #'raster',
   #replacement for raster (TODO rewrite remaining raster functions to terra)
   'terra',
+  #tidyverse methods for terra objects
+  'tidyterra',
   #Spatiotemporal Arrays, Raster and Vector Data Cubes
   #'stars',
   #calculations vectors
@@ -128,36 +130,36 @@ library(gdalUtils)
 #-----------------------------------------------------------------------------------------------
 
 #elevation points or areas of the Netherlands from the Actueel Hoogtebestand Nederland (AHN)
-is_rahne_available<-FALSE
-is_rahne_available <- require("rAHNextract")
+#is_rahne_available<-FALSE
+#is_rahne_available <- require("rAHNextract")
 
-if(is_rahne_available==FALSE) {
-  devtools::install_github("Jellest/rAHNextract")
-}
+#if(is_rahne_available==FALSE) {
+#  devtools::install_github("Jellest/rAHNextract")
+#}
 
-library(rAHNextract)
+#library(rAHNextract)
 
 #-----------------------------------------------------------------------------------------------
 
 #Review GDAL setup
 #assumes you have GDAL installed on your local machine.
 #getOption("gdalUtils_gdalPath")
-gdal_setInstallation()
+#gdal_setInstallation()
 
 #GDAL available?
-valid_gdal <- !is.null(getOption("gdalUtils_gdalPath"))
-valid_gdal
+#valid_gdal <- !is.null(getOption("gdalUtils_gdalPath"))
+#valid_gdal
 
 #most recent GDAL installation
-getOption("gdalUtils_gdalPath")[[1]]
+#getOption("gdalUtils_gdalPath")[[1]]
 
 #GDAL version number
-getOption("gdalUtils_gdalPath")[[1]]$version
+#getOption("gdalUtils_gdalPath")[[1]]$version
 
 #external dependencies versions of the libraries linked to sf
-sf::sf_extSoftVersion()[1:3]
+#sf::sf_extSoftVersion()[1:3]
 #lwgeom version
-sf::sf_extSoftVersion()["lwgeom"]
+#sf::sf_extSoftVersion()["lwgeom"]
 
 #-----------------------------------------------------------------------------------------------
 

@@ -15,6 +15,8 @@
 
 #-----------------------------------------------------------------------------------------------
 
+options("sp_evolution_status" = 0)
+
 #Run in project environment (to avoid package conflicts)
 proj_env<-FALSE #default (F)
 

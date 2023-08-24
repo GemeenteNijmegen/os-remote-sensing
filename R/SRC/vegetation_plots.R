@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------------------------
 
 message("\nvegetation plots")
-#plot function resides in FUNC>green indices
+#plot functions reside in FUNC>green_indices.R
 
 #-----------------------------------------------------------------------------------------------
 # Breaks and steps for NDVI
@@ -177,7 +177,7 @@ if(report_tuinen==TRUE) {
 #distribution of gardens over vegetation coverage
 plotting_gg_dist(tuinen_sf, "green_cover", "vegetation cover tuinen on woonperceel", "rs_tuinen_distribution_vegetation_coverage",20)
 } else {
-plotting_gg_dist(buurt_sf, "green_cover", "vegetation buurt", "rs_buurt_distribution_vegetation_coverage",20)
+#plotting_gg_dist(buurt_sf, "green_cover", "vegetation buurt", "rs_buurt_distribution_vegetation_coverage",20)
 }
 #distribution of woningen over vegetation coverage
 plotting_gg_dist(panden_sf, "green_cover", "vegetation cover panden on woonperceel", "rs_woningen_distribution_vegetation_coverage", 20)
@@ -228,7 +228,7 @@ cols_rainbow<- sample(rainbow(50), length(unique(crowns[])), replace = TRUE)
 plotting_terra(ai_buurt,crowns,"tree crowns","rs_crowns",NULL,NULL,cols_rainbow,alpha)
 
 #distrubution of crowns over ndvi
-plotting_gg_dist(crwn_sf, "ndvi_avg", "distribution of crowns over NDVI", "rs_crowns_distribution_ndvi", 0.1)
+plotting_gg_dist(crowns, "ndvi_avg", "distribution of crowns over NDVI", "rs_crowns_distribution_ndvi", 0.1)
 }
 
 rm(list=ls(pattern="^mplot_"))

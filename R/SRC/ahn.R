@@ -7,6 +7,8 @@
 
 #AHN3, 0.5 m resolution based on Digital Surface Model (DSM) and Digital Terrain Model (DTM)
 
+ngr_source<-TRUE
+
 #raster
 if(ngr_source==FALSE) {
 #request via R-package
@@ -25,15 +27,16 @@ ahn_dtm_raster <- rast(rAHNextract::ahn_area(name = "BBOX rs", bbox = c(xmin, ym
 #request directly via nationaalgeoregister.nl
 
 #surface raster (DSM)
-url <- parse_url("https://geodata.nationaalgeoregister.nl/ahn3/wcs?")
-url$query <- list(SERVICE = "WCS",
+url <- parse_url("https://service.pdok.nl/rws/ahn3/wcs/v1_0?")
+url$query <- list(service = "wcs",
                   VERSION = "1.0.0",
+                  #version = "2.0.1",
                   REQUEST = "GetCoverage",
-                  COVERAGE = "ahn3_05m_DSM",
+                  FORMAT="GEOTIFF_FLOAT32",
+                  COVERAGE = "ahn3_05m_dsm",
                   RESPONSE_CRS = crs_str,
                   CRS = crs_str,
                   BBOX = bbox,
-                  FORMAT="GEOTIFF_FLOAT32",
                   WIDTH=880.906,
                   HEIGHT=716.5
                   )
@@ -41,16 +44,17 @@ request <- build_url(url);request
 ahn_dsm_raster <- rast(request)
 
 #maaiveld raster (DTM)
-url <- parse_url("https://geodata.nationaalgeoregister.nl/ahn3/wcs?")
-url$query <- list(SERVICE = "WCS",
+url <- parse_url("https://service.pdok.nl/rws/ahn3/wcs/v1_0?")
+url$query <- list(service = "wcs",
                   VERSION = "1.0.0",
+                  #version = "2.0.1",
                   REQUEST = "GetCoverage",
-                  COVERAGE = "ahn3_05m_DTM",
+                  FORMAT="GEOTIFF_FLOAT32",
+                  COVERAGE = "ahn3_05m_dtm",
                   RESPONSE_CRS = crs_str,
                   CRS = crs_str,
                   BBOX = bbox,
-                  FORMAT="GEOTIFF_FLOAT32",
-                  WIDTH=880.9064,
+                  WIDTH=880.906,
                   HEIGHT=716.5
 )
 request <- build_url(url);request
