@@ -21,12 +21,14 @@
     layer <- paste0("wijkenbuurten",yr,":cbs_buurten_",yr)
     filter <- paste0("<Filter><PropertyIsEqualTo><PropertyName>buurtcode</PropertyName><Literal>",neighbourhood,"</Literal></PropertyIsEqualTo></Filter>")
 
-    message("extract NL-buurten polygon from nationaalgeoregister.nl ")
+    message("extract NL-buurten polygon from pdok.nl ")
     #Buurt request
-    url <- parse_url("https://service.pdok.nl/cbs/wijkenbuurten/2020/wfs/v1_0?")
+    url <- parse_url("https://service.pdok.nl/cbs/wijkenbuurten/2022/wfs/v1_0?")
+
     url$query <- list(service = "wfs",
-                      version = "1.0.0",
+                      version = "1.1.0",
                       request = "GetFeature",
+                      typename = "wijkenbuurten:buurten",
                       typename = layer,
                       srsName  = crs_str,
                       filter=filter,
@@ -64,7 +66,7 @@
 
 #-----------------------------------------------------------------------------------------------
 
-  message("extract panden polygons from nationaalgeoregister.nl ", neighbourhood)
+  message("extract panden polygons from pdok.nl ", neighbourhood)
 
   #loop because of limit of 1000 results
   loops = c(0,1001,2001,3001,4001,5001,6001)

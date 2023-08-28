@@ -69,7 +69,7 @@ packages <- c(
   #Bindings for the 'Geospatial' Data Abstraction Library (expires end of 2023)
   #'rgdal',
   #Wrappers for the Geospatial Data Abstraction Library (GDAL) Utilities
-  'gdalUtils',
+  #'gdalUtils', #CHECK ON CRAN
   #'gdalUtilities',
   #Interface to Geometry Engine
   'rgeos',
@@ -84,10 +84,12 @@ packages <- c(
   'rasterVis',
   #Interactive viewing of spatial data
   #'mapview',
+  #gtable is a layout engine built on top of the grid package
+  'gtable',
   #unsupervised segmentation
   'cluster',
   #tools for Remote Sensing Data Analysis
-  'RStoolbox',
+  #'RStoolbox',
   #functions to analyze remotely sensed forest data
   'ForestTools',
   #satellite images processing and functions
@@ -118,14 +120,42 @@ lapply(packages,library,character.only = TRUE
 
 #-----------------------------------------------------------------------------------------------
 
-is_gdalutils_available<-FALSE
-is_gdalutils_available <- require("gdalUtils")
+#in case certain packages are not yet aviable on cran for your R-version, specify here
+#the package name and location on GitHub
 
-if(is_gdalutils_available==FALSE) {
-devtools:::install_github("gearslaboratory/gdalUtils")
+# List of package names and their corresponding GitHub repositories
+packages_to_install <- list(
+  "gdalUtils" = "gearslaboratory/gdalUtils",
+  "RStoolbox" = "bleutner/RStoolbox"
+)
+
+# Function to install and load packages from GitHub
+install_and_load_packages_from_github <- function(packages) {
+  if (!requireNamespace("remotes", quietly = TRUE)) {
+    install.packages("remotes")
+  }
+
+  for (package_name in names(packages)) {
+    github_repo <- packages[[package_name]]
+
+    if (!requireNamespace(package_name, quietly = TRUE)) {
+      message("Installing package '", package_name, "' from GitHub repository '", github_repo, "'.")
+      remotes::install_github(github_repo, dependencies = TRUE)
+      message("Installation of '", package_name, "' complete.")
+    } else {
+      message("Package '", package_name, "' is already installed.")
+    }
+
+    # Load the installed package
+    library(package_name, character.only = TRUE)
+    message("Package '", package_name, "' loaded.")
+  }
 }
 
-library(gdalUtils)
+# Call the function to install and load packages from GitHub
+install_and_load_packages_from_github(packages_to_install)
+
+
 
 #-----------------------------------------------------------------------------------------------
 
